@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Nova Medical</title>
+  <link rel="stylesheet" href="style.css?v=7"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     PANNEAU MÉDICAL — COLONNE GAUCHE
+══════════════════════════════════════════════════════ -->
+<div id="medical-wrap" class="hidden">
+  <div id="med-panel">
+
+    <!-- En-tête -->
+    <div id="med-header">
+      <div class="med-logo">
+        <i class="fas fa-heartbeat"></i>
+        <span class="med-title">NOVA MÉDICAL</span>
+      </div>
+      <div class="med-header-right">
+        <span id="med-state-badge" class="state-badge stable">
+          <i class="fas fa-check-circle"></i>
+          <span id="med-state-label">Stable</span>
+        </span>
+        <button id="med-close"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+
+    <!-- Patient + timer -->
+    <div id="med-patient-bar">
+      <i class="fas fa-user-injured"></i>
+      <span id="med-patient-name">—</span>
+      <span id="med-timer" class="med-timer">00:00</span>
+    </div>
+
+    <!-- Constantes vitales (compact, 1 ligne) -->
+    <div id="vitals-strip">
+      <div class="vs-item" id="vc-bpm">
+        <i class="fas fa-heart"></i>
+        <span id="v-bpm">—</span>
+        <small>bpm</small>
+      </div>
+      <div class="vs-item" id="vc-spo2">
+        <i class="fas fa-lungs"></i>
+        <span id="v-spo2">—</span>
+        <small>%</small>
+      </div>
+      <div class="vs-item" id="vc-bp">
+        <i class="fas fa-tachometer-alt"></i>
+        <span id="v-bp">—</span>
+        <small>mmHg</small>
+      </div>
+      <div class="vs-item" id="vc-temp">
+        <i class="fas fa-thermometer-half"></i>
+        <span id="v-temp">—</span>
+        <small>°C</small>
+      </div>
+    </div>
+
+    <!-- ECG animé (affiché après examen ECG) -->
+    <div id="ecg-strip" class="hidden">
+      <div id="ecg-strip-label">
+        <i class="fas fa-heartbeat"></i>
+        ECG TEMPS RÉEL —
+        <span id="ecg-rhythm-label">—</span>
+      </div>
+      <canvas id="ecg-canvas" width="350" height="36"></canvas>
+    </div>
+
+    <!-- Onglets -->
+    <div id="center-tabs">
+      <button class="ctab active" data-tab="examens"><i class="fas fa-stethoscope"></i> Examens</button>
+      <button class="ctab" data-tab="protocoles"><i class="fas fa-clipboard-list"></i> Protocoles</button>
+    </div>
+
+    <!-- ── Onglet Examens ── -->
+    <div id="tab-examens">
+      <div id="exams-grid">
+        <button class="exam-btn" data-exam="initial">🔍 Évaluation</button>
+        <button class="exam-btn" data-exam="bp">💓 Tension</button>
+        <button class="exam-btn" data-exam="spo2">🫁 SpO₂</button>
+        <button class="exam-btn" data-exam="neuro">🧠 Neuro</button>
+        <button class="exam-btn" data-exam="ecg">📈 ECG</button>
+        <button class="exam-btn" data-exam="auscultation">🩺 Ausculter</button>
+        <button class="exam-btn" data-exam="glucose">🩸 Glycémie</button>
+        <button class="exam-btn" data-exam="temp">🌡️ Temp.</button>
+      </div>
+    </div>
+
+    <!-- ── Onglet Protocoles ── -->
+    <div id="tab-protocoles" class="hidden">
+      <div id="proto-list"></div>
+      <div id="proto-active" class="hidden">
+        <div id="proto-active-header">
+          <span id="proto-active-label">—</span>
+          <button id="btn-proto-cancel" title="Arrêter le protocole">✕</button>
+        </div>
+        <div id="proto-steps"></div>
+        <div id="proto-progress-wrap"><div id="proto-progress-bar"></div></div>
+      </div>
+    </div>
+
+    <!-- Zone scrollable : blessures + résultats d'examen -->
+    <div id="med-scroll">
+
+      <div class="section-label">
+        <i class="fas fa-bone"></i> BLESSURES
+        <span id="injuries-count" class="inj-badge">0</span>
+      </div>
+      <div id="injuries-list"></div>
+
+      <div class="section-label" style="margin-top:8px">
+        <i class="fas fa-vial"></i> RÉSULTATS
+      </div>
+      <div id="results-list">
+        <div class="empty-results">
+          Aucun examen effectué.<br>
+          <small>Lancez un examen ci-dessus.</small>
+        </div>
+      </div>
+
+    </div><!-- /med-scroll -->
+
+    <!-- Notes cliniques -->
+    <textarea id="med-notes" placeholder="Notes cliniques..."></textarea>
+
+    <!-- Pied de page -->
+    <div id="med-footer">
+      <span id="med-footer-info">OMC v1.3</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn-footer-primary" id="btn-finalize">
+          <i class="fas fa-clipboard-check"></i> Finaliser
+        </button>
+        <button class="btn-footer-close" onclick="sendClose()">
+          <i class="fas fa-times"></i> Fermer
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal de finalisation (overlay interne au panel) -->
+    <div id="finalise-modal" class="hidden">
+      <div id="fm-content">
+        <div id="fm-header">
+          <i class="fas fa-clipboard-check"></i>
+          <span>Finaliser le dossier médical</span>
+        </div>
+        <div id="fm-summary"></div>
+        <div class="section-label" style="margin:10px 0 5px">
+          <i class="fas fa-diagnoses"></i> DIAGNOSTIC PRINCIPAL
+        </div>
+        <textarea id="fm-diagnosis" placeholder="Ex : Polytraumatisme, fractures multiples, hémorragie contrôlée..."></textarea>
+        <div id="fm-cost-preview">Estimation des frais : —</div>
+        <div id="fm-actions">
+          <button id="btn-fm-cancel" class="btn-footer-close">
+            <i class="fas fa-times"></i> Annuler
+          </button>
+          <button id="btn-fm-confirm" class="btn-footer-primary">
+            <i class="fas fa-save"></i> Enregistrer & Facturer
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /med-panel -->
+</div><!-- /medical-wrap -->
+
+<!-- ══════════════════════════════════════════════════
+     ÉCRAN DE MORT
+══════════════════════════════════════════════════════ -->
+<div id="death-screen" class="hidden">
+  <div id="death-content">
+    <div id="death-icon">⚠</div>
+    <div id="death-title">VOUS ÊTES À TERRE</div>
+    <div id="death-bleed-bar-wrap">
+      <div id="death-bleed-bar"></div>
+    </div>
+    <div id="death-timer-label">Temps restant : <span id="death-timer">—</span></div>
+    <div id="death-actions">
+      <button class="death-btn" id="btn-distress">
+        <kbd>G</kbd> Signal de détresse
+      </button>
+      <button class="death-btn" id="btn-respawn" disabled>
+        <kbd>E</kbd> Réapparaître à l'hôpital
+      </button>
+    </div>
+    <div id="death-cost">Coût : 1 500 $</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     LAST STAND HUD
+══════════════════════════════════════════════════════ -->
+<div id="laststand-hud" class="hidden">
+  <div id="ls-label">⚠ ÉTAT CRITIQUE — RÉSISTEZ</div>
+  <div id="ls-bar-wrap"><div id="ls-bar"></div></div>
+  <div id="ls-timer">—</div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="script.js?v=15"></script>
+</body>
+</html>
