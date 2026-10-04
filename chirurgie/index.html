@@ -239,7 +239,7 @@ let isDrawing   = false;
 let drawPath    = [];
 let guidePoints = [];
 let bleedSpots  = [];
-let bleedTimer  = null;
+let bleedTimers = [];
 let sutureDots  = [];
 let sutureDone  = [];
 let interObj    = null;  // objet d'intervention (balle, fragment)
@@ -718,9 +718,10 @@ function spawnBleedSpot(W, H) {
   bleedTotal++;
   renderBleedStep();
   const lifeTimer = setInterval(() => {
+    if (spot.clicked) { clearInterval(lifeTimer); return; }
     spot.life -= 0.04;
     renderBleedStep();
-    if (spot.life <= 0 && !spot.clicked) {
+    if (spot.life <= 0) {
       clearInterval(lifeTimer);
       bleedMissed++;
       spot.life = 0;
@@ -728,6 +729,7 @@ function spawnBleedSpot(W, H) {
       checkBleedDone();
     }
   }, 100);
+  bleedTimers.push(lifeTimer);
   if (bleedTotal < 8) {
     setTimeout(() => spawnBleedSpot(W, H), 900 + Math.random()*700);
   }
@@ -787,6 +789,10 @@ function checkBleedDone() {
 let sutureIdx = 0;
 
 function setupStep5() {
+  // Stopper tous les timers de l'hémostase
+  bleedTimers.forEach(clearInterval);
+  bleedTimers = [];
+
   const W = surgCanvas.width, H = surgCanvas.height;
   sutureIdx = 0; sutureDone = [];
 
@@ -835,15 +841,15 @@ function renderSutureStep() {
   sutureDots.forEach((d, i) => {
     const isNext = i === sutureIdx;
     const isDone = sutureDone.includes(i);
-    ctx.beginPath(); ctx.arc(d.x, d.y, isNext ? 9 : 7, 0, Math.PI*2);
-    ctx.fillStyle = isDone ? 'rgba(74,222,128,0.25)' : isNext ? 'rgba(56,189,248,0.20)' : 'rgba(255,255,255,0.08)';
+    ctx.beginPath(); ctx.arc(d.x, d.y, isNext ? 11 : 8, 0, Math.PI*2);
+    ctx.fillStyle = isDone ? 'rgba(74,222,128,0.35)' : isNext ? 'rgba(56,189,248,0.45)' : 'rgba(255,255,255,0.18)';
     ctx.fill();
-    ctx.strokeStyle = isDone ? 'var(--green)' : isNext ? 'var(--accent)' : 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = 2;
-    if (isNext) ctx.shadowBlur = 8, ctx.shadowColor = 'rgba(56,189,248,0.5)';
+    ctx.strokeStyle = isDone ? '#4ade80' : isNext ? '#38bdf8' : 'rgba(255,255,255,0.55)';
+    ctx.lineWidth = isNext ? 3 : 2;
+    if (isNext) { ctx.shadowBlur = 12; ctx.shadowColor = '#38bdf8'; }
     ctx.stroke(); ctx.shadowBlur = 0;
-    ctx.font = `bold ${isNext ? 10 : 9}px Inter, sans-serif`;
-    ctx.fillStyle = isDone ? 'var(--green)' : isNext ? 'var(--accent)' : 'var(--dim)';
+    ctx.font = `bold ${isNext ? 11 : 10}px Inter, sans-serif`;
+    ctx.fillStyle = isDone ? '#4ade80' : isNext ? '#38bdf8' : 'rgba(226,234,247,0.70)';
     ctx.textAlign = 'center';
     ctx.fillText(isDone ? '✓' : i+1, d.x, d.y + 4);
   });
@@ -858,7 +864,7 @@ function clickSuture(e) {
   const next = sutureDots[sutureIdx];
   const dx = p.x - next.x, dy = p.y - next.y;
   const dist = Math.sqrt(dx*dx+dy*dy);
-  if (dist < 22) {
+  if (dist < 32) {
     sutureDone.push(sutureIdx);
     next.done = true; sutureIdx++;
     addLog(`✓ Point ${sutureIdx} posé`, 'ok');
