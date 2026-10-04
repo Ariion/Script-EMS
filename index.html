@@ -1,1558 +1,196 @@
-<title>Nova Medical — Démo EMS</title>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Nova EMS Suite</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" crossorigin="anonymous"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" crossorigin="anonymous" defer></script>
 <style>
-/* ─── Design tokens ──────────────────────────── */
 :root {
-  --bg: #0d111c;
-  --panel-bg: rgba(4,10,22,0.88);
-  --panel-border: rgba(56,189,248,0.26);
+  --bg: #040a16;
+  --surface: rgba(4,12,28,0.92);
   --accent: #38bdf8;
-  --accent-dim: rgba(56,189,248,0.55);
-  --accent-faint: rgba(56,189,248,0.08);
-  --fg: #e2eaf7;
-  --fg-dim: rgba(226,234,247,0.45);
+  --accent2: #818cf8;
   --green: #4ade80;
   --yellow: #fbbf24;
   --red: #f87171;
-  --demo-bg: #101826;
-  --demo-border: rgba(56,189,248,0.14);
+  --fg: #e2eaf7;
+  --fg-dim: rgba(226,234,247,0.50);
   color-scheme: dark;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;font-size:14px}
+body{padding:0 16px;padding-bottom:env(safe-area-inset-bottom,0px)}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Fond animé */
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(56,189,248,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0}
+.bg-glow{position:fixed;top:0;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(56,189,248,0.07) 0%,transparent 70%);pointer-events:none;z-index:0}
 
-body {
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 13px;
-  color: var(--fg);
-  background: var(--bg);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+.page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:40px 0 60px}
 
-/* ─── Layout ──────────────────────────────────── */
-.demo-root {
-  display: flex;
-  min-height: 100vh;
-  gap: 0;
-}
+/* Header */
+.hero{text-align:center;padding:48px 0 56px}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;background:rgba(56,189,248,0.10);border:1px solid rgba(56,189,248,0.22);border-radius:20px;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:20px}
+.hero-title{font-family:'Rajdhani',sans-serif;font-size:clamp(32px,7vw,64px);font-weight:700;letter-spacing:3px;color:var(--fg);line-height:1.05;margin-bottom:10px}
+.hero-title span{color:var(--accent);text-shadow:0 0 30px rgba(56,189,248,0.5)}
+.hero-sub{font-size:14px;color:var(--fg-dim);max-width:460px;margin:0 auto;line-height:1.7}
 
-/* Faux monde GTA – fond gauche */
-.game-viewport {
-  flex: 1;
-  position: relative;
-  background:
-    radial-gradient(ellipse at 30% 40%, rgba(20,40,80,0.55) 0%, transparent 60%),
-    radial-gradient(ellipse at 70% 80%, rgba(10,20,50,0.35) 0%, transparent 55%),
-    linear-gradient(160deg, #0a111f 0%, #060c18 50%, #020609 100%);
-  min-height: 100vh;
-  overflow: hidden;
-}
+/* Grid modules */
+.modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:40px}
 
-/* Grille de rue stylisée */
-.game-viewport::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(56,189,248,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56,189,248,0.025) 1px, transparent 1px);
-  background-size: 60px 60px;
+.mod-card{
+  background:rgba(4,12,28,0.80);
+  border:1px solid rgba(56,189,248,0.14);
+  border-radius:16px;
+  padding:24px;
+  text-decoration:none;
+  color:var(--fg);
+  display:flex;flex-direction:column;gap:14px;
+  transition:all .2s;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
 }
+.mod-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;border-radius:16px}
+.mod-card:hover{border-color:rgba(56,189,248,0.35);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4),0 0 0 1px rgba(56,189,248,0.08)}
+.mod-card.diag::before{background:radial-gradient(ellipse at top left,rgba(56,189,248,0.07) 0%,transparent 60%)}
+.mod-card.img::before{background:radial-gradient(ellipse at top left,rgba(129,140,248,0.07) 0%,transparent 60%)}
+.mod-card.chir::before{background:radial-gradient(ellipse at top left,rgba(74,222,128,0.07) 0%,transparent 60%)}
+.mod-card:hover::before{opacity:1}
 
-/* Bâtiments de Los Santos (CSS art) */
-.city-bg {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 4px;
-  padding: 0 5%;
-  opacity: 0.18;
-}
-.building {
-  background: linear-gradient(180deg, rgba(56,189,248,0.4) 0%, rgba(56,189,248,0.1) 100%);
-  border-top: 1px solid rgba(56,189,248,0.5);
-  flex-shrink: 0;
-}
+.mod-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.mod-card.diag .mod-icon{background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.22);color:var(--accent)}
+.mod-card.img .mod-icon{background:rgba(129,140,248,0.12);border:1px solid rgba(129,140,248,0.22);color:var(--accent2)}
+.mod-card.chir .mod-icon{background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.22);color:var(--green)}
 
-/* Joueur + soignant au centre */
-.scene-center {
-  position: absolute;
-  top: 50%; left: 55%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-.scene-label {
-  font-size: 11px;
-  color: rgba(56,189,248,0.35);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 18px;
-}
-.scene-chars {
-  display: flex;
-  gap: 36px;
-  align-items: flex-end;
-  justify-content: center;
-}
-.char-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.char-label { font-size: 9px; color: rgba(56,189,248,0.4); letter-spacing: 1px; text-transform: uppercase; }
+.mod-num{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--fg-dim);margin-bottom:2px}
+.mod-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:1px}
+.mod-card.diag .mod-title{color:var(--accent)}
+.mod-card.img .mod-title{color:var(--accent2)}
+.mod-card.chir .mod-title{color:var(--green)}
+.mod-desc{font-size:12px;color:var(--fg-dim);line-height:1.7;flex:1}
 
-/* Radio HUD (haut gauche simulé) */
-.hud-radio {
-  position: absolute;
-  top: 12px; left: 412px;
-  background: rgba(4,10,22,0.72);
-  border: 1px solid rgba(56,189,248,0.18);
-  border-radius: 6px;
-  padding: 5px 9px;
-  font-size: 10px;
-  color: var(--accent-dim);
-  display: flex; align-items: center; gap: 6px;
-}
+.mod-tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+.tag.blue{background:rgba(56,189,248,0.10);color:var(--accent);border:1px solid rgba(56,189,248,0.18)}
+.tag.purple{background:rgba(129,140,248,0.10);color:var(--accent2);border:1px solid rgba(129,140,248,0.18)}
+.tag.green{background:rgba(74,222,128,0.10);color:var(--green);border:1px solid rgba(74,222,128,0.18)}
+.tag.yellow{background:rgba(251,191,36,0.10);color:var(--yellow);border:1px solid rgba(251,191,36,0.18)}
 
-/* HUD nourriture/boisson (bas gauche simulé) */
-.hud-food {
-  position: absolute;
-  bottom: 12px; left: 412px;
-  display: flex; gap: 8px;
-}
-.hud-food-item {
-  background: rgba(4,10,22,0.72);
-  border: 1px solid rgba(56,189,248,0.18);
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 10px;
-  color: var(--accent-dim);
-  display: flex; align-items: center; gap: 5px;
-}
+.mod-arrow{display:flex;align-items:center;justify-content:space-between;margin-top:4px;font-size:11px;font-weight:600;color:var(--fg-dim)}
+.mod-card.diag .mod-arrow{color:var(--accent)}
+.mod-card.img .mod-arrow{color:var(--accent2)}
+.mod-card.chir .mod-arrow{color:var(--green)}
 
-/* ─── Panneau contrôles démo (droite) ─────────── */
-.demo-panel {
-  width: 340px;
-  flex-shrink: 0;
-  background: var(--demo-bg);
-  border-left: 1px solid var(--demo-border);
-  display: flex;
-  flex-direction: column;
-  max-height: 100vh;
-  overflow-y: auto;
-}
+/* Séparateur */
+.divider{height:1px;background:rgba(56,189,248,0.08);margin:36px 0}
 
-.demo-header {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--demo-border);
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-.demo-header-icon {
-  width: 32px; height: 32px;
-  border-radius: 8px;
-  background: rgba(56,189,248,0.12);
-  border: 1px solid rgba(56,189,248,0.22);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--accent);
-  font-size: 14px;
-  flex-shrink: 0;
-}
-.demo-header-title { font-size: 13px; font-weight: 700; color: var(--fg); }
-.demo-header-sub   { font-size: 10px; color: var(--fg-dim); margin-top: 1px; }
+/* Info bande */
+.info-band{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.info-item{background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.09);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:10px}
+.info-item i{font-size:16px;color:rgba(56,189,248,0.50);flex-shrink:0;width:20px;text-align:center}
+.info-item span{font-size:11px;color:var(--fg-dim);line-height:1.5}
+.info-item strong{color:var(--fg);font-weight:600}
 
-.demo-section { padding: 12px 14px; border-bottom: 1px solid var(--demo-border); }
-.demo-section-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--accent-dim);
-  margin-bottom: 9px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
+/* Footer */
+.footer{text-align:center;margin-top:56px;font-size:10px;color:rgba(56,189,248,0.25);letter-spacing:1px;text-transform:uppercase}
 
-.demo-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-.demo-btn-grid.col3 { grid-template-columns: 1fr 1fr 1fr; }
-.demo-btn-grid.col1 { grid-template-columns: 1fr; }
+/* Badge version */
+.version-row{display:flex;justify-content:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.ver-badge{padding:3px 10px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.12);border-radius:20px;font-size:9px;color:rgba(56,189,248,0.45);letter-spacing:1px}
 
-.demo-btn {
-  padding: 7px 9px;
-  background: rgba(56,189,248,0.06);
-  border: 1px solid rgba(56,189,248,0.14);
-  border-radius: 6px;
-  color: #9acde8;
-  cursor: pointer;
-  font-size: 10px;
-  font-weight: 600;
-  font-family: inherit;
-  text-align: left;
-  line-height: 1.3;
-  transition: all .14s;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.demo-btn:hover {
-  background: rgba(56,189,248,0.13);
-  border-color: rgba(56,189,248,0.28);
-  color: var(--fg);
-}
-.demo-btn.danger {
-  background: rgba(239,68,68,0.06);
-  border-color: rgba(239,68,68,0.16);
-  color: rgba(248,113,113,0.80);
-}
-.demo-btn.danger:hover { background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.30); }
-.demo-btn.success {
-  background: rgba(34,197,94,0.07);
-  border-color: rgba(34,197,94,0.18);
-  color: rgba(74,222,128,0.85);
-}
-.demo-btn.full { grid-column: 1/-1; }
-.demo-btn.active {
-  background: rgba(56,189,248,0.16);
-  border-color: rgba(56,189,248,0.38);
-  color: var(--accent);
-}
-
-.demo-status {
-  font-size: 10px;
-  color: var(--accent-dim);
-  padding: 6px 9px;
-  background: rgba(56,189,248,0.04);
-  border: 1px solid rgba(56,189,248,0.08);
-  border-radius: 6px;
-  margin-top: 5px;
-  font-style: italic;
-}
-
-.demo-note {
-  font-size: 9.5px;
-  color: var(--fg-dim);
-  line-height: 1.6;
-  padding: 8px 9px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 6px;
-  margin-top: 6px;
-}
-.demo-note strong { color: var(--accent); }
-
-/* ──────────────────────────────────────────────
-   PANNEAU MÉDICAL — tout le CSS du jeu inline
-────────────────────────────────────────────── */
-.hidden { display: none !important; }
-
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(56,189,248,0.22); border-radius: 4px; }
-
-#medical-wrap {
-  position: absolute;
-  top: 80px;
-  left: 0;
-  height: calc(100% - 80px - 72px);
-  width: 400px;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  z-index: 100;
-}
-
-@keyframes panelOpen {
-  from { transform: translateX(-20px); opacity: 0; }
-  to   { transform: translateX(0);     opacity: 1; }
-}
-
-#med-panel {
-  position: relative;
-  width: 376px;
-  max-height: calc(100vh - 80px - 90px);
-  display: flex;
-  flex-direction: column;
-  background: var(--panel-bg);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--panel-border);
-  border-radius: 14px;
-  box-shadow:
-    0 0 0 1px rgba(56,189,248,0.06) inset,
-    0 8px 40px rgba(0,0,0,0.55),
-    0 0 50px rgba(56,189,248,0.05);
-  overflow: hidden;
-  animation: panelOpen .25s cubic-bezier(.16,1,.3,1) forwards;
-}
-
-#med-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  background: linear-gradient(135deg, rgba(56,189,248,0.12) 0%, rgba(4,12,28,0.50) 100%);
-  border-bottom: 1px solid rgba(56,189,248,0.14);
-  flex-shrink: 0;
-}
-.med-logo { display: flex; align-items: center; gap: 8px; }
-.med-logo .fa-heartbeat { font-size: 18px; color: #38bdf8; filter: drop-shadow(0 0 5px rgba(56,189,248,0.6)); }
-.med-title { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.5); }
-.med-header-right { display: flex; align-items: center; gap: 8px; }
-
-.state-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 9px; border-radius: 20px;
-  font-size: 10px; font-weight: 600; letter-spacing: 0.5px; border: 1px solid;
-}
-.state-badge.stable   { background: rgba(34,197,94,0.14);  border-color: rgba(34,197,94,0.28);  color: #4ade80; }
-.state-badge.injured  { background: rgba(245,158,11,0.14); border-color: rgba(245,158,11,0.28); color: #fbbf24; }
-.state-badge.critical { background: rgba(239,68,68,0.14);  border-color: rgba(239,68,68,0.30);  color: #f87171; animation: critPulse 1.4s ease-in-out infinite; }
-.state-badge.dead     { background: rgba(100,100,100,0.14);border-color: rgba(100,100,100,0.28);color: #9ca3af; }
-@keyframes critPulse { 0%,100%{box-shadow:none}50%{box-shadow:0 0 0 3px rgba(239,68,68,0.18)} }
-
-#med-close {
-  background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25);
-  color: #f87171; width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
-  font-size: 11px; transition: all .15s; display: flex; align-items: center; justify-content: center;
-}
-#med-close:hover { background: rgba(239,68,68,0.26); transform: scale(1.08); }
-
-#med-patient-bar {
-  display: flex; align-items: center; gap: 8px; padding: 6px 14px;
-  background: rgba(56,189,248,0.04); border-bottom: 1px solid rgba(56,189,248,0.08);
-  font-size: 12px; flex-shrink: 0;
-}
-#med-patient-bar .fa-user-injured { color: rgba(56,189,248,0.55); font-size: 12px; }
-#med-patient-name { flex: 1; font-weight: 600; color: var(--fg); }
-.med-timer { font-family: monospace; font-size: 11px; color: rgba(56,189,248,0.55); letter-spacing: 1px; }
-
-#vitals-strip {
-  display: flex; gap: 4px; padding: 7px 10px;
-  border-bottom: 1px solid rgba(56,189,248,0.08); flex-shrink: 0;
-}
-.vs-item {
-  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 6px 3px; background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.12);
-  border-radius: 8px; transition: border-color .15s, background .15s; cursor: default;
-}
-.vs-item i { font-size: 10px; color: rgba(56,189,248,0.55); }
-.vs-item span { font-size: 13px; font-weight: 700; color: var(--fg); line-height: 1; }
-.vs-item small { font-size: 9px; color: rgba(226,234,247,0.40); }
-.vs-item.danger  { border-color: rgba(239,68,68,0.40); background: rgba(239,68,68,0.07); animation: vDanger 1.4s ease-in-out infinite; }
-.vs-item.danger span, .vs-item.danger i { color: #f87171; }
-.vs-item.warning { border-color: rgba(245,158,11,0.40); background: rgba(245,158,11,0.07); }
-.vs-item.warning span, .vs-item.warning i { color: #fbbf24; }
-@keyframes vDanger { 0%,100%{border-color:rgba(239,68,68,0.40)}50%{border-color:rgba(239,68,68,0.70)} }
-
-#ecg-strip { padding: 5px 10px; border-bottom: 1px solid rgba(56,189,248,0.08); flex-shrink: 0; }
-#ecg-strip-label {
-  font-size: 9px; color: rgba(56,189,248,0.50); letter-spacing: 0.5px; margin-bottom: 3px;
-  display: flex; align-items: center; gap: 5px;
-}
-#ecg-canvas { width: 100%; height: 36px; display: block; }
-
-#center-tabs { display: flex; border-bottom: 1px solid rgba(56,189,248,0.10); flex-shrink: 0; }
-.ctab {
-  flex: 1; padding: 7px 0; background: transparent; border: none;
-  border-bottom: 2px solid transparent; color: rgba(226,234,247,0.45); cursor: pointer;
-  font-size: 10.5px; font-weight: 600; letter-spacing: 0.5px; transition: all .15s;
-  display: flex; align-items: center; justify-content: center; gap: 5px; font-family: inherit;
-}
-.ctab:hover { color: #94c9e8; background: rgba(56,189,248,0.04); }
-.ctab.active { color: #38bdf8; border-bottom-color: #38bdf8; background: rgba(56,189,248,0.06); }
-
-#tab-examens { padding: 7px 8px; flex-shrink: 0; }
-#exams-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
-.exam-btn {
-  padding: 7px 3px; background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.12);
-  border-radius: 7px; color: #9acde8; cursor: pointer; font-size: 10px; font-weight: 600;
-  font-family: inherit; text-align: center; line-height: 1.3; transition: all .15s;
-}
-.exam-btn:hover:not(:disabled) { background: rgba(56,189,248,0.14); border-color: rgba(56,189,248,0.28); color: var(--fg); transform: translateY(-1px); }
-.exam-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.exam-btn.done { border-color: rgba(34,197,94,0.32); color: #86efac; background: rgba(34,197,94,0.07); }
-.exam-btn.loading {
-  border-color: rgba(56,189,248,0.35);
-  background: linear-gradient(90deg, rgba(56,189,248,0.04) 0%, rgba(56,189,248,0.14) 50%, rgba(56,189,248,0.04) 100%);
-  background-size: 300px 100%; animation: shimmer 1.2s linear infinite; cursor: wait;
-}
-@keyframes shimmer { 0%{background-position:-300px 0}100%{background-position:300px 0} }
-
-#tab-protocoles { padding: 7px 8px; flex-shrink: 0; }
-#proto-list { display: flex; flex-direction: column; gap: 5px; }
-.proto-card {
-  padding: 8px 10px; background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.12);
-  border-radius: 8px; cursor: pointer; transition: all .15s;
-  display: flex; align-items: center; gap: 8px;
-}
-.proto-card:hover { background: rgba(56,189,248,0.12); border-color: rgba(56,189,248,0.28); }
-.proto-card-icon { font-size: 18px; flex-shrink: 0; }
-.proto-card-info { flex: 1; }
-.proto-card-title { font-size: 11px; font-weight: 700; color: var(--fg); }
-.proto-card-steps { font-size: 9px; color: rgba(56,189,248,0.55); margin-top: 1px; }
-.proto-start-btn {
-  padding: 4px 9px; background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.25);
-  border-radius: 5px; color: #38bdf8; cursor: pointer; font-size: 10px; font-weight: 600;
-  font-family: inherit; transition: all .15s; flex-shrink: 0;
-}
-.proto-start-btn:hover { background: rgba(56,189,248,0.22); }
-#proto-active { padding: 5px 0; }
-#proto-active-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 7px; font-size: 11px; font-weight: 700; color: #38bdf8;
-}
-#btn-proto-cancel {
-  background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.25); color: #f87171;
-  border-radius: 5px; width: 20px; height: 20px; cursor: pointer; font-size: 10px;
-  display: flex; align-items: center; justify-content: center;
-}
-#proto-steps { display: flex; flex-direction: column; gap: 3px; }
-.proto-step {
-  display: flex; align-items: flex-start; gap: 7px; padding: 5px 7px;
-  background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.08);
-  border-radius: 6px; font-size: 10px;
-}
-.proto-step.current { border-color: rgba(56,189,248,0.30); background: rgba(56,189,248,0.08); }
-.proto-step.done    { border-color: rgba(34,197,94,0.18); opacity: 0.65; }
-.proto-step-badge {
-  width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 700; flex-shrink: 0; background: rgba(56,189,248,0.12);
-  color: #38bdf8; border: 1px solid rgba(56,189,248,0.22); margin-top: 1px;
-}
-.proto-step.done .proto-step-badge   { background: rgba(34,197,94,0.12); color: #4ade80; border-color: rgba(34,197,94,0.22); }
-.proto-step.current .proto-step-badge { background: #38bdf8; color: #020c16; animation: badgePulse 1.2s ease-in-out infinite; }
-@keyframes badgePulse { 0%,100%{opacity:1}50%{opacity:0.55} }
-.proto-step-body { flex: 1; }
-.proto-step-label { color: #94c9e8; font-weight: 600; }
-.proto-step-hint  { font-size: 9px; color: rgba(226,234,247,0.40); margin-top: 1px; }
-.proto-step-btn {
-  padding: 3px 7px; background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.28);
-  color: #38bdf8; border-radius: 4px; cursor: pointer; font-size: 9px; font-weight: 600;
-  font-family: inherit; flex-shrink: 0; transition: all .15s;
-}
-.proto-step-btn:hover { background: rgba(56,189,248,0.22); }
-#proto-progress-wrap { height: 3px; background: rgba(56,189,248,0.10); border-radius: 2px; margin-top: 7px; overflow: hidden; }
-#proto-progress-bar { height: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8); border-radius: 2px; transition: width .4s ease; width: 0%; }
-.proto-complete { text-align: center; padding: 12px; color: #4ade80; font-size: 11px; font-weight: 600; line-height: 1.6; }
-
-#med-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; padding: 2px 10px 4px; }
-
-.section-label {
-  font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: rgba(56,189,248,0.50);
-  text-transform: uppercase; padding: 7px 0 4px; display: flex; align-items: center; gap: 5px;
-  border-bottom: 1px solid rgba(56,189,248,0.08); margin-bottom: 5px;
-}
-.section-label i { font-size: 10px; }
-.inj-badge {
-  margin-left: auto; background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.20);
-  color: #38bdf8; border-radius: 10px; padding: 1px 6px; font-size: 9px; font-weight: 700;
-}
-
-#injuries-list { display: flex; flex-direction: column; gap: 3px; }
-.inj-card {
-  padding: 5px 8px; border-radius: 6px; border-left: 3px solid transparent;
-  background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.08);
-  font-size: 10.5px; animation: fadeIn .2s ease forwards;
-}
-@keyframes fadeIn { from{opacity:0;transform:translateX(6px)}to{opacity:1;transform:none} }
-.inj-card.sev-1 { border-left: 3px solid rgba(245,158,11,0.50); }
-.inj-card.sev-2 { border-left: 3px solid rgba(249,115,22,0.55); }
-.inj-card.sev-3 { border-left: 3px solid rgba(239,68,68,0.60); }
-.inj-card.sev-4 { border-left: 3px solid #ef4444; }
-.inj-card.sev-5 { border-left: 3px solid #ef4444; box-shadow: 0 0 7px rgba(239,68,68,0.18); }
-.inj-zone { font-size: 9px; color: rgba(56,189,248,0.55); text-transform: uppercase; letter-spacing: 0.5px; }
-.inj-type { font-weight: 600; color: var(--fg); margin-top: 1px; }
-.inj-sev-bar { display: flex; gap: 2px; margin-top: 3px; }
-.inj-sev-dot { width: 8px; height: 3px; border-radius: 2px; background: rgba(56,189,248,0.12); }
-.inj-sev-dot.filled     { background: #38bdf8; }
-.inj-sev-dot.filled.red { background: #ef4444; }
-
-#results-list { display: flex; flex-direction: column; gap: 5px; padding-bottom: 4px; }
-.empty-results { text-align: center; color: rgba(56,189,248,0.30); font-size: 11px; padding: 14px; line-height: 1.7; }
-.empty-results small { font-size: 10px; }
-.result-card { background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.10); border-radius: 8px; padding: 8px 10px; animation: fadeIn .2s ease forwards; }
-.rc-title { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #38bdf8; margin-bottom: 5px; }
-.rc-title i { font-size: 11px; }
-.rc-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 10.5px; padding: 2px 0; border-bottom: 1px solid rgba(56,189,248,0.05); }
-.rc-row:last-of-type { border-bottom: none; }
-.rc-key { color: rgba(226,234,247,0.45); font-size: 10px; }
-.rc-val { color: var(--fg); font-weight: 600; text-align: right; }
-.rc-eval { display: inline-block; margin-top: 5px; padding: 2px 8px; border-radius: 4px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.3px; }
-.rc-eval.ok     { background: rgba(34,197,94,0.12); color: #4ade80; }
-.rc-eval.warn   { background: rgba(245,158,11,0.12); color: #fbbf24; }
-.rc-eval.danger { background: rgba(239,68,68,0.12); color: #f87171; }
-.rc-eval.info   { background: rgba(56,189,248,0.10); color: #38bdf8; }
-
-#med-notes {
-  flex-shrink: 0; display: block; width: calc(100% - 16px); margin: 0 8px 0;
-  min-height: 48px; max-height: 72px; resize: vertical;
-  background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.10); border-radius: 6px;
-  color: #cce8f6; font-family: inherit; font-size: 10.5px; padding: 6px 8px;
-  outline: none; transition: border-color .15s;
-}
-#med-notes:focus { border-color: rgba(56,189,248,0.28); }
-#med-notes::placeholder { color: rgba(56,189,248,0.25); }
-
-#med-footer {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 12px; border-top: 1px solid rgba(56,189,248,0.10);
-  background: rgba(4,10,22,0.35); flex-shrink: 0;
-}
-#med-footer-info { font-size: 9px; color: rgba(56,189,248,0.30); letter-spacing: 0.5px; }
-.btn-footer-primary {
-  padding: 6px 11px; background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.28);
-  border-radius: 7px; color: #38bdf8; cursor: pointer; font-size: 10.5px; font-weight: 600;
-  font-family: inherit; transition: all .15s; display: flex; align-items: center; gap: 5px;
-}
-.btn-footer-primary:hover { background: rgba(56,189,248,0.22); border-color: rgba(56,189,248,0.45); color: #fff; }
-.btn-footer-close {
-  padding: 6px 11px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.20);
-  border-radius: 7px; color: rgba(239,68,68,0.70); cursor: pointer; font-size: 10.5px; font-weight: 600;
-  font-family: inherit; transition: all .15s; display: flex; align-items: center; gap: 5px;
-}
-.btn-footer-close:hover { background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.38); color: #ef4444; }
-
-#finalise-modal {
-  position: absolute; inset: 0; background: rgba(2,8,18,0.82);
-  backdrop-filter: blur(10px); z-index: 50; display: flex; align-items: center;
-  justify-content: center; border-radius: 14px;
-}
-#fm-content {
-  width: 330px; padding: 18px; background: rgba(4,10,22,0.95);
-  border: 1px solid rgba(56,189,248,0.22); border-radius: 12px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.6); animation: fmOpen .2s ease forwards;
-}
-@keyframes fmOpen { from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:none} }
-#fm-header { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #38bdf8; margin-bottom: 12px; }
-#fm-summary { font-size: 10.5px; color: rgba(226,234,247,0.60); line-height: 1.6; margin-bottom: 8px; }
-.fm-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(56,189,248,0.06); }
-.fm-row strong { color: var(--fg); }
-.fm-summary-text { margin-top: 6px; font-style: italic; color: rgba(56,189,248,0.55); }
-#fm-diagnosis {
-  width: 100%; min-height: 60px; background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.12);
-  border-radius: 6px; color: var(--fg); font-family: inherit; font-size: 11px; padding: 8px 10px;
-  outline: none; resize: vertical; transition: border-color .15s; margin-bottom: 8px;
-}
-#fm-diagnosis:focus { border-color: rgba(56,189,248,0.28); }
-#fm-diagnosis::placeholder { color: rgba(56,189,248,0.25); }
-#fm-cost-preview { font-size: 10.5px; color: rgba(56,189,248,0.55); text-align: right; margin-bottom: 12px; }
-#fm-actions { display: flex; gap: 7px; justify-content: flex-end; }
-
-#toast-container {
-  position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
-  z-index: 9999; display: flex; flex-direction: column; gap: 5px; pointer-events: none;
-}
-.toast {
-  padding: 7px 16px; border-radius: 8px; font-size: 11.5px; font-weight: 600;
-  backdrop-filter: blur(12px); pointer-events: none; animation: toastIn .22s ease forwards;
-}
-@keyframes toastIn { from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none} }
-.toast.success { background: rgba(34,197,94,0.18);  border: 1px solid rgba(34,197,94,0.30);  color: #4ade80; }
-.toast.info    { background: rgba(56,189,248,0.18);  border: 1px solid rgba(56,189,248,0.30);  color: #38bdf8; }
-.toast.error   { background: rgba(239,68,68,0.18);   border: 1px solid rgba(239,68,68,0.30);   color: #f87171; }
-
-/* Death screen */
-#death-screen { position: absolute; inset: 0; background: rgba(0,0,0,0.76); display: flex; align-items: center; justify-content: center; z-index: 200; }
-#death-content { text-align: center; padding: 36px 48px; background: rgba(4,10,22,0.94); border: 1px solid rgba(239,68,68,0.28); border-radius: 16px; box-shadow: 0 0 60px rgba(239,68,68,0.10), 0 12px 50px rgba(0,0,0,0.65); max-width: 400px; width: 90%; }
-#death-icon  { font-size: 44px; margin-bottom: 10px; opacity: 0.8; }
-#death-title { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 900; letter-spacing: 4px; color: #ef4444; margin-bottom: 18px; text-shadow: 0 0 18px rgba(239,68,68,0.4); }
-#death-bleed-bar-wrap { height: 4px; background: rgba(239,68,68,0.15); border-radius: 2px; margin-bottom: 10px; overflow: hidden; }
-#death-bleed-bar { height: 100%; background: linear-gradient(90deg, #ef4444, #f97316); border-radius: 2px; transition: width 1s linear; }
-#death-timer-label { font-size: 12px; color: rgba(226,234,247,0.60); margin-bottom: 18px; }
-#death-timer { color: #fbbf24; font-weight: 700; }
-#death-actions { display: flex; flex-direction: column; gap: 9px; margin-bottom: 14px; }
-.death-btn { padding: 9px 20px; background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.25); border-radius: 8px; color: rgba(226,234,247,0.70); cursor: pointer; font-size: 11.5px; font-weight: 600; font-family: inherit; transition: all .15s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-.death-btn:hover:not(:disabled) { background: rgba(239,68,68,0.20); border-color: rgba(239,68,68,0.40); color: #fff; }
-.death-btn:disabled { opacity: 0.30; cursor: not-allowed; }
-kbd { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18); border-radius: 3px; padding: 2px 6px; font-size: 10px; font-family: monospace; }
-#death-cost { font-size: 10.5px; color: rgba(56,189,248,0.40); }
-
-#laststand-hud { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); min-width: 300px; text-align: center; z-index: 150; }
-#ls-label { font-size: 11px; font-weight: 800; letter-spacing: 3px; color: #f87171; text-shadow: 0 0 10px rgba(239,68,68,0.5); margin-bottom: 7px; animation: lsFlash 1s ease-in-out infinite; }
-@keyframes lsFlash { 0%,100%{opacity:1}50%{opacity:0.45} }
-#ls-bar-wrap { height: 5px; background: rgba(239,68,68,0.14); border-radius: 3px; overflow: hidden; margin-bottom: 5px; }
-#ls-bar { height: 100%; background: linear-gradient(90deg, #ef4444, #f97316); border-radius: 3px; transition: width 1s linear; }
-#ls-timer { font-size: 10.5px; color: rgba(226,234,247,0.50); letter-spacing: 0.5px; }
-
-/* ─── Responsive ─────────────────────────────── */
-@media (max-width: 900px) {
-  .demo-root { flex-direction: column; }
-  .game-viewport { min-height: 50vh; }
-  .demo-panel { width: 100%; max-height: none; }
-  #medical-wrap { position: absolute; top: 60px; height: calc(100% - 60px - 60px); }
-  #med-panel { max-height: calc(50vh - 60px - 60px); }
-  .scene-center { left: 50%; top: 45%; }
-  .hud-radio, .hud-food { left: 5px; }
+@media(max-width:600px){
+  .hero{padding:32px 0 40px}
+  .modules{grid-template-columns:1fr}
 }
 </style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="page">
 
-<!-- ═══════════════════════════════════════════════
-     STRUCTURE
-═══════════════════════════════════════════════ -->
-<div class="demo-root">
-
-  <!-- Viewport FiveM simulé -->
-  <div class="game-viewport" id="gameViewport">
-
-    <!-- Fond ville -->
-    <div class="city-bg" id="cityBg"></div>
-
-    <!-- Radio HUD -->
-    <div class="hud-radio">
-      <i class="fas fa-broadcast-tower"></i>
-      <span>Canal 4 — EMS</span>
+  <div class="hero">
+    <div class="hero-badge"><i class="fas fa-heartbeat"></i> Novacity FiveM</div>
+    <h1 class="hero-title">NOVA <span>EMS</span> SUITE</h1>
+    <p class="hero-sub">Système médical complet — Diagnostic, Imagerie médicale, Chirurgie interactive.</p>
+    <div class="version-row">
+      <span class="ver-badge">ESX Legacy</span>
+      <span class="ver-badge">ox_lib</span>
+      <span class="ver-badge">ox_target</span>
+      <span class="ver-badge">FiveM NUI</span>
     </div>
+  </div>
 
-    <!-- HUD nourriture/boisson -->
-    <div class="hud-food">
-      <div class="hud-food-item"><i class="fas fa-drumstick-bite"></i> 78%</div>
-      <div class="hud-food-item"><i class="fas fa-tint"></i> 64%</div>
-    </div>
+  <div class="modules">
 
-    <!-- Scène joueurs -->
-    <div class="scene-center">
-      <div class="scene-label">Vue In-Game simulée</div>
-      <div class="scene-chars">
-        <div class="char-wrap">
-          <svg width="52" height="80" viewBox="0 0 52 80" fill="none">
-            <circle cx="26" cy="10" r="9" fill="rgba(239,68,68,0.7)" stroke="rgba(239,68,68,0.4)" stroke-width="1"/>
-            <rect x="14" y="22" width="24" height="30" rx="4" fill="rgba(180,30,30,0.6)" stroke="rgba(239,68,68,0.3)" stroke-width="1"/>
-            <rect x="6" y="24" width="10" height="22" rx="3" fill="rgba(180,30,30,0.5)"/>
-            <rect x="36" y="24" width="10" height="22" rx="3" fill="rgba(180,30,30,0.5)"/>
-            <rect x="15" y="54" width="9" height="24" rx="3" fill="rgba(180,30,30,0.5)"/>
-            <rect x="28" y="54" width="9" height="24" rx="3" fill="rgba(180,30,30,0.5)"/>
-          </svg>
-          <div class="char-label">Patient blessé</div>
-        </div>
-        <div class="char-wrap">
-          <svg width="52" height="80" viewBox="0 0 52 80" fill="none">
-            <circle cx="26" cy="10" r="9" fill="rgba(56,189,248,0.5)" stroke="rgba(56,189,248,0.4)" stroke-width="1"/>
-            <rect x="14" y="22" width="24" height="30" rx="4" fill="rgba(10,60,100,0.7)" stroke="rgba(56,189,248,0.3)" stroke-width="1"/>
-            <text x="26" y="42" fill="#38bdf8" font-size="10" text-anchor="middle" font-family="sans-serif">⚕</text>
-            <rect x="6" y="24" width="10" height="22" rx="3" fill="rgba(10,60,100,0.6)"/>
-            <rect x="36" y="24" width="10" height="22" rx="3" fill="rgba(10,60,100,0.6)"/>
-            <rect x="15" y="54" width="9" height="24" rx="3" fill="rgba(10,60,100,0.6)"/>
-            <rect x="28" y="54" width="9" height="24" rx="3" fill="rgba(10,60,100,0.6)"/>
-          </svg>
-          <div class="char-label">Soignant (vous)</div>
+    <a class="mod-card diag" href="demo/">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="mod-icon"><i class="fas fa-stethoscope"></i></div>
+        <div>
+          <div class="mod-num">Module 01</div>
+          <div class="mod-title">DIAGNOSTIC</div>
         </div>
       </div>
-    </div>
+      <p class="mod-desc">Bilan complet du patient — 8 examens médicaux, protocoles ABCDE, polytraumatisme, arrêt cardiaque. ECG animé, vitaux en temps réel, blessures par zone anatomique.</p>
+      <div class="mod-tags">
+        <span class="tag blue">8 examens</span>
+        <span class="tag blue">3 protocoles</span>
+        <span class="tag blue">ECG live</span>
+      </div>
+      <div class="mod-arrow">Ouvrir la démo <i class="fas fa-arrow-right"></i></div>
+    </a>
 
-    <!-- ═══ PANNEAU MÉDICAL ═══ -->
-    <div id="medical-wrap" class="hidden">
-      <div id="med-panel">
-
-        <div id="med-header">
-          <div class="med-logo">
-            <i class="fas fa-heartbeat"></i>
-            <span class="med-title">NOVA MÉDICAL</span>
-          </div>
-          <div class="med-header-right">
-            <span id="med-state-badge" class="state-badge stable">
-              <i class="fas fa-check-circle"></i>
-              <span id="med-state-label">Stable</span>
-            </span>
-            <button id="med-close"><i class="fas fa-times"></i></button>
-          </div>
+    <a class="mod-card img" href="imagerie/">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="mod-icon"><i class="fas fa-x-ray"></i></div>
+        <div>
+          <div class="mod-num">Module 02</div>
+          <div class="mod-title">IMAGERIE</div>
         </div>
+      </div>
+      <p class="mod-desc">Scanner, radio, échographie interactifs. Identifie les lésions cachées dans l'image médicale. Fractures, pneumothorax, hématomes, hémorragies — trouve-les avant le temps imparti.</p>
+      <div class="mod-tags">
+        <span class="tag purple">Radio/Scanner</span>
+        <span class="tag purple">Mini-jeu</span>
+        <span class="tag yellow">Chronomètre</span>
+      </div>
+      <div class="mod-arrow">Ouvrir la démo <i class="fas fa-arrow-right"></i></div>
+    </a>
 
-        <div id="med-patient-bar">
-          <i class="fas fa-user-injured"></i>
-          <span id="med-patient-name">—</span>
-          <span id="med-timer" class="med-timer">00:00</span>
+    <a class="mod-card chir" href="chirurgie/">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="mod-icon"><i class="fas fa-scalpel"></i></div>
+        <div>
+          <div class="mod-num">Module 03</div>
+          <div class="mod-title">CHIRURGIE</div>
         </div>
-
-        <div id="vitals-strip">
-          <div class="vs-item" id="vc-bpm"><i class="fas fa-heart"></i><span id="v-bpm">—</span><small>bpm</small></div>
-          <div class="vs-item" id="vc-spo2"><i class="fas fa-lungs"></i><span id="v-spo2">—</span><small>%</small></div>
-          <div class="vs-item" id="vc-bp"><i class="fas fa-tachometer-alt"></i><span id="v-bp">—</span><small>mmHg</small></div>
-          <div class="vs-item" id="vc-temp"><i class="fas fa-thermometer-half"></i><span id="v-temp">—</span><small>°C</small></div>
-        </div>
-
-        <div id="ecg-strip" class="hidden">
-          <div id="ecg-strip-label"><i class="fas fa-heartbeat"></i> ECG TEMPS RÉEL — <span id="ecg-rhythm-label">—</span></div>
-          <canvas id="ecg-canvas" width="350" height="36"></canvas>
-        </div>
-
-        <div id="center-tabs">
-          <button class="ctab active" data-tab="examens"><i class="fas fa-stethoscope"></i> Examens</button>
-          <button class="ctab" data-tab="protocoles"><i class="fas fa-clipboard-list"></i> Protocoles</button>
-        </div>
-
-        <div id="tab-examens">
-          <div id="exams-grid">
-            <button class="exam-btn" data-exam="initial">🔍 Évaluation</button>
-            <button class="exam-btn" data-exam="bp">💓 Tension</button>
-            <button class="exam-btn" data-exam="spo2">🫁 SpO₂</button>
-            <button class="exam-btn" data-exam="neuro">🧠 Neuro</button>
-            <button class="exam-btn" data-exam="ecg">📈 ECG</button>
-            <button class="exam-btn" data-exam="auscultation">🩺 Ausculter</button>
-            <button class="exam-btn" data-exam="glucose">🩸 Glycémie</button>
-            <button class="exam-btn" data-exam="temp">🌡️ Temp.</button>
-          </div>
-        </div>
-
-        <div id="tab-protocoles" class="hidden">
-          <div id="proto-list"></div>
-          <div id="proto-active" class="hidden">
-            <div id="proto-active-header">
-              <span id="proto-active-label">—</span>
-              <button id="btn-proto-cancel">✕</button>
-            </div>
-            <div id="proto-steps"></div>
-            <div id="proto-progress-wrap"><div id="proto-progress-bar"></div></div>
-          </div>
-        </div>
-
-        <div id="med-scroll">
-          <div class="section-label"><i class="fas fa-bone"></i> BLESSURES<span id="injuries-count" class="inj-badge">0</span></div>
-          <div id="injuries-list"></div>
-          <div class="section-label" style="margin-top:8px"><i class="fas fa-vial"></i> RÉSULTATS</div>
-          <div id="results-list"><div class="empty-results">Aucun examen effectué.<br><small>Cliquez sur un examen ci-dessus.</small></div></div>
-        </div>
-
-        <textarea id="med-notes" placeholder="Notes cliniques..."></textarea>
-
-        <div id="med-footer">
-          <span id="med-footer-info">OMC v1.3</span>
-          <div style="display:flex;gap:6px">
-            <button class="btn-footer-primary" id="btn-finalize"><i class="fas fa-clipboard-check"></i> Finaliser</button>
-            <button class="btn-footer-close" id="btn-close-footer"><i class="fas fa-times"></i> Fermer</button>
-          </div>
-        </div>
-
-        <div id="finalise-modal" class="hidden">
-          <div id="fm-content">
-            <div id="fm-header"><i class="fas fa-clipboard-check"></i><span>Finaliser le dossier médical</span></div>
-            <div id="fm-summary"></div>
-            <div class="section-label" style="margin:10px 0 5px"><i class="fas fa-diagnoses"></i> DIAGNOSTIC PRINCIPAL</div>
-            <textarea id="fm-diagnosis" placeholder="Ex : Polytraumatisme, fractures multiples..."></textarea>
-            <div id="fm-cost-preview">Estimation des frais : —</div>
-            <div id="fm-actions">
-              <button id="btn-fm-cancel" class="btn-footer-close"><i class="fas fa-times"></i> Annuler</button>
-              <button id="btn-fm-confirm" class="btn-footer-primary"><i class="fas fa-save"></i> Enregistrer & Facturer</button>
-            </div>
-          </div>
-        </div>
-
       </div>
-    </div><!-- /medical-wrap -->
-
-    <!-- Death screen -->
-    <div id="death-screen" class="hidden">
-      <div id="death-content">
-        <div id="death-icon">⚠</div>
-        <div id="death-title">VOUS ÊTES À TERRE</div>
-        <div id="death-bleed-bar-wrap"><div id="death-bleed-bar"></div></div>
-        <div id="death-timer-label">Temps restant : <span id="death-timer">—</span></div>
-        <div id="death-actions">
-          <button class="death-btn" id="btn-distress"><kbd>G</kbd> Signal de détresse</button>
-          <button class="death-btn" id="btn-respawn" disabled><kbd>E</kbd> Réapparaître à l'hôpital</button>
-        </div>
-        <div id="death-cost">Coût : 1 500 $</div>
+      <p class="mod-desc">Bloc opératoire interactif. Incision, extraction, réduction de fracture, hémostase, suture — chaque geste compte. La précision de ton intervention détermine la survie du patient.</p>
+      <div class="mod-tags">
+        <span class="tag green">5 étapes</span>
+        <span class="tag green">Gestes précis</span>
+        <span class="tag yellow">Score qualité</span>
       </div>
-    </div>
+      <div class="mod-arrow">Ouvrir la démo <i class="fas fa-arrow-right"></i></div>
+    </a>
 
-    <!-- Last stand HUD -->
-    <div id="laststand-hud" class="hidden">
-      <div id="ls-label">⚠ ÉTAT CRITIQUE — RÉSISTEZ</div>
-      <div id="ls-bar-wrap"><div id="ls-bar"></div></div>
-      <div id="ls-timer">—</div>
-    </div>
+  </div>
 
-    <div id="toast-container"></div>
+  <div class="divider"></div>
 
-  </div><!-- /game-viewport -->
+  <div class="info-band">
+    <div class="info-item"><i class="fas fa-mobile-alt"></i><span><strong>Responsive</strong><br>Fonctionne sur téléphone, tablette, PC</span></div>
+    <div class="info-item"><i class="fas fa-server"></i><span><strong>FiveM ESX</strong><br>Compatible ESX Legacy + ox_lib</span></div>
+    <div class="info-item"><i class="fas fa-bolt"></i><span><strong>Standalone NUI</strong><br>Aucune dépendance externe</span></div>
+    <div class="info-item"><i class="fas fa-code-branch"></i><span><strong>Open source</strong><br>github.com/Ariion/Script-EMS</span></div>
+  </div>
 
-  <!-- Panneau contrôles démo -->
-  <div class="demo-panel">
-
-    <div class="demo-header">
-      <div class="demo-header-icon"><i class="fas fa-flask"></i></div>
-      <div>
-        <div class="demo-header-title">Nova Medical — Démo</div>
-        <div class="demo-header-sub">Interface EMS interactive</div>
-      </div>
-    </div>
-
-    <!-- Panneau médical on/off -->
-    <div class="demo-section">
-      <div class="demo-section-label"><i class="fas fa-toggle-on"></i> Interface médicale</div>
-      <div class="demo-btn-grid col1">
-        <button class="demo-btn full active" id="btn-demo-open" onclick="demoOpenPanel()">
-          <i class="fas fa-stethoscope"></i> Ouvrir le panneau EMS
-        </button>
-        <button class="demo-btn full danger" onclick="demoClose()">
-          <i class="fas fa-times"></i> Fermer / Réinitialiser
-        </button>
-      </div>
-    </div>
-
-    <!-- Scénarios patients -->
-    <div class="demo-section">
-      <div class="demo-section-label"><i class="fas fa-user-injured"></i> Scénarios patients</div>
-      <div class="demo-btn-grid">
-        <button class="demo-btn" onclick="demoScenario('gunshot')">🔴 Fusillade</button>
-        <button class="demo-btn" onclick="demoScenario('accident')">🚗 Accident</button>
-        <button class="demo-btn" onclick="demoScenario('stab')">🔪 Couteau</button>
-        <button class="demo-btn" onclick="demoScenario('fall')">⬇️ Chute grave</button>
-        <button class="demo-btn" onclick="demoScenario('fire')">🔥 Brûlures</button>
-        <button class="demo-btn success" onclick="demoScenario('minor')">🟡 Blessures légères</button>
-      </div>
-      <div class="demo-status" id="demo-scenario-status">Aucun scénario chargé</div>
-    </div>
-
-    <!-- Examens rapides -->
-    <div class="demo-section">
-      <div class="demo-section-label"><i class="fas fa-vial"></i> Lancer un examen</div>
-      <div class="demo-btn-grid">
-        <button class="demo-btn" onclick="demoExam('initial')">🔍 Évaluation</button>
-        <button class="demo-btn" onclick="demoExam('bp')">💓 Tension</button>
-        <button class="demo-btn" onclick="demoExam('spo2')">🫁 SpO₂</button>
-        <button class="demo-btn" onclick="demoExam('neuro')">🧠 Neuro</button>
-        <button class="demo-btn" onclick="demoExam('ecg')">📈 ECG</button>
-        <button class="demo-btn" onclick="demoExam('auscultation')">🩺 Auscultation</button>
-        <button class="demo-btn" onclick="demoExam('glucose')">🩸 Glycémie</button>
-        <button class="demo-btn" onclick="demoExam('temp')">🌡️ Température</button>
-      </div>
-    </div>
-
-    <!-- État patient -->
-    <div class="demo-section">
-      <div class="demo-section-label"><i class="fas fa-heartbeat"></i> État du patient</div>
-      <div class="demo-btn-grid col3">
-        <button class="demo-btn success" onclick="demoState('conscious')">✅ Stable</button>
-        <button class="demo-btn" onclick="demoState('injured')">🟡 Blessé</button>
-        <button class="demo-btn danger" onclick="demoState('laststand')">🔴 Critique</button>
-      </div>
-    </div>
-
-    <!-- Écrans spéciaux -->
-    <div class="demo-section">
-      <div class="demo-section-label"><i class="fas fa-skull"></i> Écrans spéciaux (joueur)</div>
-      <div class="demo-btn-grid">
-        <button class="demo-btn danger" onclick="demoLastStand()">⚠️ Last Stand</button>
-        <button class="demo-btn danger" onclick="demoDeath()">💀 Écran mort</button>
-      </div>
-      <div class="demo-note">
-        Ces écrans simulent ce que <strong>le joueur blessé</strong> voit. Le panneau médical est pour <strong>le soignant</strong>.
-      </div>
-    </div>
-
-    <!-- Finaliser -->
-    <div class="demo-section">
-      <div class="demo-section-label"><i class="fas fa-clipboard-check"></i> Finalisation</div>
-      <div class="demo-btn-grid col1">
-        <button class="demo-btn success full" onclick="demoFinalize()">
-          <i class="fas fa-save"></i> Ouvrir la modal Finaliser
-        </button>
-      </div>
-    </div>
-
-    <!-- Légende blessures -->
-    <div class="demo-section">
-      <div class="demo-section-label"><i class="fas fa-info-circle"></i> Sévérité blessures</div>
-      <div style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--fg-dim)">
-        <div style="display:flex;align-items:center;gap:7px"><div style="width:4px;height:14px;background:rgba(245,158,11,0.6);border-radius:2px;flex-shrink:0"></div> Sév. 1 — Légère</div>
-        <div style="display:flex;align-items:center;gap:7px"><div style="width:4px;height:14px;background:rgba(249,115,22,0.7);border-radius:2px;flex-shrink:0"></div> Sév. 2 — Modérée</div>
-        <div style="display:flex;align-items:center;gap:7px"><div style="width:4px;height:14px;background:rgba(239,68,68,0.75);border-radius:2px;flex-shrink:0"></div> Sév. 3 — Sérieuse</div>
-        <div style="display:flex;align-items:center;gap:7px"><div style="width:4px;height:14px;background:#ef4444;border-radius:2px;flex-shrink:0"></div> Sév. 4-5 — Critique / Vital</div>
-      </div>
-    </div>
-
-    <!-- Info démo -->
-    <div class="demo-section">
-      <div class="demo-note" style="margin-top:0">
-        <strong>Démo standalone</strong> — Simule exactement l'interface in-game. Les appels NUI FiveM sont remplacés par des données de test. Le panneau se positionne comme en jeu : côté gauche, entre la radio et le HUD nourriture.
-      </div>
-    </div>
-
-  </div><!-- /demo-panel -->
+  <div class="footer">
+    Nova EMS Suite — Novacity FiveM &nbsp;·&nbsp; ESX Legacy
+  </div>
 
 </div>
-
-<!-- ═══════════════════════════════════════════════
-     SCRIPT — Interface nova_medical + contrôles démo
-═══════════════════════════════════════════════ -->
-<script>
-'use strict';
-
-// ─── État global ──────────────────────────────
-let currentMedical = null;
-let currentPatient = '';
-let sessionStart   = null;
-let timerInterval  = null;
-let lastStandEnd   = null;
-let lsInterval     = null;
-let respawnDelay   = 0;
-let respawnUnlock  = null;
-let respawnInterval= null;
-let isEmsMode      = true;  // toujours EMS en démo
-let _ecgRaf = null, _ecgPhase = 0, _ecgPrevY = 23, _ecgBpm = 70, _ecgRhythm = 'normal';
-
-// ─── Données de démo ──────────────────────────
-const DEMO_PATIENTS = ['Lucas_Martin', 'Sofia_Reyes', 'Karim_Benlali', 'Emma_Dubois', 'Nathan_Petit'];
-
-const DEMO_SCENARIOS = {
-  gunshot: {
-    state: 'laststand',
-    injuries: {
-      torso:    [{type:'gunshot', severity:5},{type:'internal', severity:4}],
-      leftArm:  [{type:'gunshot', severity:3}],
-      head:     [{type:'blunt',   severity:2}],
-      rightArm: [], leftLeg: [], rightLeg: []
-    },
-    bleeding: true,
-    label: 'Fusillade — Blessure par balle multiple'
-  },
-  accident: {
-    state: 'injured',
-    injuries: {
-      head:     [{type:'blunt',    severity:3}],
-      torso:    [{type:'crush',    severity:3}],
-      leftLeg:  [{type:'fracture', severity:4}],
-      rightLeg: [{type:'fracture', severity:3}],
-      leftArm:  [{type:'road',     severity:2}],
-      rightArm: []
-    },
-    bleeding: false,
-    label: 'AVP — Accident de la voie publique'
-  },
-  stab: {
-    state: 'laststand',
-    injuries: {
-      torso:    [{type:'stab', severity:4},{type:'internal', severity:3}],
-      leftArm:  [{type:'stab', severity:2}],
-      head:     [],
-      rightArm: [], leftLeg: [], rightLeg: []
-    },
-    bleeding: true,
-    label: 'Agression — Lacérations par arme blanche'
-  },
-  fall: {
-    state: 'injured',
-    injuries: {
-      head:     [{type:'blunt', severity:4}],
-      torso:    [{type:'blunt', severity:3}],
-      leftLeg:  [{type:'fall',  severity:3}],
-      rightLeg: [{type:'fall',  severity:2}],
-      leftArm:  [{type:'fall',  severity:2}],
-      rightArm: []
-    },
-    bleeding: false,
-    label: 'Chute de hauteur'
-  },
-  fire: {
-    state: 'injured',
-    injuries: {
-      torso:    [{type:'burn', severity:4}],
-      rightArm: [{type:'burn', severity:4}],
-      leftArm:  [{type:'burn', severity:3}],
-      head:     [{type:'burn', severity:2}],
-      leftLeg: [], rightLeg: []
-    },
-    bleeding: false,
-    label: 'Brûlures étendues'
-  },
-  minor: {
-    state: 'conscious',
-    injuries: {
-      rightLeg: [{type:'blunt', severity:1}],
-      leftArm:  [{type:'road',  severity:1}],
-      head: [], torso: [], rightArm: [], leftLeg: []
-    },
-    bleeding: false,
-    label: 'Blessures légères'
-  }
-};
-
-// Résultats d'examens par scénario
-const EXAM_RESULTS = {
-  gunshot: {
-    initial:      {type:'initial', state:'laststand', stateLabel:'En détresse vitale', severity:'5/5 — Vital', injuries:'3 blessures par balle', pulse:'Filant (< 40)', breathing:'Laborieuse'},
-    bp:           {type:'bp', systolic:78, diastolic:40, pulse:142, evaluation:'hypotension'},
-    spo2:         {type:'spo2', spo2:84, evaluation:'Hypoxie sévère', detail:'Respiration superficielle'},
-    neuro:        {type:'neuro', gcs:9, gcsO:3, gcsV:3, gcsM:3, pupils:'Réactives (asymétrie R/G)'},
-    ecg:          {type:'ecg', rhythm:'tachycardie', bpm:145, pr:140, qrs:80, anomalies:['Tachycardie sinusale'], evaluation:'tachycardie'},
-    auscultation: {type:'auscultation', heartSound:'Tachycarde', bpm:142, breathing:'Diminué côté droit', rales:'présents', murmur:'absent'},
-    glucose:      {type:'glucose', value:3.1, unit:'mmol/L', evaluation:'hypoglycémie'},
-    temp:         {type:'temp', value:35.2, unit:'°C', evaluation:'hypothermie'},
-  },
-  accident: {
-    initial:      {type:'initial', state:'injured', stateLabel:'Blessé grave', severity:'4/5 — Critique', injuries:'5 blessures', pulse:'Rapide (110)', breathing:'Normale'},
-    bp:           {type:'bp', systolic:95, diastolic:58, pulse:112, evaluation:'hypotension'},
-    spo2:         {type:'spo2', spo2:92, evaluation:'Hypoxie légère', detail:'Respiration douloureuse'},
-    neuro:        {type:'neuro', gcs:12, gcsO:4, gcsV:4, gcsM:4, pupils:'Réactives égales'},
-    ecg:          {type:'ecg', rhythm:'normal', bpm:108, pr:160, qrs:90, anomalies:[], evaluation:'normal'},
-    auscultation: {type:'auscultation', heartSound:'Normal', bpm:110, breathing:'Normale', rales:'absents', murmur:'absent'},
-    glucose:      {type:'glucose', value:5.8, unit:'mmol/L', evaluation:'normal'},
-    temp:         {type:'temp', value:37.0, unit:'°C', evaluation:'normale'},
-  },
-  stab: {
-    initial:      {type:'initial', state:'laststand', stateLabel:'Hémorragie active', severity:'5/5 — Vital', injuries:'2 lacérations profondes', pulse:'Filant (45)', breathing:'Difficile'},
-    bp:           {type:'bp', systolic:82, diastolic:44, pulse:138, evaluation:'hypotension'},
-    spo2:         {type:'spo2', spo2:87, evaluation:'Hypoxie sévère', detail:'Possible pneumothorax'},
-    neuro:        {type:'neuro', gcs:11, gcsO:3, gcsV:4, gcsM:4, pupils:'Réactives'},
-    ecg:          {type:'ecg', rhythm:'tachycardie', bpm:138, pr:145, qrs:82, anomalies:['Tachycardie sinusale'], evaluation:'tachycardie'},
-    auscultation: {type:'auscultation', heartSound:'Tachycarde', bpm:138, breathing:'MV diminué G', rales:'présents', murmur:'absent'},
-    glucose:      {type:'glucose', value:4.2, unit:'mmol/L', evaluation:'normal'},
-    temp:         {type:'temp', value:36.2, unit:'°C', evaluation:'normale'},
-  },
-  fall: {
-    initial:      {type:'initial', state:'injured', stateLabel:'Polytraumatisé', severity:'4/5 — Sérieux', injuries:'5 traumatismes', pulse:'Normal (80)', breathing:'Normale'},
-    bp:           {type:'bp', systolic:122, diastolic:74, pulse:84, evaluation:'normale'},
-    spo2:         {type:'spo2', spo2:96, evaluation:'Normal', detail:'Respiration normale'},
-    neuro:        {type:'neuro', gcs:10, gcsO:3, gcsV:3, gcsM:4, pupils:'Asymétrie pupillaire'},
-    ecg:          {type:'ecg', rhythm:'normal', bpm:82, pr:155, qrs:85, anomalies:[], evaluation:'normal'},
-    auscultation: {type:'auscultation', heartSound:'Normal', bpm:84, breathing:'Normale', rales:'absents', murmur:'absent'},
-    glucose:      {type:'glucose', value:6.1, unit:'mmol/L', evaluation:'normal'},
-    temp:         {type:'temp', value:36.8, unit:'°C', evaluation:'normale'},
-  },
-  fire: {
-    initial:      {type:'initial', state:'injured', stateLabel:'Brûlures étendues', severity:'4/5 — Sérieux', injuries:'4 zones brûlées', pulse:'Rapide (118)', breathing:'Rauque'},
-    bp:           {type:'bp', systolic:102, diastolic:62, pulse:118, evaluation:'normale'},
-    spo2:         {type:'spo2', spo2:91, evaluation:'Hypoxie légère', detail:'Inhalation de fumée possible'},
-    neuro:        {type:'neuro', gcs:13, gcsO:4, gcsV:4, gcsM:5, pupils:'Réactives'},
-    ecg:          {type:'ecg', rhythm:'normal', bpm:116, pr:148, qrs:88, anomalies:[], evaluation:'normal'},
-    auscultation: {type:'auscultation', heartSound:'Normal', bpm:118, breathing:'Sibilants', rales:'présents', murmur:'absent'},
-    glucose:      {type:'glucose', value:7.2, unit:'mmol/L', evaluation:'normal'},
-    temp:         {type:'temp', value:38.8, unit:'°C', evaluation:'fièvre'},
-  },
-  minor: {
-    initial:      {type:'initial', state:'conscious', stateLabel:'Blessures légères', severity:'1/5 — Léger', injuries:'2 blessures mineures', pulse:'Normal (72)', breathing:'Normale'},
-    bp:           {type:'bp', systolic:128, diastolic:78, pulse:72, evaluation:'normale'},
-    spo2:         {type:'spo2', spo2:99, evaluation:'Normal', detail:'Respiration normale'},
-    neuro:        {type:'neuro', gcs:15, gcsO:4, gcsV:5, gcsM:6, pupils:'Réactives égales'},
-    ecg:          {type:'ecg', rhythm:'normal', bpm:72, pr:158, qrs:88, anomalies:[], evaluation:'normal'},
-    auscultation: {type:'auscultation', heartSound:'Normal', bpm:72, breathing:'Normale', rales:'absents', murmur:'absent'},
-    glucose:      {type:'glucose', value:5.4, unit:'mmol/L', evaluation:'normal'},
-    temp:         {type:'temp', value:37.1, unit:'°C', evaluation:'normale'},
-  },
-};
-
-let demoScenarioKey = 'gunshot';
-
-// ─── Bâtiments CSS ────────────────────────────
-(function buildCity() {
-  const container = document.getElementById('cityBg');
-  if (!container) return;
-  const shapes = [
-    {w:30,h:120},{w:20,h:80},{w:45,h:180},{w:25,h:100},{w:60,h:220},
-    {w:18,h:60},{w:35,h:140},{w:50,h:160},{w:22,h:90},{w:40,h:200},
-    {w:28,h:110},{w:15,h:50},{w:55,h:190},{w:32,h:130},{w:20,h:75}
-  ];
-  shapes.forEach(s => {
-    const b = document.createElement('div');
-    b.className = 'building';
-    b.style.cssText = `width:${s.w}px;height:${s.h}px`;
-    container.appendChild(b);
-  });
-})();
-
-// ─── Ouvrir le panneau ────────────────────────
-function openMedical(data) {
-  currentMedical = data.medical || {};
-  const defaultZones = {head:[],torso:[],leftArm:[],rightArm:[],leftLeg:[],rightLeg:[]};
-  const rawInj = currentMedical.injuries || {};
-  currentMedical.injuries = {};
-  for (const zone of Object.keys(defaultZones)) {
-    const v = rawInj[zone];
-    if (!v) currentMedical.injuries[zone] = [];
-    else if (Array.isArray(v)) currentMedical.injuries[zone] = v;
-    else currentMedical.injuries[zone] = Object.values(v);
-  }
-  currentPatient = data.patientName || 'Inconnu';
-  sessionStart   = Date.now();
-
-  document.getElementById('med-patient-name').textContent = currentPatient;
-  updateStateBadge(currentMedical.state || 'conscious');
-  updateInjuriesList(currentMedical.injuries);
-
-  document.getElementById('med-notes').value = '';
-  document.getElementById('results-list').innerHTML =
-    '<div class="empty-results">Aucun examen.<br><small>Cliquez sur un examen pour démarrer.</small></div>';
-  document.querySelectorAll('.exam-btn').forEach(b => { b.classList.remove('done'); b.disabled = false; });
-
-  document.getElementById('v-bpm').textContent = '—';
-  document.getElementById('v-spo2').textContent = '—';
-  document.getElementById('v-bp').textContent = '—';
-  document.getElementById('v-temp').textContent = '—';
-  ['vc-bpm','vc-spo2','vc-bp','vc-temp'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('danger','warning');
-  });
-
-  clearInterval(timerInterval);
-  timerInterval = setInterval(tickTimer, 1000);
-  switchTab('examens');
-  cancelProtocol();
-  buildProtocolList();
-  stopEcgStrip();
-  document.getElementById('ecg-strip')?.classList.add('hidden');
-  closeFinaliseModal();
-  document.getElementById('medical-wrap').classList.remove('hidden');
-}
-
-function tickTimer() {
-  if (!sessionStart) return;
-  const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
-  const m = String(Math.floor(elapsed / 60)).padStart(2,'0');
-  const s = String(elapsed % 60).padStart(2,'0');
-  document.getElementById('med-timer').textContent = `${m}:${s}`;
-}
-
-function updateStateBadge(state) {
-  const badge = document.getElementById('med-state-badge');
-  const label = document.getElementById('med-state-label');
-  const map = {
-    conscious: {cls:'stable',   icon:'fa-check-circle',       text:'Stable'},
-    injured:   {cls:'injured',  icon:'fa-exclamation-circle', text:'Blessé'},
-    laststand: {cls:'critical', icon:'fa-heartbeat',          text:'Critique'},
-    dead:      {cls:'dead',     icon:'fa-skull',              text:'Décédé'},
-  };
-  const info = map[state] || map.conscious;
-  badge.className = `state-badge ${info.cls}`;
-  badge.querySelector('i').className = `fas ${info.icon}`;
-  label.textContent = info.text;
-}
-
-const ZONE_FR = {head:'Tête',torso:'Torse',rightArm:'Bras D.',leftArm:'Bras G.',rightLeg:'Jambe D.',leftLeg:'Jambe G.'};
-
-function updateInjuriesList(injuries) {
-  const list    = document.getElementById('injuries-list');
-  const countEl = document.getElementById('injuries-count');
-  let total = 0;
-  list.innerHTML = '';
-  for (const [zone, zInj] of Object.entries(injuries)) {
-    for (const inj of zInj) {
-      total++;
-      const card = document.createElement('div');
-      card.className = `inj-card sev-${Math.min(5, inj.severity || 1)}`;
-      const dots = Array.from({length:5}, (_,i) => {
-        const filled = i < (inj.severity || 1);
-        const red = (inj.severity || 1) >= 4;
-        return `<div class="inj-sev-dot ${filled ? 'filled'+(red?' red':'') : ''}"></div>`;
-      }).join('');
-      card.innerHTML = `
-        <div class="inj-zone">${ZONE_FR[zone] || zone}</div>
-        <div class="inj-type">${formatInjuryType(inj.type)}</div>
-        <div class="inj-sev-bar">${dots}</div>`;
-      list.appendChild(card);
-    }
-  }
-  countEl.textContent = total;
-}
-
-const INJ_MAP = {
-  gunshot:'🔴 Blessure par balle', stab:'🔪 Lacération', blunt:'🟡 Contusion',
-  burn:'🔥 Brûlure', explosion:'💥 Blast/Explosion', fracture:'🦴 Fracture',
-  internal:'🩸 Hémorragie interne', crush:'⚙️ Écrasement', shrapnel:'⚡ Éclat',
-  road:'🚗 Abrasion voie publique', fall:'⬇️ Trauma chute'
-};
-function formatInjuryType(type) { return INJ_MAP[type] || type; }
-
-// ─── Examens ──────────────────────────────────
-document.querySelectorAll('.exam-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (!document.getElementById('medical-wrap').classList.contains('hidden')) {
-      demoExam(btn.dataset.exam);
-    }
-  });
-});
-
-function demoExam(examId) {
-  if (!currentMedical) return;
-  const btn = document.querySelector(`.exam-btn[data-exam="${examId}"]`);
-  if (btn) {
-    btn.classList.add('loading');
-    btn.disabled = true;
-    const orig = btn.innerHTML;
-    btn.textContent = '⏳ En cours...';
-    setTimeout(() => {
-      btn.innerHTML = orig;
-      btn.classList.remove('loading');
-      btn.classList.add('done');
-      btn.disabled = false;
-      const scenario = EXAM_RESULTS[demoScenarioKey] || EXAM_RESULTS.minor;
-      const result   = scenario[examId];
-      if (result) {
-        renderResult({...result, ts: Math.floor(Date.now()/1000)});
-        checkProtocolAdvance(examId);
-      }
-    }, 1800 + Math.random() * 800);
-  }
-}
-
-// ─── Rendu résultats ──────────────────────────
-function renderResult(r) {
-  const list = document.getElementById('results-list');
-  const empty = list.querySelector('.empty-results');
-  if (empty) empty.remove();
-  const card = document.createElement('div');
-  card.className = 'result-card';
-  const title = getExamTitle(r.type);
-  const ts    = r.ts ? new Date(r.ts*1000).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '';
-  let html = `<div class="rc-title"><i class="${getExamIcon(r.type)}"></i> ${title} <span style="margin-left:auto;font-size:9px;opacity:0.5">${ts}</span></div>`;
-  switch (r.type) {
-    case 'initial':      html += row('État',r.stateLabel)+row('Sévérité',r.severity)+row('Blessures',r.injuries)+row('Pouls',r.pulse)+row('Respiration',r.breathing)+evalBadge(stateEval(r.state)); break;
-    case 'bp':           html += row('Systolique',`${r.systolic} mmHg`)+row('Diastolique',`${r.diastolic} mmHg`)+row('Pouls',`${r.pulse} bpm`)+evalBadge(bpEval(r.evaluation));
-      document.getElementById('v-bp').textContent=`${r.systolic}/${r.diastolic}`;
-      document.getElementById('v-bpm').textContent=r.pulse;
-      chipState('vc-bp', r.systolic>=140||r.systolic<90?(r.systolic>=140?'warning':'danger'):'');
-      chipState('vc-bpm', r.pulse>100?'warning':r.pulse<50?'danger':''); break;
-    case 'spo2':         html += row('SpO₂',`${r.spo2} %`)+row('Éval.',r.evaluation)+(r.detail?row('Détail',r.detail):'')+evalBadge(spo2Eval(r.spo2));
-      document.getElementById('v-spo2').textContent=r.spo2;
-      chipState('vc-spo2',r.spo2<88?'danger':r.spo2<95?'warning':''); break;
-    case 'neuro':        html += row('GCS Total',r.gcs)+row('GCS Y/V/M',`${r.gcsO}/${r.gcsV}/${r.gcsM}`)+row('Pupilles',r.pupils)+evalBadge(gcsEval(r.gcs)); break;
-    case 'ecg':          html += row('Rythme',r.rhythm)+row('FC',`${r.bpm} bpm`)+row('PR',`${r.pr} ms`)+row('QRS',`${r.qrs} ms`);
-      if (r.anomalies?.length) html+=`<div class="rc-row"><span class="rc-key">Anomalies</span><span class="rc-val" style="color:#fbbf24">${r.anomalies.join(', ')}</span></div>`;
-      html += evalBadge(ecgEval(r.evaluation));
-      startEcgStrip(r.bpm||70, r.rhythm||'normal');
-      document.getElementById('v-bpm').textContent=r.bpm;
-      chipState('vc-bpm',r.bpm>120?'warning':r.bpm<40?'danger':''); break;
-    case 'auscultation': html += row('Cœur',`${r.heartSound} — ${r.bpm} bpm`)+row('Murmure vés.',r.breathing)+row('Râles',r.rales)+row('Souffle',r.murmur)+evalBadge(r.rales==='présents'?{cls:'warn',text:'Râles présents'}:{cls:'ok',text:'Normal'}); break;
-    case 'glucose':      html += row('Glycémie',`${r.value} ${r.unit}`)+evalBadge(glucoseEval(r.evaluation)); break;
-    case 'temp':         html += row('Température',`${r.value} ${r.unit}`)+evalBadge(tempEval(r.evaluation));
-      document.getElementById('v-temp').textContent=r.value;
-      chipState('vc-temp',r.evaluation==='fièvre'?'warning':r.evaluation==='hypothermie'?'danger':''); break;
-  }
-  card.innerHTML = html;
-  list.appendChild(card);
-  list.scrollTop = list.scrollHeight;
-}
-
-function row(k,v) { return `<div class="rc-row"><span class="rc-key">${k}</span><span class="rc-val">${v??'—'}</span></div>`; }
-function evalBadge({cls,text}) { return `<div><span class="rc-eval ${cls}">${text}</span></div>`; }
-function chipState(id,state) { const el=document.getElementById(id); if(!el) return; el.classList.remove('danger','warning'); if(state) el.classList.add(state); }
-function stateEval(s) { return ({conscious:{cls:'ok',text:'Conscient'},injured:{cls:'warn',text:'Blessé'},laststand:{cls:'danger',text:'Critique'},dead:{cls:'danger',text:'Décédé'}})[s]||{cls:'info',text:s}; }
-function bpEval(e) { return e==='hypertension'?{cls:'warn',text:'Hypertension'}:e==='hypotension'?{cls:'danger',text:'Hypotension'}:{cls:'ok',text:'Normale'}; }
-function spo2Eval(v) { return v>=95?{cls:'ok',text:'Normal'}:v>=88?{cls:'warn',text:'Hypoxie légère'}:{cls:'danger',text:'Hypoxie sévère'}; }
-function gcsEval(g) { return g>=13?{cls:'ok',text:'GCS Normal'}:g>=9?{cls:'warn',text:'GCS Altéré'}:{cls:'danger',text:'GCS Critique'}; }
-function ecgEval(e) { const m={normal:{cls:'ok',text:'Sinusal normal'},tachycardie:{cls:'warn',text:'Tachycardie'},bradycardie:{cls:'warn',text:'Bradycardie'},fibrillation:{cls:'danger',text:'Fibrillation ventriculaire'},'arrêt cardiaque':{cls:'danger',text:'Arrêt cardiaque'}}; return m[e]||{cls:'info',text:e||'—'}; }
-function glucoseEval(e) { return e==='hypoglycémie'?{cls:'danger',text:'Hypoglycémie'}:e==='hyperglycémie'?{cls:'warn',text:'Hyperglycémie'}:{cls:'ok',text:'Normal'}; }
-function tempEval(e) { return e==='hypothermie'?{cls:'danger',text:'Hypothermie'}:e==='fièvre'?{cls:'warn',text:'Fièvre'}:{cls:'ok',text:'Normale'}; }
-function getExamTitle(t) { return ({initial:'Évaluation initiale',bp:'Tension artérielle',spo2:'Saturation O₂',neuro:'Examen neurologique',ecg:'Électrocardiogramme',auscultation:'Auscultation',glucose:'Glycémie',temp:'Température'})[t]||t; }
-function getExamIcon(t) { return ({initial:'fas fa-search',bp:'fas fa-tachometer-alt',spo2:'fas fa-lungs',neuro:'fas fa-brain',ecg:'fas fa-heartbeat',auscultation:'fas fa-stethoscope',glucose:'fas fa-tint',temp:'fas fa-thermometer-half'})[t]||'fas fa-vial'; }
-
-// ─── Tabs ─────────────────────────────────────
-document.querySelectorAll('.ctab').forEach(btn => {
-  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-});
-function switchTab(tab) {
-  document.querySelectorAll('.ctab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  document.getElementById('tab-examens')?.classList.toggle('hidden', tab !== 'examens');
-  document.getElementById('tab-protocoles')?.classList.toggle('hidden', tab !== 'protocoles');
-}
-
-// ─── Protocoles ───────────────────────────────
-const PROTOCOLS = [
-  { id:'abcde', label:'Bilan ABCDE', icon:'📋',
-    steps: [
-      {id:'A',label:'Airways — Voies aériennes',icon:'🫁',examId:'auscultation',hint:'Vérifier la liberté des voies aériennes'},
-      {id:'B',label:'Breathing — Respiration',  icon:'💨',examId:'spo2',        hint:'Évaluer la ventilation et la SpO₂'},
-      {id:'C',label:'Circulation',              icon:'💓',examId:'bp',          hint:'Bilan circulatoire, pouls et PA'},
-      {id:'D',label:'Disability — Neuro',       icon:'🧠',examId:'neuro',       hint:'Score GCS et réactivité pupillaire'},
-      {id:'E',label:'Exposure — Exposition',    icon:'🔍',examId:'initial',     hint:'Bilan lésionnel complet'},
-    ]},
-  { id:'poly_trauma', label:'Polytraumatisme', icon:'🚑',
-    steps: [
-      {id:'1',label:'Contrôle hémorragies',    icon:'🩸',examId:'initial',  hint:'Arrêter les saignements actifs'},
-      {id:'2',label:'Liberté voies aériennes', icon:'🫁',examId:'spo2',     hint:'Intubation si nécessaire'},
-      {id:'3',label:'Bilan hémodynamique',     icon:'💓',examId:'bp',       hint:'Tension artérielle et FC'},
-      {id:'4',label:'ECG de contrôle',         icon:'📈',examId:'ecg',      hint:'Rechercher trouble du rythme'},
-      {id:'5',label:'Bilan neurologique',      icon:'🧠',examId:'neuro',    hint:'GCS et score de Glasgow'},
-      {id:'6',label:'Glycémie + température',  icon:'🌡️',examId:'glucose',  hint:'Paramètres biologiques rapides'},
-    ]},
-  { id:'cardiac', label:'Arrêt cardiaque', icon:'❤️',
-    steps: [
-      {id:'1',label:'Confirmation arrêt',       icon:'💀',examId:'initial',hint:'Absence de pouls et de conscience'},
-      {id:'2',label:'ECG — Rythme choquable ?', icon:'📈',examId:'ecg',   hint:'FV ou TV → défibrillation'},
-      {id:'3',label:'Ventilation assistée',     icon:'🫁',examId:'spo2',  hint:'Vérifier la ventilation assistée'},
-      {id:'4',label:'Bilan post-réanimation',   icon:'🧠',examId:'neuro', hint:'GCS et déficit neurologique'},
-    ]}
-];
-let activeProtocol = null, activeStepIdx = 0;
-
-function buildProtocolList() {
-  const list = document.getElementById('proto-list');
-  if (!list) return;
-  list.innerHTML = '';
-  PROTOCOLS.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'proto-card';
-    card.innerHTML = `
-      <div class="proto-card-icon">${p.icon}</div>
-      <div class="proto-card-info"><div class="proto-card-title">${p.label}</div><div class="proto-card-steps">${p.steps.length} étapes</div></div>
-      <button class="proto-start-btn">Démarrer →</button>`;
-    card.querySelector('.proto-start-btn').addEventListener('click', () => startProtocol(p));
-    list.appendChild(card);
-  });
-}
-
-function startProtocol(protocol) {
-  activeProtocol = protocol; activeStepIdx = 0;
-  document.getElementById('proto-list').classList.add('hidden');
-  document.getElementById('proto-active').classList.remove('hidden');
-  document.getElementById('proto-active-label').textContent = `${protocol.icon} ${protocol.label}`;
-  renderProtocolSteps();
-}
-
-function renderProtocolSteps() {
-  const container = document.getElementById('proto-steps');
-  if (!container) return;
-  container.innerHTML = '';
-  activeProtocol.steps.forEach((step, i) => {
-    const isDone = i < activeStepIdx, isCurrent = i === activeStepIdx;
-    const el = document.createElement('div');
-    el.className = `proto-step ${isDone?'done':''} ${isCurrent?'current':''}`;
-    el.innerHTML = `
-      <div class="proto-step-badge">${isDone?'✓':step.id}</div>
-      <div class="proto-step-body"><div class="proto-step-label">${step.icon} ${step.label}</div><div class="proto-step-hint">${step.hint}</div></div>
-      ${isCurrent?`<button class="proto-step-btn" data-exam="${step.examId}">Lancer</button>`:''}`;
-    if (isCurrent) el.querySelector('.proto-step-btn').addEventListener('click', () => { demoExam(step.examId); });
-    container.appendChild(el);
-  });
-  const bar = document.getElementById('proto-progress-bar');
-  if (bar) bar.style.width = `${(activeStepIdx / activeProtocol.steps.length) * 100}%`;
-}
-
-function checkProtocolAdvance(examType) {
-  if (!activeProtocol || activeStepIdx >= activeProtocol.steps.length) return;
-  if (activeProtocol.steps[activeStepIdx].examId === examType) {
-    activeStepIdx++;
-    if (activeStepIdx >= activeProtocol.steps.length) {
-      const container = document.getElementById('proto-steps');
-      const bar = document.getElementById('proto-progress-bar');
-      if (container) container.innerHTML = `<div class="proto-complete">✅ Protocole terminé avec succès !<br><small>Tous les examens ont été réalisés.</small></div>`;
-      if (bar) bar.style.width = '100%';
-      setTimeout(cancelProtocol, 3500);
-    } else { renderProtocolSteps(); }
-  }
-}
-
-function cancelProtocol() {
-  activeProtocol = null; activeStepIdx = 0;
-  const list = document.getElementById('proto-list'), active = document.getElementById('proto-active');
-  const bar = document.getElementById('proto-progress-bar');
-  list?.classList.remove('hidden'); active?.classList.add('hidden');
-  if (bar) bar.style.width = '0%';
-}
-document.getElementById('btn-proto-cancel')?.addEventListener('click', cancelProtocol);
-
-// ─── ECG animé ────────────────────────────────
-function startEcgStrip(bpm, rhythm) {
-  stopEcgStrip();
-  _ecgBpm = bpm||70; _ecgRhythm = rhythm||'normal'; _ecgPhase = 0;
-  document.getElementById('ecg-strip')?.classList.remove('hidden');
-  const label = document.getElementById('ecg-rhythm-label');
-  if (label) label.textContent = rhythm||'normal';
-  const canvas = document.getElementById('ecg-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height, mid = H/2;
-  const traceColor = (_ecgRhythm==='fibrillation'||_ecgRhythm==='arrêt cardiaque')?'#ef4444':_ecgRhythm==='tachycardie'?'#fbbf24':'#22c55e';
-  _ecgPrevY = mid;
-  function waveY(ph) {
-    if (_ecgBpm===0||_ecgRhythm==='arrêt cardiaque') return mid;
-    if (_ecgRhythm==='fibrillation') return mid+(Math.random()-0.5)*18;
-    const p=ph%1;
-    if(p<0.12) return mid-4*Math.sin((p/0.12)*Math.PI);
-    if(p<0.18) return mid;
-    if(p<0.20) return mid+3;
-    if(p<0.22) return mid-(_ecgRhythm==='tachycardie'?20:26);
-    if(p<0.24) return mid+5;
-    if(p<0.28) return mid;
-    if(p<0.45) return mid-7*Math.sin(((p-0.28)/0.17)*Math.PI);
-    return mid;
-  }
-  const speed = Math.max(0.4, Math.min(3.5, _ecgBpm/55));
-  function draw() {
-    const img = ctx.getImageData(1,0,W-1,H); ctx.clearRect(0,0,W,H); ctx.putImageData(img,0,0);
-    ctx.clearRect(W-3,0,3,H); ctx.fillStyle='rgba(34,197,94,0.10)'; ctx.fillRect(W-2,0,2,H);
-    _ecgPhase += speed*0.007; const newY = waveY(_ecgPhase);
-    ctx.beginPath(); ctx.strokeStyle=traceColor; ctx.lineWidth=1.5;
-    ctx.shadowColor=traceColor; ctx.shadowBlur=3;
-    ctx.moveTo(W-2,_ecgPrevY); ctx.lineTo(W-1,newY); ctx.stroke(); ctx.shadowBlur=0;
-    _ecgPrevY=newY; _ecgRaf=requestAnimationFrame(draw);
-  }
-  draw();
-}
-function stopEcgStrip() { if(_ecgRaf){cancelAnimationFrame(_ecgRaf);_ecgRaf=null;} }
-
-// ─── Fermer ───────────────────────────────────
-document.getElementById('med-close')?.addEventListener('click', closeAll);
-document.getElementById('btn-close-footer')?.addEventListener('click', closeAll);
-function closeAll() {
-  clearInterval(timerInterval); stopEcgStrip(); closeFinaliseModal();
-  document.getElementById('medical-wrap').classList.add('hidden');
-  document.getElementById('death-screen').classList.add('hidden');
-  document.getElementById('laststand-hud').classList.add('hidden');
-}
-
-// ─── Finaliser ────────────────────────────────
-function buildDiagSummary() {
-  if (!currentMedical) return '';
-  const injuries = currentMedical.injuries || {};
-  let totalInj=0, maxSev=0, zones=[];
-  for (const [zone, zInj] of Object.entries(injuries)) {
-    if (zInj.length > 0) {
-      totalInj += zInj.length; zones.push(ZONE_FR[zone]||zone);
-      for (const inj of zInj) if ((inj.severity||1) > maxSev) maxSev = inj.severity||1;
-    }
-  }
-  if (totalInj===0) return 'Aucune blessure détectée.';
-  const sevLabel = maxSev>=4?'⚠️ Grave':maxSev>=3?'🟠 Modéré':'🟡 Léger';
-  let s = `${totalInj} blessure(s) — Sévérité ${sevLabel} — Zones : ${zones.join(', ')}`;
-  if (currentMedical.bleeding) s += ' 🩸';
-  return s;
-}
-
-function openFinaliseModal() {
-  const examsCount = document.querySelectorAll('.result-card').length;
-  const stateLabel = document.getElementById('med-state-label')?.textContent || 'Inconnu';
-  const diag = buildDiagSummary();
-  const summary = document.getElementById('fm-summary');
-  if (summary) {
-    summary.innerHTML = `
-      <div class="fm-row"><span>Patient</span><strong>${currentPatient}</strong></div>
-      <div class="fm-row"><span>État</span><strong>${stateLabel}</strong></div>
-      <div class="fm-row"><span>Examens réalisés</span><strong>${examsCount}</strong></div>
-      <div class="fm-summary-text">${diag}</div>`;
-  }
-  const sl = stateLabel.toLowerCase();
-  let est = '300 – 1 000 $';
-  if (sl.includes('critique')||sl.includes('décédé')) est='3 000 – 8 000 $';
-  else if (sl.includes('blessé')) est='1 000 – 2 500 $';
-  const cp = document.getElementById('fm-cost-preview');
-  if (cp) cp.textContent = `💰 Estimation des frais : ${est}`;
-  document.getElementById('fm-diagnosis').value = '';
-  document.getElementById('finalise-modal')?.classList.remove('hidden');
-}
-function closeFinaliseModal() { document.getElementById('finalise-modal')?.classList.add('hidden'); }
-document.getElementById('btn-finalize')?.addEventListener('click', openFinaliseModal);
-document.getElementById('btn-fm-cancel')?.addEventListener('click', closeFinaliseModal);
-document.getElementById('btn-fm-confirm')?.addEventListener('click', () => {
-  closeFinaliseModal();
-  showToast('📋 Dossier enregistré — (démo)', 'success');
-  setTimeout(closeAll, 1200);
-});
-
-// ─── Death / Last stand ───────────────────────
-function showDeath(delaySeconds) {
-  document.getElementById('laststand-hud').classList.add('hidden');
-  clearInterval(lsInterval);
-  respawnDelay = delaySeconds || 60;
-  respawnUnlock = Date.now() + respawnDelay * 1000;
-  const btn = document.getElementById('btn-respawn');
-  if (btn) btn.disabled = true;
-  const bar = document.getElementById('death-bleed-bar');
-  if (bar) bar.style.width = '100%';
-  document.getElementById('death-screen').classList.remove('hidden');
-  clearInterval(respawnInterval);
-  respawnInterval = setInterval(() => {
-    const remaining = Math.max(0, Math.ceil((respawnUnlock-Date.now())/1000));
-    const label = document.getElementById('death-timer');
-    if (label) { const m=String(Math.floor(remaining/60)).padStart(2,'0'),s=String(remaining%60).padStart(2,'0'); label.textContent=`${m}:${s}`; }
-    if (bar && respawnDelay > 0) bar.style.width=`${(remaining/respawnDelay)*100}%`;
-    if (remaining <= 0) { clearInterval(respawnInterval); if(btn) btn.disabled=false; if(bar) bar.style.width='0%'; }
-  }, 1000);
-}
-
-function showLastStand(durationSeconds) {
-  lastStandEnd = Date.now() + durationSeconds * 1000;
-  document.getElementById('laststand-hud').classList.remove('hidden');
-  document.getElementById('death-screen').classList.add('hidden');
-  const bar = document.getElementById('ls-bar');
-  if (bar) bar.style.width = '100%';
-  clearInterval(lsInterval);
-  lsInterval = setInterval(() => {
-    const remaining = Math.max(0, Math.ceil((lastStandEnd-Date.now())/1000));
-    const m=String(Math.floor(remaining/60)).padStart(2,'0'),s=String(remaining%60).padStart(2,'0');
-    document.getElementById('ls-timer').textContent=`${m}:${s}`;
-    if (bar && durationSeconds > 0) bar.style.width=`${(remaining/durationSeconds)*100}%`;
-    if (remaining <= 0) { clearInterval(lsInterval); document.getElementById('laststand-hud').classList.add('hidden'); }
-  }, 1000);
-}
-
-document.getElementById('btn-respawn')?.addEventListener('click', () => {
-  if (!document.getElementById('btn-respawn').disabled) {
-    document.getElementById('death-screen').classList.add('hidden');
-    showToast('🏥 Téléportation à l\'hôpital... (démo)', 'info');
-  }
-});
-document.getElementById('btn-distress')?.addEventListener('click', () => {
-  const btn = document.getElementById('btn-distress');
-  btn.textContent = '✅ Signal envoyé !'; btn.disabled = true;
-  showToast('📡 Signal de détresse envoyé au dispatch', 'info');
-  setTimeout(() => { btn.innerHTML='<kbd>G</kbd> Signal de détresse'; btn.disabled=false; }, 5000);
-});
-
-// ─── Toast ────────────────────────────────────
-function showToast(message, type='info') {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`; toast.textContent = message;
-  container.appendChild(toast);
-  setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity .3s'; setTimeout(()=>toast.remove(),350); }, 3500);
-}
-
-// ─── Contrôles démo ───────────────────────────
-function demoOpenPanel() {
-  const scenario = DEMO_SCENARIOS[demoScenarioKey] || DEMO_SCENARIOS.gunshot;
-  const patient  = DEMO_PATIENTS[Math.floor(Math.random() * DEMO_PATIENTS.length)];
-  openMedical({ patientName: patient, medical: { state: scenario.state, injuries: scenario.injuries, bleeding: scenario.bleeding } });
-  showToast(`👤 Patient : ${patient}`, 'info');
-}
-
-function demoScenario(key) {
-  demoScenarioKey = key;
-  const scenario = DEMO_SCENARIOS[key];
-  document.getElementById('demo-scenario-status').textContent = scenario.label;
-  demoOpenPanel();
-}
-
-function demoState(state) {
-  if (!currentMedical) { showToast('⚠️ Ouvrez d\'abord le panneau EMS', 'error'); return; }
-  currentMedical.state = state;
-  updateStateBadge(state);
-  const labels = {conscious:'Stable',injured:'Blessé',laststand:'Critique'};
-  showToast(`État → ${labels[state] || state}`, 'info');
-}
-
-function demoLastStand() {
-  document.getElementById('medical-wrap').classList.add('hidden');
-  showLastStand(480);
-  showToast('⚠️ État critique — last stand activé', 'error');
-}
-
-function demoDeath() {
-  document.getElementById('medical-wrap').classList.add('hidden');
-  document.getElementById('laststand-hud').classList.add('hidden');
-  clearInterval(lsInterval);
-  showDeath(120);
-}
-
-function demoFinalize() {
-  if (!currentMedical) { showToast('⚠️ Ouvrez d\'abord le panneau EMS', 'error'); return; }
-  openFinaliseModal();
-}
-
-function demoClose() {
-  closeAll();
-  demoScenarioKey = 'gunshot';
-  currentMedical = null;
-  document.getElementById('demo-scenario-status').textContent = 'Aucun scénario chargé';
-}
-
-// ESC
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { if (!document.getElementById('medical-wrap').classList.contains('hidden')) closeAll(); }
-});
-
-// Charger un scénario par défaut au démarrage
-demoScenario('gunshot');
-</script>
+</body>
+</html>

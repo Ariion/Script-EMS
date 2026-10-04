@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Nova Imagerie</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" crossorigin="anonymous" defer></script>
+<style>
+:root{
+  --bg:#040a16;--surface:rgba(4,12,28,0.90);--accent:#818cf8;--blue:#38bdf8;
+  --green:#4ade80;--yellow:#fbbf24;--red:#f87171;--fg:#e2eaf7;--dim:rgba(226,234,247,0.45);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;font-size:13px;overflow:hidden}
+.hidden{display:none!important}
+
+/* Layout */
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(4,10,22,0.95);border-bottom:1px solid rgba(129,140,248,0.15);flex-shrink:0;z-index:10}
+.topbar-back{display:flex;align-items:center;gap:6px;color:var(--dim);font-size:11px;text-decoration:none;padding:4px 8px;border:1px solid rgba(255,255,255,0.08);border-radius:6px;transition:all .15s}
+.topbar-back:hover{color:var(--fg);border-color:rgba(255,255,255,0.18)}
+.topbar-title{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;color:var(--accent);flex:1;text-align:center}
+.topbar-score{font-size:11px;font-weight:700;color:var(--yellow);letter-spacing:1px;min-width:60px;text-align:right}
+
+/* Main content */
+.main{display:flex;flex:1;overflow:hidden;gap:0}
+
+/* Viewer */
+.viewer-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:#020609;position:relative;overflow:hidden}
+.viewer-wrap::before{content:'NOVA IMAGERIE';position:absolute;bottom:12px;right:14px;font-size:9px;letter-spacing:2px;color:rgba(129,140,248,0.2);font-family:'Rajdhani',sans-serif;font-weight:700}
+#xrayCanvas{cursor:crosshair;max-width:100%;max-height:100%;display:block;touch-action:none}
+.xray-overlay{position:absolute;inset:0;pointer-events:none}
+
+/* Timer ring */
+.timer-ring{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:rgba(4,10,22,0.80);border:1px solid rgba(129,140,248,0.22);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;color:var(--fg)}
+.timer-ring.warn{color:var(--yellow);border-color:rgba(251,191,36,0.35)}
+.timer-ring.danger{color:var(--red);border-color:rgba(239,68,68,0.40);animation:timerPulse 0.8s ease-in-out infinite}
+@keyframes timerPulse{0%,100%{opacity:1}50%{opacity:0.6}}
+
+/* Marker */
+.xray-marker{position:absolute;width:28px;height:28px;border-radius:50%;border:2px solid var(--yellow);transform:translate(-50%,-50%);pointer-events:none;animation:markerIn .2s ease forwards}
+@keyframes markerIn{from{transform:translate(-50%,-50%) scale(0.5);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.xray-marker-label{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:var(--yellow);white-space:nowrap}
+.xray-marker.hit{border-color:var(--green)}
+.xray-marker.hit .xray-marker-label{color:var(--green)}
+.xray-marker.miss{border-color:var(--red)}
+.xray-marker.miss .xray-marker-label{color:var(--red)}
+
+/* Anomaly reveal */
+.anomaly-reveal{position:absolute;border-radius:50%;pointer-events:none;animation:revealIn .3s ease forwards;border:2px solid}
+@keyframes revealIn{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* Side panel */
+.side-panel{width:300px;flex-shrink:0;background:rgba(4,10,22,0.92);border-left:1px solid rgba(129,140,248,0.12);display:flex;flex-direction:column;overflow:hidden}
+@media(max-width:700px){
+  .main{flex-direction:column}
+  .side-panel{width:100%;height:200px;border-left:none;border-top:1px solid rgba(129,140,248,0.12);flex-direction:row;overflow-x:auto;overflow-y:hidden}
+  .panel-body{display:flex;flex-direction:row;gap:8px;overflow-x:auto;padding:8px;flex:1}
+  .panel-section{flex-shrink:0;min-width:200px}
+}
+
+.panel-header{padding:12px 14px;border-bottom:1px solid rgba(129,140,248,0.10);flex-shrink:0}
+.panel-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(129,140,248,0.55)}
+.panel-body{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
+
+.panel-section{}
+.ps-label{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+
+/* Region selector */
+.region-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.region-btn{padding:8px 5px;background:rgba(129,140,248,0.06);border:1px solid rgba(129,140,248,0.14);border-radius:7px;color:rgba(226,234,247,0.60);cursor:pointer;font-size:10px;font-weight:600;font-family:inherit;text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.region-btn:hover{background:rgba(129,140,248,0.12);border-color:rgba(129,140,248,0.28);color:var(--fg)}
+.region-btn.active{background:rgba(129,140,248,0.16);border-color:rgba(129,140,248,0.40);color:var(--accent)}
+.region-btn span{font-size:16px}
+
+/* Pathology display */
+.patho-hint{padding:8px 10px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.16);border-radius:7px;font-size:10px;color:rgba(251,191,36,0.80);line-height:1.6}
+
+/* Markers list */
+.markers-list{display:flex;flex-direction:column;gap:4px}
+.marker-item{display:flex;align-items:center;gap:7px;padding:4px 8px;border-radius:5px;font-size:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)}
+.marker-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.marker-dot.pending{background:rgba(251,191,36,0.6)}
+.marker-dot.hit{background:var(--green)}
+.marker-dot.miss{background:var(--red)}
+
+/* Action button */
+.action-btn{width:100%;padding:10px;background:rgba(129,140,248,0.12);border:1px solid rgba(129,140,248,0.30);border-radius:8px;color:var(--accent);cursor:pointer;font-size:11px;font-weight:700;font-family:inherit;letter-spacing:0.5px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.action-btn:hover{background:rgba(129,140,248,0.22);border-color:rgba(129,140,248,0.50)}
+.action-btn:disabled{opacity:0.4;cursor:not-allowed}
+.action-btn.green{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.30);color:var(--green)}
+.action-btn.green:hover{background:rgba(74,222,128,0.22)}
+
+/* Results overlay */
+#resultsPanel{position:absolute;inset:0;background:rgba(4,10,22,0.92);display:flex;align-items:center;justify-content:center;z-index:20;backdrop-filter:blur(8px)}
+.results-box{width:min(400px,90vw);background:rgba(4,12,28,0.98);border:1px solid rgba(129,140,248,0.25);border-radius:16px;padding:24px;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.res-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;color:var(--accent);text-align:center;margin-bottom:16px}
+.score-ring{width:90px;height:90px;margin:0 auto 16px;position:relative;display:flex;align-items:center;justify-content:center}
+.score-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.score-num{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--fg)}
+.score-lbl{font-size:9px;color:var(--dim);text-align:center}
+.res-diag{background:rgba(129,140,248,0.07);border:1px solid rgba(129,140,248,0.16);border-radius:8px;padding:12px 14px;margin-bottom:12px}
+.res-diag-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(129,140,248,0.55);margin-bottom:6px}
+.res-diag-text{font-size:11px;color:var(--fg);line-height:1.7}
+.res-findings{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+.res-finding{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:5px;font-size:10px}
+.res-finding.found{background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.16);color:var(--green)}
+.res-finding.missed{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.16);color:var(--red)}
+.res-finding.false-pos{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.14);color:var(--yellow)}
+.res-btns{display:flex;gap:8px}
+.res-btn{flex:1;padding:9px;border-radius:8px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;border:1px solid;transition:all .15s}
+.res-btn.retry{background:rgba(129,140,248,0.10);border-color:rgba(129,140,248,0.28);color:var(--accent)}
+.res-btn.retry:hover{background:rgba(129,140,248,0.20)}
+.res-btn.chir{background:rgba(74,222,128,0.10);border-color:rgba(74,222,128,0.28);color:var(--green)}
+.res-btn.chir:hover{background:rgba(74,222,128,0.20)}
+
+/* Instruction overlay */
+#instrPanel{position:absolute;inset:0;background:rgba(4,10,22,0.88);display:flex;align-items:center;justify-content:center;z-index:20;backdrop-filter:blur(6px)}
+.instr-box{width:min(380px,88vw);text-align:center;padding:28px 24px;background:rgba(4,12,28,0.98);border:1px solid rgba(129,140,248,0.22);border-radius:14px;animation:fadeUp .3s ease}
+.instr-icon{font-size:36px;margin-bottom:14px}
+.instr-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;color:var(--accent);margin-bottom:8px}
+.instr-text{font-size:12px;color:var(--dim);line-height:1.8;margin-bottom:20px}
+.instr-start{width:100%;padding:11px;background:rgba(129,140,248,0.14);border:1px solid rgba(129,140,248,0.32);border-radius:8px;color:var(--accent);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.5px;transition:all .15s}
+.instr-start:hover{background:rgba(129,140,248,0.24)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <a class="topbar-back" href="../"><i class="fas fa-arrow-left"></i> Suite</a>
+    <div class="topbar-title"><i class="fas fa-x-ray"></i> NOVA IMAGERIE</div>
+    <div class="topbar-score" id="scoreDisplay">Score: —</div>
+  </div>
+
+  <div class="main">
+
+    <!-- Viewer X-ray -->
+    <div class="viewer-wrap" id="viewerWrap">
+      <canvas id="xrayCanvas"></canvas>
+      <div class="xray-overlay" id="markerLayer"></div>
+      <div class="timer-ring hidden" id="timerRing"><i class="fas fa-clock"></i> <span id="timerVal">60</span>s</div>
+
+      <!-- Instruction overlay -->
+      <div id="instrPanel">
+        <div class="instr-box">
+          <div class="instr-icon">🔬</div>
+          <div class="instr-title">IMAGERIE MÉDICALE</div>
+          <div class="instr-text">
+            Choisis une région corporelle, puis <strong>clique sur les anomalies</strong> que tu identifies dans l'image.<br><br>
+            Fractures, hématomes, pneumothorax, corps étrangers — identifie-les avant la fin du temps imparti.<br><br>
+            <strong>Ta précision détermine le diagnostic.</strong>
+          </div>
+          <button class="instr-start" onclick="closeInstr()">Commencer →</button>
+        </div>
+      </div>
+
+      <!-- Results overlay -->
+      <div id="resultsPanel" class="hidden">
+        <div class="results-box">
+          <div class="res-title">RÉSULTATS D'IMAGERIE</div>
+          <div class="score-ring">
+            <svg width="90" height="90" viewBox="0 0 90 90">
+              <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(129,140,248,0.12)" stroke-width="6"/>
+              <circle id="scoreArc" cx="45" cy="45" r="38" fill="none" stroke="var(--accent)" stroke-width="6" stroke-dasharray="239" stroke-dashoffset="239" stroke-linecap="round" style="transition:stroke-dashoffset 1s ease"/>
+            </svg>
+            <div>
+              <div class="score-num" id="scorePct">0%</div>
+              <div class="score-lbl">précision</div>
+            </div>
+          </div>
+          <div class="res-diag">
+            <div class="res-diag-label"><i class="fas fa-diagnoses"></i> Diagnostic</div>
+            <div class="res-diag-text" id="resDiagText">—</div>
+          </div>
+          <div class="res-findings" id="resFindings"></div>
+          <div class="res-btns">
+            <button class="res-btn retry" onclick="retryGame()"><i class="fas fa-redo"></i> Réessayer</button>
+            <button class="res-btn chir" onclick="goChirurgie()"><i class="fas fa-scalpel"></i> Chirurgie →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side Panel -->
+    <div class="side-panel">
+      <div class="panel-header">
+        <div class="panel-title"><i class="fas fa-sliders-h"></i> Contrôles</div>
+      </div>
+      <div class="panel-body">
+
+        <div class="panel-section">
+          <div class="ps-label"><i class="fas fa-map-marker-alt"></i> Région</div>
+          <div class="region-grid">
+            <button class="region-btn active" data-region="crane" onclick="selectRegion('crane')"><span>💀</span>Crâne</button>
+            <button class="region-btn" data-region="thorax" onclick="selectRegion('thorax')"><span>🫁</span>Thorax</button>
+            <button class="region-btn" data-region="abdomen" onclick="selectRegion('abdomen')"><span>🫃</span>Abdomen</button>
+            <button class="region-btn" data-region="membre" onclick="selectRegion('membre')"><span>🦴</span>Membre</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="ps-label"><i class="fas fa-exclamation-triangle"></i> Indice clinique</div>
+          <div class="patho-hint" id="clinicalHint">Sélectionne une région pour afficher les indices cliniques.</div>
+        </div>
+
+        <div class="panel-section">
+          <div class="ps-label"><i class="fas fa-map-pin"></i> Marqueurs posés <span id="markerCount" style="margin-left:auto;background:rgba(129,140,248,0.12);border:1px solid rgba(129,140,248,0.20);color:var(--accent);border-radius:8px;padding:1px 7px;font-size:9px">0</span></div>
+          <div class="markers-list" id="markersList">
+            <div style="font-size:10px;color:var(--dim);padding:6px;text-align:center">Cliquez sur l'image pour marquer les anomalies</div>
+          </div>
+        </div>
+
+        <button class="action-btn" id="validateBtn" onclick="validateMarkers()" disabled>
+          <i class="fas fa-check-circle"></i> Valider le diagnostic
+        </button>
+
+        <button class="action-btn green" onclick="newScan()">
+          <i class="fas fa-sync"></i> Nouveau scan
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── État global ──────────────────────────────────────────────
+const canvas  = document.getElementById('xrayCanvas');
+const ctx     = canvas.getContext('2d');
+const viewer  = document.getElementById('viewerWrap');
+const mLayer  = document.getElementById('markerLayer');
+let currentRegion = 'crane';
+let anomalies  = [];   // [{x,y,r,label,found:false}]
+let markers    = [];   // [{x,y,anomalyIdx}]
+let gameActive = false;
+let timerVal   = 60;
+let timerInterval = null;
+let totalScore = 0;
+
+// ── Données régions ──────────────────────────────────────────
+const REGIONS = {
+  crane: {
+    label: 'Crâne (radio)',
+    hint: 'TC + perte de conscience. Chercher : fractures du crâne, hématomes, masses intracrâniennes.',
+    pathologies: [
+      {label:'Fracture temporo-pariétale', severity:'sérieuse'},
+      {label:'Hématome sous-dural', severity:'critique'},
+      {label:'Fracture de l\'orbite', severity:'modérée'},
+      {label:'Contusion cérébrale', severity:'critique'},
+    ]
+  },
+  thorax: {
+    label: 'Thorax (radio)',
+    hint: 'Douleur thoracique + dyspnée. Chercher : fractures de côtes, pneumothorax, hémothorax, contusions.',
+    pathologies: [
+      {label:'Fractures de côtes (3e-5e)', severity:'sérieuse'},
+      {label:'Pneumothorax gauche', severity:'critique'},
+      {label:'Hémothorax droit', severity:'critique'},
+      {label:'Contusion pulmonaire', severity:'modérée'},
+    ]
+  },
+  abdomen: {
+    label: 'Abdomen (écho)',
+    hint: 'Traumatisme abdominal. Chercher : hémopéritoine, lacérations hépatiques/spléniques, corps étrangers.',
+    pathologies: [
+      {label:'Lacération splénique', severity:'critique'},
+      {label:'Hémopéritoine', severity:'critique'},
+      {label:'Corps étranger (balle)', severity:'sérieuse'},
+      {label:'Contusion rénale', severity:'modérée'},
+    ]
+  },
+  membre: {
+    label: 'Membre (radio)',
+    hint: 'Traumatisme du membre. Chercher : fractures, luxations, corps étrangers.',
+    pathologies: [
+      {label:'Fracture diaphysaire', severity:'sérieuse'},
+      {label:'Fracture comminutive', severity:'sérieuse'},
+      {label:'Corps étranger (éclat)', severity:'modérée'},
+      {label:'Luxation articulaire', severity:'modérée'},
+    ]
+  }
+};
+
+// ── Resize canvas ─────────────────────────────────────────────
+function resizeCanvas() {
+  const vw = viewer.clientWidth;
+  const vh = viewer.clientHeight;
+  const size = Math.min(vw, vh, 500);
+  canvas.width  = size;
+  canvas.height = size;
+  if (gameActive) drawXray(currentRegion);
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// ── Draw X-ray ────────────────────────────────────────────────
+function drawXray(region) {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Fond lightbox médical
+  const bg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.7);
+  bg.addColorStop(0, '#1a1a2a');
+  bg.addColorStop(1, '#04060e');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Bruit de film
+  addFilmGrain(W, H);
+
+  switch(region) {
+    case 'crane':   drawSkull(W, H); break;
+    case 'thorax':  drawThorax(W, H); break;
+    case 'abdomen': drawAbdomen(W, H); break;
+    case 'membre':  drawMembre(W, H); break;
+  }
+
+  // Label région
+  ctx.font = '10px Rajdhani, sans-serif';
+  ctx.fillStyle = 'rgba(129,140,248,0.35)';
+  ctx.textAlign = 'left';
+  ctx.letterSpacing = '2px';
+  ctx.fillText(REGIONS[region].label.toUpperCase(), 8, H - 8);
+
+  // Dessin des marqueurs sur canvas (si résultats affichés)
+  markers.forEach((m, i) => {
+    if (m.revealed) drawMarkerOnCanvas(m, i);
+  });
+}
+
+function addFilmGrain(W, H) {
+  const imgData = ctx.createImageData(W, H);
+  const d = imgData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = (Math.random() * 12) | 0;
+    d[i] = d[i+1] = d[i+2] = v;
+    d[i+3] = 18;
+  }
+  ctx.putImageData(imgData, 0, 0);
+}
+
+// ── Dessin Crâne ──────────────────────────────────────────────
+function drawSkull(W, H) {
+  const cx = W/2, cy = H*0.45;
+  const rx = W*0.28, ry = H*0.30;
+
+  // Calotte crânienne
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
+  const grad = ctx.createRadialGradient(cx-rx*0.2, cy-ry*0.2, 2, cx, cy, Math.max(rx,ry));
+  grad.addColorStop(0, 'rgba(240,240,255,0.55)');
+  grad.addColorStop(0.5, 'rgba(180,180,220,0.30)');
+  grad.addColorStop(1, 'rgba(80,80,120,0.08)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(220,220,255,0.75)';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.restore();
+
+  // Selle turcique (base du crâne)
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + ry*0.55, rx*0.55, ry*0.22, 0, 0, Math.PI);
+  ctx.strokeStyle = 'rgba(200,200,240,0.50)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Orbites
+  [cx - W*0.11, cx + W*0.11].forEach(ox => {
+    ctx.beginPath();
+    ctx.ellipse(ox, cy + ry*0.10, W*0.065, H*0.055, 0, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(5,8,20,0.85)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(160,160,200,0.45)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+  });
+
+  // Cavité nasale
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + ry*0.28);
+  ctx.quadraticCurveTo(cx - W*0.025, cy + ry*0.52, cx - W*0.02, cy + ry*0.65);
+  ctx.quadraticCurveTo(cx, cy + ry*0.68, cx + W*0.02, cy + ry*0.65);
+  ctx.quadraticCurveTo(cx + W*0.025, cy + ry*0.52, cx, cy + ry*0.28);
+  ctx.fillStyle = 'rgba(5,8,20,0.75)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(140,140,180,0.35)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Mandibule
+  ctx.beginPath();
+  ctx.moveTo(cx - rx*0.55, cy + ry*0.65);
+  ctx.quadraticCurveTo(cx - rx*0.60, cy + ry*1.0, cx, cy + ry*1.08);
+  ctx.quadraticCurveTo(cx + rx*0.60, cy + ry*1.0, cx + rx*0.55, cy + ry*0.65);
+  ctx.strokeStyle = 'rgba(180,180,220,0.55)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Dents (rangée)
+  for (let t = -4; t <= 4; t++) {
+    ctx.beginPath();
+    ctx.rect(cx + t*W*0.023 - W*0.008, cy + ry*0.70, W*0.018, H*0.025);
+    ctx.fillStyle = 'rgba(200,200,230,0.55)';
+    ctx.fill();
+  }
+
+  // Lignes de suture crânienne
+  ctx.setLineDash([3,4]);
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - ry);
+  ctx.quadraticCurveTo(cx + rx*0.3, cy - ry*0.4, cx + rx*0.9, cy);
+  ctx.strokeStyle = 'rgba(150,150,200,0.25)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - ry);
+  ctx.quadraticCurveTo(cx - rx*0.3, cy - ry*0.4, cx - rx*0.9, cy);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Colonne cervicale (bas)
+  for (let v = 0; v < 5; v++) {
+    const vy = cy + ry*0.95 + v * H*0.055;
+    ctx.beginPath();
+    ctx.roundRect(cx - W*0.035, vy, W*0.07, H*0.042, 3);
+    ctx.fillStyle = 'rgba(180,180,220,0.30)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(200,200,240,0.45)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+
+// ── Dessin Thorax ─────────────────────────────────────────────
+function drawThorax(W, H) {
+  const cx = W/2, cy = H*0.48;
+
+  // Colonne vertébrale
+  for (let v = 0; v < 12; v++) {
+    const vy = H*0.12 + v * H*0.065;
+    ctx.beginPath();
+    ctx.roundRect(cx - W*0.028, vy, W*0.056, H*0.048, 2);
+    ctx.fillStyle = 'rgba(200,200,240,0.35)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(220,220,255,0.50)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Sternum
+  ctx.beginPath();
+  ctx.roundRect(cx - W*0.018, H*0.13, W*0.036, H*0.62, 4);
+  ctx.fillStyle = 'rgba(180,180,220,0.28)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(200,200,240,0.45)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Côtes (12 paires)
+  for (let r = 0; r < 12; r++) {
+    const ry2 = H*0.13 + r * H*0.062;
+    const spread = Math.min(r * 0.02 + 0.12, 0.38);
+    const ribW = W * (0.16 + spread);
+    const ribH = H * 0.035;
+
+    // Côte gauche
+    ctx.beginPath();
+    ctx.moveTo(cx + W*0.032, ry2);
+    ctx.quadraticCurveTo(cx + ribW, ry2, cx + ribW*0.85, ry2 + ribH);
+    ctx.quadraticCurveTo(cx + ribW*0.7, ry2 + ribH*1.8, cx + W*0.032, ry2 + H*0.048);
+    ctx.strokeStyle = `rgba(190,190,230,${0.55 - r*0.02})`;
+    ctx.lineWidth = r < 3 ? 2 : 1.5;
+    ctx.stroke();
+
+    // Côte droite (symétrique)
+    ctx.beginPath();
+    ctx.moveTo(cx - W*0.032, ry2);
+    ctx.quadraticCurveTo(cx - ribW, ry2, cx - ribW*0.85, ry2 + ribH);
+    ctx.quadraticCurveTo(cx - ribW*0.7, ry2 + ribH*1.8, cx - W*0.032, ry2 + H*0.048);
+    ctx.strokeStyle = `rgba(190,190,230,${0.55 - r*0.02})`;
+    ctx.lineWidth = r < 3 ? 2 : 1.5;
+    ctx.stroke();
+  }
+
+  // Champs pulmonaires (zones sombres)
+  [-1, 1].forEach(side => {
+    const lx = cx + side * W*0.24;
+    ctx.beginPath();
+    ctx.ellipse(lx, cy, W*0.18, H*0.32, 0, 0, Math.PI*2);
+    const lg = ctx.createRadialGradient(lx, cy, 5, lx, cy, W*0.18);
+    lg.addColorStop(0, 'rgba(20,30,60,0.40)');
+    lg.addColorStop(1, 'rgba(8,12,30,0.25)');
+    ctx.fillStyle = lg;
+    ctx.fill();
+  });
+
+  // Cœur
+  const hg = ctx.createRadialGradient(cx - W*0.05, cy, 5, cx - W*0.05, cy, W*0.12);
+  hg.addColorStop(0, 'rgba(120,120,180,0.55)');
+  hg.addColorStop(1, 'rgba(80,80,140,0.20)');
+  ctx.beginPath();
+  ctx.ellipse(cx - W*0.05, cy + H*0.06, W*0.12, H*0.18, Math.PI*0.15, 0, Math.PI*2);
+  ctx.fillStyle = hg;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(160,160,210,0.35)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Clavicules
+  [-1, 1].forEach(side => {
+    ctx.beginPath();
+    ctx.moveTo(cx + side*W*0.04, H*0.12);
+    ctx.quadraticCurveTo(cx + side*W*0.22, H*0.09, cx + side*W*0.42, H*0.13);
+    ctx.strokeStyle = 'rgba(210,210,245,0.60)';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+  });
+}
+
+// ── Dessin Abdomen ────────────────────────────────────────────
+function drawAbdomen(W, H) {
+  const cx = W/2, cy = H*0.48;
+
+  // Colonne
+  for (let v = 0; v < 5; v++) {
+    const vy = H*0.15 + v*H*0.14;
+    ctx.beginPath();
+    ctx.roundRect(cx - W*0.03, vy, W*0.06, H*0.09, 3);
+    ctx.fillStyle = 'rgba(200,200,240,0.32)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(220,220,255,0.45)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Pelvis
+  ctx.beginPath();
+  ctx.ellipse(cx, H*0.83, W*0.32, H*0.12, 0, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(200,200,240,0.40)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(cx, H*0.83, W*0.18, H*0.07, 0, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(180,180,220,0.30)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Silhouettes organes
+  // Foie (droite)
+  ctx.beginPath();
+  ctx.ellipse(cx + W*0.15, H*0.32, W*0.16, H*0.12, Math.PI*0.1, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(100,80,140,0.20)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(150,130,200,0.30)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Rate (gauche)
+  ctx.beginPath();
+  ctx.ellipse(cx - W*0.18, H*0.33, W*0.09, H*0.08, Math.PI*0.2, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(80,80,140,0.22)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(130,130,200,0.30)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Reins
+  [-1, 1].forEach((side, i) => {
+    const ry = H*0.42;
+    const rx = cx + side * W*0.20;
+    ctx.beginPath();
+    ctx.ellipse(rx, ry, W*0.07, H*0.10, side*Math.PI*0.15, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(90,70,130,0.20)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(140,120,190,0.30)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Contours côtes inférieures
+  for (let r = 9; r < 12; r++) {
+    const ribY = H*0.10 + r * H*0.062;
+    const ribW = W * (0.16 + r*0.022);
+    [-1, 1].forEach(side => {
+      ctx.beginPath();
+      ctx.moveTo(cx + side*W*0.032, ribY);
+      ctx.quadraticCurveTo(cx + side*ribW, ribY, cx + side*ribW*0.75, ribY + H*0.07);
+      ctx.strokeStyle = `rgba(180,180,220,${0.35 - r*0.01})`;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+    });
+  }
+}
+
+// ── Dessin Membre ─────────────────────────────────────────────
+function drawMembre(W, H) {
+  const cx = W/2;
+
+  // Arrière-plan doux
+  const lg = ctx.createLinearGradient(0, 0, W, 0);
+  lg.addColorStop(0, 'rgba(15,20,40,0.3)');
+  lg.addColorStop(0.5, 'rgba(25,30,55,0.2)');
+  lg.addColorStop(1, 'rgba(15,20,40,0.3)');
+  ctx.fillStyle = lg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Os (fémur / tibia stylisé)
+  const boneW  = W*0.11;
+  const boneX  = cx - boneW/2;
+  const headR  = W*0.09;
+  const jointR = W*0.07;
+
+  // Tête osseuse supérieure
+  ctx.beginPath();
+  ctx.ellipse(cx, H*0.12, headR, headR*0.75, 0, 0, Math.PI*2);
+  const hg = ctx.createRadialGradient(cx - headR*0.2, H*0.10, 2, cx, H*0.12, headR);
+  hg.addColorStop(0, 'rgba(240,240,255,0.65)');
+  hg.addColorStop(0.6, 'rgba(180,180,230,0.35)');
+  hg.addColorStop(1, 'rgba(100,100,160,0.10)');
+  ctx.fillStyle = hg;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(220,220,255,0.60)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Diaphyse (fût de l'os)
+  const bg2 = ctx.createLinearGradient(boneX, 0, boneX + boneW, 0);
+  bg2.addColorStop(0, 'rgba(100,100,160,0.15)');
+  bg2.addColorStop(0.3, 'rgba(200,200,240,0.50)');
+  bg2.addColorStop(0.7, 'rgba(200,200,240,0.50)');
+  bg2.addColorStop(1, 'rgba(100,100,160,0.15)');
+  ctx.beginPath();
+  ctx.roundRect(boneX, H*0.18, boneW, H*0.62, 4);
+  ctx.fillStyle = bg2;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(200,200,240,0.55)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Canal médullaire (ligne centrale)
+  ctx.beginPath();
+  ctx.moveTo(cx, H*0.20);
+  ctx.lineTo(cx, H*0.78);
+  ctx.strokeStyle = 'rgba(5,8,20,0.55)';
+  ctx.lineWidth = boneW*0.35;
+  ctx.stroke();
+
+  // Épiphyse inférieure
+  ctx.beginPath();
+  ctx.ellipse(cx, H*0.88, jointR, jointR*0.65, 0, 0, Math.PI*2);
+  const jg = ctx.createRadialGradient(cx - jointR*0.2, H*0.86, 2, cx, H*0.88, jointR);
+  jg.addColorStop(0, 'rgba(230,230,255,0.60)');
+  jg.addColorStop(0.6, 'rgba(170,170,220,0.35)');
+  jg.addColorStop(1, 'rgba(90,90,150,0.10)');
+  ctx.fillStyle = jg;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(210,210,250,0.55)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Interligne articulaire
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(cx - jointR*1.3, H*0.83);
+  ctx.lineTo(cx + jointR*1.3, H*0.83);
+  ctx.strokeStyle = 'rgba(129,140,248,0.30)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Trabécules (texture osseuse)
+  for (let t = 0; t < 18; t++) {
+    const ty = H*0.20 + t * H*0.032;
+    const tw = boneW * (0.3 + Math.random()*0.2);
+    ctx.beginPath();
+    ctx.moveTo(cx - tw/2, ty);
+    ctx.lineTo(cx + tw/2, ty + H*0.015);
+    ctx.strokeStyle = `rgba(150,150,200,${0.08 + Math.random()*0.08})`;
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+}
+
+// ── Anomalies ─────────────────────────────────────────────────
+function generateAnomalies(region) {
+  const W = canvas.width, H = canvas.height;
+  const allPaths = REGIONS[region].pathologies;
+  // Sélectionner 2-3 anomalies aléatoires
+  const count  = 2 + (Math.random() < 0.5 ? 1 : 0);
+  const chosen = [...allPaths].sort(() => Math.random()-0.5).slice(0, count);
+
+  const positions = {
+    crane:   [[0.42,0.28],[0.58,0.35],[0.50,0.55],[0.38,0.42]],
+    thorax:  [[0.30,0.40],[0.68,0.38],[0.55,0.55],[0.25,0.65]],
+    abdomen: [[0.62,0.28],[0.25,0.32],[0.55,0.48],[0.35,0.60]],
+    membre:  [[0.50,0.35],[0.50,0.55],[0.48,0.70],[0.52,0.45]],
+  };
+
+  const pts = positions[region];
+  return chosen.map((p, i) => ({
+    x:    pts[i][0] * W,
+    y:    pts[i][1] * H,
+    r:    W * (0.05 + Math.random()*0.04),
+    label: p.label,
+    severity: p.severity,
+    found: false,
+    revealed: false,
+  }));
+}
+
+function drawAnomaliesOnCanvas() {
+  // Dessiner des zones subtiles pour les anomalies (très légères, pas trop visibles)
+  anomalies.forEach(a => {
+    if (a.revealed) return;
+    const g = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, a.r);
+    g.addColorStop(0, 'rgba(255,220,80,0.10)');
+    g.addColorStop(1, 'rgba(255,220,80,0)');
+    ctx.beginPath();
+    ctx.ellipse(a.x, a.y, a.r, a.r*0.8, 0, 0, Math.PI*2);
+    ctx.fillStyle = g;
+    ctx.fill();
+  });
+}
+
+function revealAnomalies() {
+  anomalies.forEach(a => { a.revealed = true; });
+  drawXray(currentRegion);
+
+  // Dessiner anomalies sur canvas
+  anomalies.forEach(a => {
+    ctx.beginPath();
+    ctx.ellipse(a.x, a.y, a.r, a.r*0.8, 0, 0, Math.PI*2);
+    const col = a.found ? 'rgba(74,222,128,0.5)' : 'rgba(239,68,68,0.4)';
+    ctx.fillStyle = a.found ? 'rgba(74,222,128,0.12)' : 'rgba(239,68,68,0.10)';
+    ctx.fill();
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4,3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Label
+    ctx.font = 'bold 9px Inter, sans-serif';
+    ctx.fillStyle = a.found ? 'rgba(74,222,128,0.9)' : 'rgba(239,68,68,0.9)';
+    ctx.textAlign = 'center';
+    ctx.fillText(a.label, a.x, a.y + a.r + 12);
+  });
+
+  // Redessiner marqueurs
+  markers.forEach((m, i) => drawMarkerOnCanvas(m, i));
+}
+
+function drawMarkerOnCanvas(m, i) {
+  const col = m.anomalyIdx >= 0 ? '#4ade80' : '#f87171';
+  ctx.beginPath();
+  ctx.arc(m.x, m.y, 12, 0, Math.PI*2);
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.font = 'bold 9px Inter, sans-serif';
+  ctx.fillStyle = col;
+  ctx.textAlign = 'center';
+  ctx.fillText(i+1, m.x, m.y + 4);
+}
+
+// ── Interaction canvas ────────────────────────────────────────
+canvas.addEventListener('click', handleCanvasClick);
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  const rect = canvas.getBoundingClientRect();
+  handleCanvasClick({clientX: t.clientX, clientY: t.clientY, rect});
+}, {passive:false});
+
+function handleCanvasClick(e) {
+  if (!gameActive) return;
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width  / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top)  * scaleY;
+
+  // Vérifier si near une anomalie
+  let hitIdx = -1;
+  anomalies.forEach((a, i) => {
+    const dx = x - a.x, dy = y - a.y;
+    if (Math.sqrt(dx*dx + dy*dy) < a.r * 1.5 && !a.found) {
+      hitIdx = i;
+      a.found = true;
+    }
+  });
+
+  markers.push({x, y, anomalyIdx: hitIdx});
+  updateMarkersList();
+  updateValidateBtn();
+
+  // Visual feedback sur canvas
+  ctx.beginPath();
+  ctx.arc(x, y, 14, 0, Math.PI*2);
+  ctx.strokeStyle = hitIdx >= 0 ? 'rgba(74,222,128,0.8)' : 'rgba(251,191,36,0.7)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.font = 'bold 10px Inter, sans-serif';
+  ctx.fillStyle = hitIdx >= 0 ? '#4ade80' : '#fbbf24';
+  ctx.textAlign = 'center';
+  ctx.fillText(markers.length, x, y + 4);
+}
+
+// ── Timer ─────────────────────────────────────────────────────
+function startTimer() {
+  timerVal = 60;
+  const ring = document.getElementById('timerRing');
+  ring.classList.remove('hidden','warn','danger');
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timerVal--;
+    document.getElementById('timerVal').textContent = timerVal;
+    if (timerVal <= 15) ring.classList.add('danger');
+    else if (timerVal <= 30) { ring.classList.remove('danger'); ring.classList.add('warn'); }
+    if (timerVal <= 0) {
+      clearInterval(timerInterval);
+      validateMarkers();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  document.getElementById('timerRing').classList.add('hidden');
+}
+
+// ── UI helpers ────────────────────────────────────────────────
+function updateMarkersList() {
+  const list = document.getElementById('markersList');
+  document.getElementById('markerCount').textContent = markers.length;
+  if (markers.length === 0) {
+    list.innerHTML = '<div style="font-size:10px;color:var(--dim);padding:6px;text-align:center">Cliquez sur l\'image pour marquer</div>';
+    return;
+  }
+  list.innerHTML = markers.map((m, i) => `
+    <div class="marker-item">
+      <div class="marker-dot pending"></div>
+      <span>Marqueur ${i+1}</span>
+    </div>`).join('');
+}
+
+function updateValidateBtn() {
+  document.getElementById('validateBtn').disabled = markers.length === 0;
+}
+
+function selectRegion(region) {
+  currentRegion = region;
+  document.querySelectorAll('.region-btn').forEach(b => b.classList.toggle('active', b.dataset.region === region));
+  document.getElementById('clinicalHint').textContent = REGIONS[region].hint;
+  newScan();
+}
+
+function newScan() {
+  stopTimer();
+  markers = [];
+  anomalies = generateAnomalies(currentRegion);
+  gameActive = true;
+  drawXray(currentRegion);
+  drawAnomaliesOnCanvas();
+  updateMarkersList();
+  updateValidateBtn();
+  document.getElementById('resultsPanel').classList.add('hidden');
+  startTimer();
+}
+
+function validateMarkers() {
+  if (!gameActive) return;
+  gameActive = false;
+  stopTimer();
+  revealAnomalies();
+  showResults();
+}
+
+function showResults() {
+  const total  = anomalies.length;
+  const found  = anomalies.filter(a => a.found).length;
+  const falseP = markers.filter(m => m.anomalyIdx < 0).length;
+  const score  = Math.max(0, Math.round((found / total)*100 - falseP*10));
+
+  document.getElementById('scorePct').textContent = `${score}%`;
+  const circ = 2 * Math.PI * 38;
+  const offset = circ - (score/100)*circ;
+  const arc = document.getElementById('scoreArc');
+  arc.style.stroke = score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--yellow)' : 'var(--red)';
+  setTimeout(() => arc.style.strokeDashoffset = offset, 100);
+
+  // Diagnostic
+  const foundLabels = anomalies.filter(a => a.found).map(a => a.label);
+  const missedLabels = anomalies.filter(a => !a.found).map(a => a.label);
+  let diagText = '';
+  if (foundLabels.length > 0) diagText += `Identifié : ${foundLabels.join(', ')}. `;
+  if (missedLabels.length > 0) diagText += `Non détecté : ${missedLabels.join(', ')}.`;
+  if (!diagText) diagText = 'Aucune anomalie identifiée.';
+  document.getElementById('resDiagText').textContent = diagText;
+
+  // Findings list
+  const fl = document.getElementById('resFindings');
+  fl.innerHTML = [
+    ...anomalies.filter(a => a.found).map(a => `<div class="res-finding found"><i class="fas fa-check-circle"></i> ${a.label}</div>`),
+    ...anomalies.filter(a => !a.found).map(a => `<div class="res-finding missed"><i class="fas fa-times-circle"></i> Manqué : ${a.label}</div>`),
+    ...(falseP > 0 ? [`<div class="res-finding false-pos"><i class="fas fa-exclamation-triangle"></i> ${falseP} marqueur(s) en zone saine</div>`] : [])
+  ].join('');
+
+  totalScore = score;
+  document.getElementById('scoreDisplay').textContent = `Score: ${score}%`;
+  document.getElementById('resultsPanel').classList.remove('hidden');
+
+  // MAJ markers visuels
+  const ml = document.getElementById('markersList');
+  ml.innerHTML = markers.map((m, i) => `
+    <div class="marker-item">
+      <div class="marker-dot ${m.anomalyIdx >= 0 ? 'hit' : 'miss'}"></div>
+      <span>Marqueur ${i+1} — ${m.anomalyIdx >= 0 ? anomalies[m.anomalyIdx].label : 'Zone saine'}</span>
+    </div>`).join('');
+}
+
+function retryGame() {
+  document.getElementById('resultsPanel').classList.add('hidden');
+  newScan();
+}
+
+function goChirurgie() {
+  window.location.href = '../chirurgie/';
+}
+
+function closeInstr() {
+  document.getElementById('instrPanel').classList.add('hidden');
+  newScan();
+}
+
+// Init
+document.getElementById('clinicalHint').textContent = REGIONS[currentRegion].hint;
+resizeCanvas();
+</script>
+</body>
+</html>
