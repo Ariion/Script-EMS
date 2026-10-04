@@ -369,31 +369,105 @@ function clearCanvas() {
 
 function drawField(color='rgba(80,120,60,0.25)') {
   const W = surgCanvas.width, H = surgCanvas.height;
-  ctx.fillStyle = 'rgba(4,20,10,0.35)';
-  ctx.fillRect(0, 0, W, H);
-  // Champ opératoire (tissu vert)
-  ctx.beginPath();
-  ctx.roundRect(W*0.08, H*0.12, W*0.84, H*0.76, 12);
-  ctx.fillStyle = 'rgba(20,60,30,0.60)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(60,120,70,0.40)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  ctx.fillStyle = '#030810';
+  ctx.fillRect(0,0,W,H);
+  // Champ opératoire — tissu chirurgical teal avec texture de plis
+  const dg = ctx.createLinearGradient(0,0,W*0.3,H);
+  dg.addColorStop(0,'rgba(16,54,34,0.97)');
+  dg.addColorStop(0.5,'rgba(13,47,29,0.95)');
+  dg.addColorStop(1,'rgba(18,58,36,0.97)');
+  ctx.fillStyle=dg;
+  ctx.beginPath();ctx.roundRect(W*0.03,H*0.03,W*0.94,H*0.94,10);ctx.fill();
+  // Plis du tissu (ombres verticales subtiles)
+  for(let i=0;i<9;i++){
+    const fx=W*0.05+i*W*0.105, c=(i%2?5:-4);
+    ctx.beginPath();ctx.moveTo(fx,H*0.03);
+    ctx.bezierCurveTo(fx+c,H*0.35,fx-c,H*0.65,fx,H*0.97);
+    ctx.strokeStyle=`rgba(${i%2?22:17},${i%2?66:56},${i%2?42:34},0.25)`;
+    ctx.lineWidth=0.9;ctx.stroke();
+  }
+  // Contour du champ stérile
+  const sx=W*0.20,sy=H*0.24,sw=W*0.60,sh=H*0.52;
+  ctx.beginPath();ctx.roundRect(sx,sy,sw,sh,8);
+  ctx.strokeStyle='rgba(60,108,72,0.45)';ctx.lineWidth=1.8;ctx.stroke();
+  // Pinces de Backhaus fixant le champ (métal chirurgical)
+  [[sx,sy],[sx+sw*0.5,sy],[sx+sw,sy],[sx,sy+sh],[sx+sw*0.5,sy+sh],[sx+sw,sy+sh],[sx,sy+sh*0.5],[sx+sw,sy+sh*0.5]].forEach(([cx2,cy2])=>{
+    ctx.beginPath();ctx.roundRect(cx2-5,cy2-3.5,10,7,2.5);
+    ctx.fillStyle='rgba(178,194,212,0.92)';ctx.fill();
+    ctx.strokeStyle='rgba(212,224,240,0.55)';ctx.lineWidth=0.7;ctx.stroke();
+    ctx.beginPath();ctx.roundRect(cx2-4,cy2-2.5,3.5,2,1);
+    ctx.fillStyle='rgba(233,242,252,0.38)';ctx.fill();
+  });
 }
 
 function drawSkin(W, H) {
-  const cx = W/2, cy = H/2;
+  const cx=W/2, cy=H/2+H*0.02;
+  const sw=W*0.52, sh=H*0.38;
+  // Peau — gradient radial chaud (vue de dessus abdomen)
+  const sg=ctx.createRadialGradient(cx,cy-sh*0.08,0,cx,cy,sw*0.60);
+  sg.addColorStop(0,'rgba(210,162,118,0.96)');
+  sg.addColorStop(0.35,'rgba(192,142,100,0.90)');
+  sg.addColorStop(0.70,'rgba(168,120,82,0.76)');
+  sg.addColorStop(1,'rgba(128,94,60,0.42)');
+  ctx.save();
+  ctx.beginPath();ctx.roundRect(cx-sw/2,cy-sh/2,sw,sh,10);
+  ctx.fillStyle=sg;ctx.fill();
+  // Plis cutanés naturels (texture de peau)
+  ctx.clip();
+  ctx.globalAlpha=0.065;
+  for(let i=0;i<9;i++){
+    const yl=cy-sh/2+i*(sh/9)+sh/18;
+    ctx.beginPath();ctx.moveTo(cx-sw/2+8,yl);
+    ctx.bezierCurveTo(cx-sw/4,yl+(i%2?-4:5),cx+sw/4,yl+(i%2?6:-4),cx+sw/2-8,yl+(i%2?-3:4));
+    ctx.strokeStyle='rgba(88,58,32,1)';ctx.lineWidth=0.9;ctx.stroke();
+  }
+  ctx.globalAlpha=1;ctx.restore();
+  // Bordure cutanée
+  ctx.beginPath();ctx.roundRect(cx-sw/2,cy-sh/2,sw,sh,10);
+  ctx.strokeStyle='rgba(134,96,62,0.62)';ctx.lineWidth=2;ctx.stroke();
+  // Nombril (repère anatomique)
   ctx.beginPath();
-  ctx.ellipse(cx, cy, W*0.28, H*0.18, 0, 0, Math.PI*2);
-  const sg = ctx.createRadialGradient(cx, cy, 2, cx, cy, W*0.28);
-  sg.addColorStop(0, 'rgba(200,160,120,0.65)');
-  sg.addColorStop(0.7,'rgba(170,120,85,0.45)');
-  sg.addColorStop(1,  'rgba(130,90,60,0.20)');
-  ctx.fillStyle = sg;
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(180,140,100,0.55)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  ctx.ellipse(cx,cy+sh*0.10,W*0.019,H*0.014,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(98,62,36,0.55)';ctx.fill();
+  ctx.strokeStyle='rgba(86,52,26,0.36)';ctx.lineWidth=1;ctx.stroke();
+  // Ligne médiane chirurgicale (trait de bistouri prévu)
+  ctx.setLineDash([3,4]);
+  ctx.beginPath();ctx.moveTo(cx,cy-sh*0.42);ctx.lineTo(cx,cy+sh*0.48);
+  ctx.strokeStyle='rgba(0,155,200,0.25)';ctx.lineWidth=1;ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawWound(W, H) {
+  const cx=W/2, cy=H/2, wr=W*0.26, hr=H*0.115;
+  // Couche de graisse sous-cutanée visible aux bords (jaune pâle)
+  ctx.beginPath();
+  ctx.ellipse(cx,cy,wr+6,hr+4,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(215,188,112,0.38)';ctx.fill();
+  // Fond de plaie — tissu musculaire profond
+  const wg=ctx.createRadialGradient(cx,cy,0,cx,cy,wr);
+  wg.addColorStop(0,'rgba(155,30,30,0.88)');
+  wg.addColorStop(0.45,'rgba(135,22,22,0.80)');
+  wg.addColorStop(0.80,'rgba(108,14,14,0.68)');
+  wg.addColorStop(1,'rgba(78,8,8,0.45)');
+  ctx.beginPath();ctx.ellipse(cx,cy,wr,hr,0,0,Math.PI*2);
+  ctx.fillStyle=wg;ctx.fill();
+  // Mare de sang (reflet brillant)
+  const bg=ctx.createRadialGradient(cx-wr*0.10,cy+hr*0.20,0,cx,cy,wr*0.62);
+  bg.addColorStop(0,'rgba(198,18,18,0.55)');
+  bg.addColorStop(0.5,'rgba(158,12,12,0.32)');
+  bg.addColorStop(1,'rgba(98,8,8,0.08)');
+  ctx.beginPath();ctx.ellipse(cx-wr*0.08,cy+hr*0.15,wr*0.52,hr*0.52,0,0,Math.PI*2);
+  ctx.fillStyle=bg;ctx.fill();
+  // Reflet spéculaire (sang humide)
+  ctx.beginPath();ctx.ellipse(cx-wr*0.22,cy-hr*0.22,wr*0.10,hr*0.09,-0.35,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,90,90,0.16)';ctx.fill();
+  // Bord de la plaie — incision
+  ctx.beginPath();ctx.ellipse(cx,cy,wr,hr,0,0,Math.PI*2);
+  ctx.strokeStyle='rgba(172,52,52,0.72)';ctx.lineWidth=2.5;ctx.stroke();
+  // Rétraction cutanée (bords de peau relevés)
+  ctx.beginPath();
+  ctx.ellipse(cx,cy,wr+3,hr+2,0,0,Math.PI*2);
+  ctx.strokeStyle='rgba(148,102,68,0.45)';ctx.lineWidth=3;ctx.stroke();
 }
 
 // ── ÉTAPE 1 : Préparation ─────────────────────────────────────
@@ -569,21 +643,8 @@ function scoreIncision() {
 function setupStep3() {
   const W = surgCanvas.width, H = surgCanvas.height;
   clearCanvas(); drawField();
-
-  // Plaie ouverte
+  drawWound(W, H);
   const cx = W/2, cy = H/2;
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, W*0.25, H*0.10, 0, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(100,20,20,0.70)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(180,80,80,0.50)';
-  ctx.lineWidth = 2; ctx.stroke();
-
-  // Tissu musculaire
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, W*0.22, H*0.08, 0, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(140,40,40,0.55)';
-  ctx.fill();
 
   // Corps étranger (balle/fragment)
   interObj = {x: cx + (Math.random()*W*0.12 - W*0.06), y: cy + (Math.random()*H*0.04 - H*0.02),
@@ -635,13 +696,7 @@ function dragObj(e) {
   interObj.x = p.x; interObj.y = p.y;
   const W = surgCanvas.width, H = surgCanvas.height;
   clearCanvas(); drawField();
-  // Plaie
-  ctx.beginPath();
-  ctx.ellipse(W/2, H/2, W*0.25, H*0.10, 0, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(100,20,20,0.70)'; ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(W/2, H/2, W*0.22, H*0.08, 0, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(140,40,40,0.55)'; ctx.fill();
+  drawWound(W, H);
   drawInterObj(interObj);
   // Zone de sortie (bac)
   ctx.beginPath();
@@ -664,8 +719,7 @@ function endDragObj() {
     removeDragListeners();
     const W2 = surgCanvas.width, H2 = surgCanvas.height;
     clearCanvas(); drawField();
-    ctx.beginPath(); ctx.ellipse(W2/2, H2/2, W2*0.25, H2*0.10, 0, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(100,20,20,0.50)'; ctx.fill();
+    drawWound(W2, H2);
     ctx.font = '28px serif'; ctx.textAlign = 'center';
     ctx.fillText('✅', W2/2, H2/2 + 10);
     ctx.font = '11px Inter,sans-serif'; ctx.fillStyle = 'rgba(74,222,128,0.80)';
@@ -686,9 +740,7 @@ function setupStep4() {
   bleedSpots = []; bleedHits = 0; bleedTotal = 0; bleedMissed = 0;
   clearCanvas(); drawField();
 
-  ctx.beginPath();
-  ctx.ellipse(W/2, H/2, W*0.28, H*0.14, 0, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(80,15,15,0.65)'; ctx.fill();
+  drawWound(W, H);
 
   addLog('Points hémorragiques actifs — hémostase requise', 'warn');
   updatePrecision(0);
@@ -738,8 +790,7 @@ function spawnBleedSpot(W, H) {
 function renderBleedStep() {
   const W = surgCanvas.width, H = surgCanvas.height;
   clearCanvas(); drawField();
-  ctx.beginPath(); ctx.ellipse(W/2,H/2,W*0.28,H*0.14,0,0,Math.PI*2);
-  ctx.fillStyle='rgba(80,15,15,0.65)'; ctx.fill();
+  drawWound(W, H);
   bleedSpots.forEach(s => {
     if (s.clicked || s.life <= 0) return;
     const a = s.life;

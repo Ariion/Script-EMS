@@ -243,96 +243,207 @@ const REGIONS = {
 
 const XR = {
   crane(ctx,W,H){
-    ctx.beginPath();ctx.ellipse(W/2,H*0.34,W*0.30,H*0.27,0,0,Math.PI*2);
-    ctx.fillStyle='rgba(200,220,240,0.75)';ctx.fill();
-    ctx.strokeStyle='rgba(220,235,255,0.90)';ctx.lineWidth=3;ctx.stroke();
-    ctx.beginPath();ctx.ellipse(W/2,H*0.32,W*0.23,H*0.21,0,0,Math.PI*2);
-    ctx.fillStyle='rgba(30,50,100,0.60)';ctx.fill();ctx.strokeStyle='rgba(180,210,250,0.45)';ctx.lineWidth=1.2;ctx.stroke();
-    ctx.beginPath();ctx.moveTo(W*0.22,H*0.29);ctx.lineTo(W*0.16,H*0.44);ctx.strokeStyle='rgba(200,220,250,0.55)';ctx.lineWidth=1.5;ctx.stroke();
-    ctx.beginPath();ctx.moveTo(W*0.78,H*0.29);ctx.lineTo(W*0.84,H*0.44);ctx.stroke();
-    ctx.beginPath();ctx.ellipse(W*0.38,H*0.57,W*0.08,H*0.05,0,0,Math.PI*2);
-    ctx.fillStyle='rgba(30,50,100,0.50)';ctx.fill();ctx.strokeStyle='rgba(170,200,250,0.65)';ctx.lineWidth=1.5;ctx.stroke();
-    ctx.beginPath();ctx.ellipse(W*0.62,H*0.57,W*0.08,H*0.05,0,0,Math.PI*2);
-    ctx.fill();ctx.stroke();
-    ctx.beginPath();ctx.moveTo(W*0.35,H*0.63);ctx.lineTo(W*0.35,H*0.70);ctx.lineTo(W*0.65,H*0.70);ctx.lineTo(W*0.65,H*0.63);
-    ctx.strokeStyle='rgba(180,210,250,0.50)';ctx.lineWidth=1.5;ctx.stroke();
-    for(let i=0;i<3;i++){
-      ctx.beginPath();ctx.roundRect(W/2-10,H*0.74+i*18,20,14,2);
-      ctx.fillStyle='rgba(190,215,250,0.55)';ctx.fill();
-      ctx.strokeStyle='rgba(210,230,255,0.70)';ctx.lineWidth=1;ctx.stroke();
-    }
-    // Suture lines / cranial detail
-    ctx.setLineDash([3,4]);
-    ctx.beginPath();ctx.moveTo(W*0.32,H*0.20);ctx.lineTo(W*0.68,H*0.20);
-    ctx.strokeStyle='rgba(0,212,255,0.15)';ctx.lineWidth=0.8;ctx.stroke();
+    const b='rgba(215,230,252,', d='rgba(28,48,108,', s='rgba(195,218,255,';
+    // Voûte crânienne (os frontal + pariétaux) — double table osseuse
+    ctx.beginPath();ctx.ellipse(W/2,H*0.33,W*0.31,H*0.26,0,0,Math.PI*2);
+    ctx.fillStyle=d+'0.55)';ctx.fill();
+    ctx.strokeStyle=b+'0.92)';ctx.lineWidth=3.5;ctx.stroke();
+    ctx.beginPath();ctx.ellipse(W/2,H*0.33,W*0.27,H*0.22,0,0,Math.PI*2);
+    ctx.strokeStyle=b+'0.45)';ctx.lineWidth=1.2;ctx.stroke();
+    // Sutures crâniennes (coronale, sagittale, lambdoïde)
+    ctx.setLineDash([2,3.5]);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(W*0.34,H*0.08);ctx.bezierCurveTo(W*0.34,H*0.20,W*0.66,H*0.20,W*0.66,H*0.08);
+    ctx.strokeStyle=b+'0.35)';ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W/2,H*0.07);ctx.lineTo(W/2,H*0.30);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W*0.20,H*0.40);ctx.bezierCurveTo(W*0.30,H*0.52,W*0.70,H*0.52,W*0.80,H*0.40);ctx.stroke();
     ctx.setLineDash([]);
+    // Arcades zygomatiques (pommettes)
+    ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(W*0.22,H*0.32);ctx.bezierCurveTo(W*0.12,H*0.38,W*0.12,H*0.48,W*0.22,H*0.52);
+    ctx.strokeStyle=s+'0.65)';ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W*0.78,H*0.32);ctx.bezierCurveTo(W*0.88,H*0.38,W*0.88,H*0.48,W*0.78,H*0.52);ctx.stroke();
+    // Orbites oculaires (rectangles sombres — vides aériens)
+    [W*0.35,W*0.65].forEach(ox=>{
+      ctx.beginPath();ctx.roundRect(ox-W*0.10,H*0.37,W*0.20,H*0.10,4);
+      ctx.fillStyle=d+'0.78)';ctx.fill();
+      ctx.strokeStyle=s+'0.70)';ctx.lineWidth=1.8;ctx.stroke();
+    });
+    // Fosse nasale (cavité noire centrale)
+    ctx.beginPath();
+    ctx.moveTo(W/2,H*0.42);ctx.lineTo(W*0.44,H*0.56);ctx.lineTo(W*0.42,H*0.60);
+    ctx.lineTo(W*0.58,H*0.60);ctx.lineTo(W*0.56,H*0.56);ctx.closePath();
+    ctx.fillStyle=d+'0.88)';ctx.fill();
+    ctx.strokeStyle=s+'0.42)';ctx.lineWidth=1.2;ctx.stroke();
+    // Sinus maxillaires (zones grises sous orbites)
+    [W*0.34,W*0.66].forEach(sx=>{
+      ctx.beginPath();ctx.ellipse(sx,H*0.52,W*0.08,H*0.055,0,0,Math.PI*2);
+      ctx.fillStyle=d+'0.42)';ctx.fill();
+      ctx.strokeStyle=s+'0.38)';ctx.lineWidth=1;ctx.stroke();
+    });
+    // Mandibule (arc inférieur)
+    ctx.beginPath();
+    ctx.moveTo(W*0.28,H*0.60);ctx.quadraticCurveTo(W*0.28,H*0.75,W/2,H*0.76);
+    ctx.quadraticCurveTo(W*0.72,H*0.75,W*0.72,H*0.60);
+    ctx.strokeStyle=b+'0.72)';ctx.lineWidth=2.5;ctx.stroke();
+    // Rangée de dents (maxillaire + mandibule)
+    for(let i=0;i<7;i++){
+      const tx=W*0.35+i*W*0.047;
+      ctx.beginPath();ctx.roundRect(tx,H*0.62,W*0.038,H*0.026,1.5);
+      ctx.fillStyle=b+'0.68)';ctx.fill();ctx.strokeStyle=s+'0.55)';ctx.lineWidth=0.8;ctx.stroke();
+      ctx.beginPath();ctx.roundRect(tx+W*0.004,H*0.655,W*0.030,H*0.022,1.5);
+      ctx.fillStyle=b+'0.55)';ctx.fill();ctx.strokeStyle=s+'0.42)';ctx.lineWidth=0.7;ctx.stroke();
+    }
+    // Processus mastoïdes
+    ctx.beginPath();ctx.ellipse(W*0.18,H*0.57,W*0.04,H*0.06,0,0,Math.PI*2);
+    ctx.fillStyle=b+'0.48)';ctx.fill();ctx.strokeStyle=s+'0.52)';ctx.lineWidth=1;ctx.stroke();
+    ctx.beginPath();ctx.ellipse(W*0.82,H*0.57,W*0.04,H*0.06,0,0,Math.PI*2);
+    ctx.fillStyle=b+'0.48)';ctx.fill();ctx.strokeStyle=s+'0.52)';ctx.lineWidth=1;ctx.stroke();
+    // Condyles occipitaux (articulation crânio-cervicale)
+    ctx.beginPath();ctx.ellipse(W*0.42,H*0.80,W*0.06,H*0.03,0,0,Math.PI*2);
+    ctx.fillStyle=b+'0.40)';ctx.fill();ctx.strokeStyle=s+'0.45)';ctx.lineWidth=1;ctx.stroke();
+    ctx.beginPath();ctx.ellipse(W*0.58,H*0.80,W*0.06,H*0.03,0,0,Math.PI*2);
+    ctx.fillStyle=b+'0.40)';ctx.fill();ctx.strokeStyle=s+'0.45)';ctx.lineWidth=1;ctx.stroke();
   },
   thorax(ctx,W,H){
-    for(let i=0;i<7;i++){
-      const y=H*0.18+i*H*0.09,rx=W*0.27-i*W*0.01,ry=H*0.052;
-      ctx.beginPath();ctx.ellipse(W*0.35,y+ry*0.3,rx,ry,-0.15,Math.PI*0.6,Math.PI*1.8);
-      ctx.strokeStyle=`rgba(210,230,255,${0.70-i*0.04})`;ctx.lineWidth=2.5;ctx.stroke();
-      ctx.beginPath();ctx.ellipse(W*0.65,y+ry*0.3,rx,ry,0.15,Math.PI*1.2,Math.PI*2.2);ctx.stroke();
-    }
-    ctx.beginPath();ctx.moveTo(W/2,H*0.12);ctx.lineTo(W/2,H*0.82);
-    ctx.strokeStyle='rgba(220,235,255,0.80)';ctx.lineWidth=4;ctx.stroke();
-    ctx.beginPath();ctx.moveTo(W*0.20,H*0.12);ctx.quadraticCurveTo(W*0.35,H*0.10,W/2,H*0.12);
-    ctx.strokeStyle='rgba(210,230,255,0.68)';ctx.lineWidth=3;ctx.stroke();
-    ctx.beginPath();ctx.moveTo(W*0.80,H*0.12);ctx.quadraticCurveTo(W*0.65,H*0.10,W/2,H*0.12);ctx.stroke();
+    const b='rgba(215,232,255,', d='rgba(18,38,95,', s='rgba(195,220,255,';
+    // Champs pulmonaires (zones sombres)
+    [[W*0.30,H*0.45],[W*0.70,H*0.45]].forEach(([lx,ly])=>{
+      ctx.beginPath();ctx.ellipse(lx,ly,W*0.18,H*0.30,0,0,Math.PI*2);
+      ctx.fillStyle=d+'0.42)';ctx.fill();
+    });
+    // Clavicules
+    ctx.lineWidth=3.5;
+    ctx.beginPath();ctx.moveTo(W*0.16,H*0.10);ctx.bezierCurveTo(W*0.28,H*0.07,W*0.38,H*0.09,W/2,H*0.12);
+    ctx.strokeStyle=b+'0.80)';ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W*0.84,H*0.10);ctx.bezierCurveTo(W*0.72,H*0.07,W*0.62,H*0.09,W/2,H*0.12);ctx.stroke();
+    // Sternum
+    ctx.lineWidth=4.5;
+    ctx.beginPath();ctx.moveTo(W/2,H*0.12);ctx.lineTo(W/2,H*0.78);
+    ctx.strokeStyle=b+'0.82)';ctx.stroke();
+    // Corps vertébraux (colonne)
     for(let i=0;i<8;i++){
-      ctx.beginPath();ctx.roundRect(W/2-6,H*0.12+i*H*0.085,12,12,1.5);
-      ctx.fillStyle='rgba(200,220,255,0.50)';ctx.fill();
-      ctx.strokeStyle='rgba(220,235,255,0.68)';ctx.lineWidth=1;ctx.stroke();
+      ctx.beginPath();ctx.roundRect(W/2-7,H*0.11+i*H*0.086,14,13,2);
+      ctx.fillStyle=b+'0.55)';ctx.fill();
+      ctx.strokeStyle=s+'0.72)';ctx.lineWidth=1;ctx.stroke();
     }
-    ctx.beginPath();ctx.ellipse(W*0.33,H*0.45,W*0.14,H*0.27,0,0,Math.PI*2);
-    ctx.fillStyle='rgba(20,40,90,0.35)';ctx.fill();
-    ctx.beginPath();ctx.ellipse(W*0.67,H*0.45,W*0.14,H*0.27,0,0,Math.PI*2);
-    ctx.fillStyle='rgba(20,40,90,0.35)';ctx.fill();
-    ctx.beginPath();ctx.ellipse(W*0.46,H*0.47,W*0.10,H*0.13,0.2,0,Math.PI*2);
-    ctx.fillStyle='rgba(40,60,110,0.45)';ctx.fill();
+    // Côtes (7 paires — arc antérieur + postérieur)
+    for(let i=0;i<7;i++){
+      const y=H*0.15+i*H*0.090, rx=W*0.28-i*W*0.012, ry=H*0.048, op=0.68-i*0.04;
+      ctx.lineWidth=i<2?2.8:2.2;
+      // Côte gauche (arc postérieur → antérieur)
+      ctx.beginPath();
+      ctx.moveTo(W/2,y);
+      ctx.bezierCurveTo(W*0.40,y-ry*0.5,W*0.15,y+ry*1.5,W*0.14+i*W*0.012,y+ry*3.5);
+      ctx.strokeStyle=`rgba(210,228,255,${op})`;ctx.stroke();
+      // Côte droite
+      ctx.beginPath();
+      ctx.moveTo(W/2,y);
+      ctx.bezierCurveTo(W*0.60,y-ry*0.5,W*0.85,y+ry*1.5,W*0.86-i*W*0.012,y+ry*3.5);
+      ctx.stroke();
+    }
+    // Ombre cardiaque (médiastin gauche)
+    ctx.beginPath();ctx.ellipse(W*0.44,H*0.48,W*0.12,H*0.16,0.2,0,Math.PI*2);
+    ctx.fillStyle='rgba(38,58,125,0.50)';ctx.fill();
+    // Diaphragme
+    ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.moveTo(W*0.12,H*0.80);ctx.bezierCurveTo(W*0.35,H*0.74,W*0.65,H*0.74,W*0.88,H*0.80);
+    ctx.strokeStyle=b+'0.55)';ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W*0.12,H*0.83);ctx.bezierCurveTo(W*0.35,H*0.77,W*0.65,H*0.77,W*0.88,H*0.83);ctx.stroke();
   },
   abdomen(ctx,W,H){
+    const b='rgba(210,228,255,', d='rgba(22,42,105,', s='rgba(190,215,255,';
+    // Colonne lombaire (5 vertèbres)
     for(let i=0;i<5;i++){
-      ctx.beginPath();ctx.roundRect(W/2-8,H*0.10+i*H*0.10,16,16,2);
-      ctx.fillStyle='rgba(200,220,255,0.55)';ctx.fill();
-      ctx.strokeStyle='rgba(220,235,255,0.72)';ctx.lineWidth=1.2;ctx.stroke();
-      ctx.beginPath();ctx.moveTo(W/2-8,H*0.18+i*H*0.10);ctx.lineTo(W/2-25,H*0.18+i*H*0.10);
-      ctx.strokeStyle='rgba(200,220,250,0.42)';ctx.lineWidth=1.5;ctx.stroke();
-      ctx.beginPath();ctx.moveTo(W/2+8,H*0.18+i*H*0.10);ctx.lineTo(W/2+25,H*0.18+i*H*0.10);ctx.stroke();
+      ctx.beginPath();ctx.roundRect(W/2-9,H*0.08+i*H*0.114,18,16,2.5);
+      ctx.fillStyle=b+'0.60)';ctx.fill();ctx.strokeStyle=s+'0.75)';ctx.lineWidth=1.2;ctx.stroke();
+      // Processus transverses
+      ctx.beginPath();ctx.moveTo(W/2-9,H*0.15+i*H*0.114);ctx.lineTo(W/2-28,H*0.15+i*H*0.114);
+      ctx.strokeStyle=s+'0.45)';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.moveTo(W/2+9,H*0.15+i*H*0.114);ctx.lineTo(W/2+28,H*0.15+i*H*0.114);ctx.stroke();
     }
-    ctx.beginPath();ctx.ellipse(W/2,H*0.78,W*0.30,H*0.14,0,0,Math.PI*2);
-    ctx.strokeStyle='rgba(210,230,255,0.62)';ctx.lineWidth=3;ctx.stroke();
-    ctx.beginPath();ctx.ellipse(W/2,H*0.78,W*0.17,H*0.08,0,0,Math.PI*2);
-    ctx.strokeStyle='rgba(190,215,255,0.38)';ctx.lineWidth=1.5;ctx.stroke();
-    ctx.beginPath();ctx.ellipse(W*0.64,H*0.27,W*0.14,H*0.10,0.3,0,Math.PI*2);
-    ctx.fillStyle='rgba(50,70,120,0.40)';ctx.fill();
-    ctx.beginPath();ctx.ellipse(W*0.34,H*0.25,W*0.07,H*0.06,-0.3,0,Math.PI*2);
-    ctx.fillStyle='rgba(50,70,120,0.38)';ctx.fill();
-    ctx.beginPath();ctx.ellipse(W*0.38,H*0.37,W*0.05,H*0.08,0.2,0,Math.PI*2);
-    ctx.fillStyle='rgba(60,80,130,0.35)';ctx.fill();
-    ctx.beginPath();ctx.ellipse(W*0.62,H*0.37,W*0.05,H*0.08,-0.2,0,Math.PI*2);ctx.fill();
-    for(let i=0;i<3;i++){
-      ctx.beginPath();ctx.ellipse(W*0.32+i*W*0.14,H*0.52,W*0.05,H*0.07,0.4*i,0,Math.PI*2);
-      ctx.strokeStyle='rgba(160,190,240,0.28)';ctx.lineWidth=1;ctx.stroke();
+    // Lignes des psoas (muscles paravertébraux)
+    ctx.setLineDash([4,5]);ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(W*0.44,H*0.08);ctx.lineTo(W*0.34,H*0.65);
+    ctx.strokeStyle=s+'0.30)';ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W*0.56,H*0.08);ctx.lineTo(W*0.66,H*0.65);ctx.stroke();
+    ctx.setLineDash([]);
+    // Ombre hépatique (foie — lobe droit, grand)
+    ctx.beginPath();ctx.ellipse(W*0.68,H*0.22,W*0.18,H*0.13,0.3,0,Math.PI*2);
+    ctx.fillStyle=d+'0.45)';ctx.fill();ctx.strokeStyle=s+'0.38)';ctx.lineWidth=1;ctx.stroke();
+    // Rate (petite — côté gauche)
+    ctx.beginPath();ctx.ellipse(W*0.32,H*0.22,W*0.08,H*0.07,-0.3,0,Math.PI*2);
+    ctx.fillStyle=d+'0.42)';ctx.fill();ctx.strokeStyle=s+'0.35)';ctx.lineWidth=1;ctx.stroke();
+    // Reins (formes en haricot)
+    [[W*0.36,H*0.30,-0.2],[W*0.64,H*0.30,0.2]].forEach(([kx,ky,ang])=>{
+      ctx.beginPath();ctx.ellipse(kx,ky,W*0.06,H*0.09,ang,0,Math.PI*2);
+      ctx.fillStyle=d+'0.50)';ctx.fill();ctx.strokeStyle=s+'0.55)';ctx.lineWidth=1.5;ctx.stroke();
+      // Bassinet rénal (hile)
+      ctx.beginPath();ctx.ellipse(kx+(ang>0?W*0.02:-W*0.02),ky,W*0.025,H*0.04,ang,0,Math.PI*2);
+      ctx.fillStyle='rgba(38,58,125,0.55)';ctx.fill();
+    });
+    // Gaz intestinaux (zones aériques claires)
+    for(let i=0;i<4;i++){
+      const gx=W*(0.28+i*0.148), gy=H*(0.50+Math.sin(i*1.7)*0.06);
+      ctx.beginPath();ctx.ellipse(gx,gy,W*0.055,H*0.055,i*0.5,0,Math.PI*2);
+      ctx.fillStyle='rgba(55,75,145,0.28)';ctx.fill();
+      ctx.strokeStyle=s+'0.22)';ctx.lineWidth=0.8;ctx.stroke();
     }
+    // Bassin (symphyse pubienne + ailes iliaques)
+    ctx.lineWidth=3;
+    ctx.beginPath();ctx.ellipse(W/2,H*0.82,W*0.32,H*0.13,0,0,Math.PI*2);
+    ctx.strokeStyle=b+'0.65)';ctx.stroke();
+    ctx.beginPath();ctx.ellipse(W/2,H*0.82,W*0.18,H*0.07,0,0,Math.PI*2);
+    ctx.strokeStyle=s+'0.42)';ctx.lineWidth=1.8;ctx.stroke();
+    // Articulations sacro-iliaques
+    [[W*0.35,H*0.74],[W*0.65,H*0.74]].forEach(([sx,sy])=>{
+      ctx.beginPath();ctx.moveTo(sx-W*0.04,sy);ctx.lineTo(sx+W*0.04,sy+H*0.05);
+      ctx.strokeStyle=b+'0.50)';ctx.lineWidth=2;ctx.stroke();
+    });
   },
   membre(ctx,W,H){
-    ctx.beginPath();ctx.roundRect(W*0.43,H*0.04,W*0.14,H*0.42,W*0.05);
-    ctx.fillStyle='rgba(200,220,255,0.65)';ctx.fill();
-    ctx.strokeStyle='rgba(220,235,255,0.80)';ctx.lineWidth=2;ctx.stroke();
-    ctx.beginPath();ctx.arc(W*0.50,H*0.06,W*0.08,0,Math.PI*2);
-    ctx.fillStyle='rgba(220,235,255,0.70)';ctx.fill();
-    ctx.strokeStyle='rgba(230,240,255,0.85)';ctx.lineWidth=2;ctx.stroke();
-    ctx.beginPath();ctx.ellipse(W/2,H*0.50,W*0.07,H*0.05,0,0,Math.PI*2);
-    ctx.fillStyle='rgba(210,230,255,0.70)';ctx.fill();ctx.strokeStyle='rgba(220,235,255,0.85)';ctx.lineWidth=1.5;ctx.stroke();
-    ctx.beginPath();ctx.roundRect(W*0.44,H*0.54,W*0.13,H*0.33,W*0.04);
-    ctx.fillStyle='rgba(195,218,255,0.65)';ctx.fill();ctx.strokeStyle='rgba(215,232,255,0.80)';ctx.lineWidth=2;ctx.stroke();
-    ctx.beginPath();ctx.roundRect(W*0.61,H*0.56,W*0.05,H*0.29,W*0.02);
-    ctx.fillStyle='rgba(185,215,255,0.50)';ctx.fill();ctx.strokeStyle='rgba(210,230,255,0.62)';ctx.lineWidth=1.2;ctx.stroke();
-    ctx.beginPath();ctx.ellipse(W/2,H*0.25,W*0.26,H*0.21,0,0,Math.PI*2);
-    ctx.strokeStyle='rgba(120,160,220,0.18)';ctx.lineWidth=1.5;ctx.stroke();
-    ctx.beginPath();ctx.ellipse(W/2,H*0.69,W*0.22,H*0.23,0,0,Math.PI*2);
-    ctx.strokeStyle='rgba(120,160,220,0.16)';ctx.lineWidth=1.5;ctx.stroke();
+    const b='rgba(210,228,255,', d='rgba(18,38,105,', s='rgba(190,215,255,';
+    // Tête fémorale (rotonde, supérieure)
+    ctx.beginPath();ctx.arc(W*0.50,H*0.06,W*0.09,0,Math.PI*2);
+    ctx.fillStyle=b+'0.72)';ctx.fill();ctx.strokeStyle=s+'0.85)';ctx.lineWidth=2.5;ctx.stroke();
+    // Col fémoral
+    ctx.beginPath();ctx.moveTo(W*0.43,H*0.10);ctx.lineTo(W*0.46,H*0.15);
+    ctx.moveTo(W*0.57,H*0.10);ctx.lineTo(W*0.54,H*0.15);
+    ctx.strokeStyle=b+'0.65)';ctx.lineWidth=2;ctx.stroke();
+    // Grand trochanter
+    ctx.beginPath();ctx.roundRect(W*0.37,H*0.13,W*0.06,H*0.05,3);
+    ctx.fillStyle=b+'0.60)';ctx.fill();ctx.strokeStyle=s+'0.72)';ctx.lineWidth=1.5;ctx.stroke();
+    // Diaphyse fémorale (cortex + canal médullaire)
+    ctx.beginPath();ctx.roundRect(W*0.43,H*0.15,W*0.14,H*0.33,W*0.045);
+    ctx.fillStyle=b+'0.62)';ctx.fill();ctx.strokeStyle=s+'0.80)';ctx.lineWidth=2;ctx.stroke();
+    // Canal médullaire (sombre au centre)
+    ctx.beginPath();ctx.roundRect(W*0.46,H*0.18,W*0.08,H*0.27,W*0.025);
+    ctx.fillStyle=d+'0.55)';ctx.fill();
+    // Espace articulaire du genou (interligne)
+    ctx.beginPath();ctx.ellipse(W/2,H*0.508,W*0.075,H*0.022,0,0,Math.PI*2);
+    ctx.fillStyle=d+'0.72)';ctx.fill();ctx.strokeStyle=s+'0.55)';ctx.lineWidth=1.2;ctx.stroke();
+    // Rotule
+    ctx.beginPath();ctx.ellipse(W*0.50,H*0.495,W*0.06,H*0.040,0,0,Math.PI*2);
+    ctx.fillStyle=b+'0.68)';ctx.fill();ctx.strokeStyle=s+'0.82)';ctx.lineWidth=1.8;ctx.stroke();
+    // Tibia (os principal — plus large, médial)
+    ctx.beginPath();ctx.roundRect(W*0.43,H*0.54,W*0.13,H*0.36,W*0.035);
+    ctx.fillStyle=b+'0.62)';ctx.fill();ctx.strokeStyle=s+'0.80)';ctx.lineWidth=2;ctx.stroke();
+    ctx.beginPath();ctx.roundRect(W*0.46,H*0.57,W*0.07,H*0.30,W*0.020);
+    ctx.fillStyle=d+'0.52)';ctx.fill();
+    // Fibula (os fin — latéral)
+    ctx.beginPath();ctx.roundRect(W*0.60,H*0.55,W*0.05,H*0.33,W*0.018);
+    ctx.fillStyle=b+'0.50)';ctx.fill();ctx.strokeStyle=s+'0.65)';ctx.lineWidth=1.2;ctx.stroke();
+    ctx.beginPath();ctx.roundRect(W*0.615,H*0.58,W*0.020,H*0.27,W*0.008);
+    ctx.fillStyle=d+'0.48)';ctx.fill();
+    // Épiphyses (renflements articulaires)
+    ctx.beginPath();ctx.ellipse(W/2,H*0.25,W*0.26,H*0.20,0,0,Math.PI*2);
+    ctx.strokeStyle=s+'0.22)';ctx.lineWidth=1.2;ctx.stroke();
+    ctx.beginPath();ctx.ellipse(W*0.505,H*0.70,W*0.24,H*0.21,0,0,Math.PI*2);
+    ctx.strokeStyle=s+'0.20)';ctx.lineWidth=1.2;ctx.stroke();
+    // Malléoles (extrémités inférieures)
+    ctx.beginPath();ctx.ellipse(W*0.50,H*0.903,W*0.06,H*0.032,0,0,Math.PI*2);
+    ctx.fillStyle=b+'0.58)';ctx.fill();ctx.strokeStyle=s+'0.72)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.beginPath();ctx.ellipse(W*0.63,H*0.895,W*0.035,H*0.028,0,0,Math.PI*2);
+    ctx.fillStyle=b+'0.50)';ctx.fill();ctx.strokeStyle=s+'0.62)';ctx.lineWidth=1.2;ctx.stroke();
   },
 };
 
