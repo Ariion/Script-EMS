@@ -4,107 +4,609 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <title>Nova Medical — Démo</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;500;600&display=swap">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#050508;font-family:'Rajdhani',system-ui,sans-serif;overflow:hidden;user-select:none;color:#dce8f4}
+html,body{height:100%;background:#06080f;color:#e8eef6;font-family:'Rajdhani',system-ui,sans-serif;overflow:hidden}
 
-.bgl{position:fixed;inset:0;background-size:cover;background-position:center;transition:opacity .7s ease}
-#bg-a{z-index:0}
-#bg-b{z-index:1;opacity:0}
-#bg-v{position:fixed;inset:0;z-index:2;background:radial-gradient(ellipse at center,rgba(2,4,12,.36) 0%,rgba(2,4,12,.75) 100%)}
+/* ── BACKGROUNDS ─────────────────────────────────────────────── */
+.bg{
+  position:fixed;inset:0;background-size:cover;background-position:center;
+  opacity:0;transition:opacity .65s ease;z-index:0;
+}
+.bg.on{opacity:1}
+#bg-home{background:radial-gradient(ellipse at 30% 50%, #0d1528 0%, #060810 60%)}
+#bg-diag{background-image:url(bg_diagnostic.jpg)}
+#bg-img {background-image:url(bg_imagerie.jpg)}
+#bg-chir{background-image:url(bg_chirurgie.jpg)}
 
-#labels{
-  position:fixed;inset:0;z-index:10;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:flex-end;
-  padding-bottom:12vh;gap:10px;
+#vignette{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at center, rgba(4,8,18,.25) 0%, rgba(4,8,18,.7) 100%);
+  transition:background .5s;
+}
+#vignette.scene-mode{
+  background:radial-gradient(ellipse at center, rgba(4,8,18,.18) 0%, rgba(4,8,18,.65) 100%);
 }
 
-.fvl{
-  display:flex;align-items:stretch;
-  background:rgba(0,0,0,.76);border:1px solid rgba(255,255,255,.12);
-  border-radius:3px;overflow:hidden;
-  min-width:218px;cursor:pointer;
-  backdrop-filter:blur(6px);
-  text-decoration:none;
-  transition:background .15s,border-color .15s,transform .12s,box-shadow .15s;
+/* ── VIEWS ───────────────────────────────────────────────────── */
+.view{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .3s,transform .3s;pointer-events:none;opacity:0;transform:scale(.97)}
+.view.on{opacity:1;transform:scale(1);pointer-events:all}
+
+/* ── HOME VIEW ───────────────────────────────────────────────── */
+#view-home{gap:0}
+#home-logo{
+  font-family:'Orbitron',monospace;font-weight:600;font-size:clamp(22px,3vw,36px);
+  letter-spacing:.2em;text-transform:uppercase;
+  color:#fff;text-shadow:0 0 40px rgba(100,180,255,.3);
+  margin-bottom:8px;
 }
-.fvl:hover{background:rgba(0,0,0,.88);transform:translateX(5px)}
-
-.fvl[data-m=d]:hover{border-color:rgba(34,211,238,.45);box-shadow:0 0 16px rgba(34,211,238,.14)}
-.fvl[data-m=i]:hover{border-color:rgba(167,139,250,.45);box-shadow:0 0 16px rgba(167,139,250,.14)}
-.fvl[data-m=c]:hover{border-color:rgba(74,222,128,.45);box-shadow:0 0 16px rgba(74,222,128,.14)}
-
-.fvk{
-  width:34px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
+#home-logo span{color:#22d3ee}
+#home-sub{
+  font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.28);margin-bottom:48px;font-family:'Orbitron',monospace;
+}
+#home-options{display:flex;flex-direction:column;gap:10px;align-items:center}
+.hoption{
+  display:flex;align-items:stretch;width:280px;
+  background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.12);
+  border-radius:4px;overflow:hidden;cursor:pointer;
+  backdrop-filter:blur(8px);
+  transition:background .14s,border-color .14s,transform .12s;
+  user-select:none;
+}
+.hoption:hover{background:rgba(0,0,0,.86);transform:translateX(6px)}
+.hoption[data-m=d]:hover{border-color:rgba(34,211,238,.4)}
+.hoption[data-m=i]:hover{border-color:rgba(167,139,250,.4)}
+.hoption[data-m=c]:hover{border-color:rgba(74,222,128,.4)}
+.hoption-color{
+  width:4px;flex-shrink:0;
+}
+.hoption[data-m=d] .hoption-color{background:var(--cd,#22d3ee)}
+.hoption[data-m=i] .hoption-color{background:var(--ci,#a78bfa)}
+.hoption[data-m=c] .hoption-color{background:var(--cc,#4ade80)}
+.hoption-label{
+  flex:1;padding:10px 14px;
   font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;
+  letter-spacing:.1em;text-transform:uppercase;color:#fff;
 }
-.fvl[data-m=d] .fvk{background:rgba(34,211,238,.9);color:#042028}
-.fvl[data-m=i] .fvk{background:rgba(167,139,250,.9);color:#1a0a32}
-.fvl[data-m=c] .fvk{background:rgba(74,222,128,.9);color:#042012}
+.hoption-arrow{
+  width:36px;display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.25);font-size:16px;transition:color .14s;
+}
+.hoption:hover .hoption-arrow{color:rgba(255,255,255,.7)}
 
-.fvt{
-  padding:8px 16px;
-  font-family:'Rajdhani',sans-serif;font-weight:600;
-  font-size:14px;letter-spacing:.09em;text-transform:uppercase;
-  color:#fff;transition:color .15s;
-}
-.fvl[data-m=d]:hover .fvt{color:#22d3ee}
-.fvl[data-m=i]:hover .fvt{color:#a78bfa}
-.fvl[data-m=c]:hover .fvt{color:#4ade80}
+/* ── SCENE VIEW ──────────────────────────────────────────────── */
+#view-scene{justify-content:flex-end;padding-bottom:14vh;gap:0}
 
-/* hint bas de page */
-#hint{
-  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-  z-index:10;font-family:'Orbitron',monospace;font-size:9px;
-  letter-spacing:.14em;color:rgba(255,255,255,.2);
-  text-align:center;pointer-events:none;
+/* back button */
+#btn-back{
+  position:fixed;top:20px;left:20px;z-index:20;
+  display:flex;align-items:center;gap:7px;
+  background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.12);
+  border-radius:3px;padding:6px 12px;
+  font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;
+  letter-spacing:.07em;color:rgba(255,255,255,.7);cursor:pointer;
+  backdrop-filter:blur(6px);
+  transition:background .14s,color .14s;
+  opacity:0;pointer-events:none;transition:opacity .3s;
 }
+#btn-back.on{opacity:1;pointer-events:all}
+#btn-back:hover{background:rgba(0,0,0,.85);color:#fff}
+
+/* FiveM interaction label */
+#fvm-label{
+  display:flex;align-items:stretch;
+  background:rgba(0,0,0,.82);border:1px solid rgba(255,255,255,.14);
+  border-radius:4px;overflow:hidden;cursor:pointer;
+  backdrop-filter:blur(8px);
+  transition:background .14s,transform .12s;
+  min-width:250px;
+}
+#fvm-label:hover{background:rgba(0,0,0,.92);transform:scale(1.03)}
+#fvm-cancel{
+  width:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.06);border-right:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.5);font-size:14px;font-weight:700;
+  transition:background .14s;
+}
+#fvm-cancel:hover{background:rgba(255,60,60,.2);color:#ff7070}
+#fvm-content{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 16px;
+}
+#fvm-icon{font-size:15px}
+#fvm-text{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:#fbbf24; /* JAUNE */
+}
+
+/* ── PANEL OVERLAY ───────────────────────────────────────────── */
+#panel-overlay{
+  position:fixed;inset:0;z-index:30;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;
+  transition:opacity .22s;
+}
+#panel-overlay.on{opacity:1;pointer-events:all}
+
+/* THE PANEL — clearly not fullscreen, visible bg around */
+#panel{
+  width:76vw;max-width:900px;
+  height:72vh;max-height:660px;
+  background:rgba(5,9,18,.96);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:6px;overflow:hidden;
+  display:flex;flex-direction:column;
+  transform:scale(.92) translateY(16px);
+  transition:transform .22s;
+  border-top-width:2px;
+  /* Tablet feel for chirurgie handled via JS max-width override */
+}
+#panel-overlay.on #panel{transform:scale(1) translateY(0)}
+
+/* header */
+.ph{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.07);
+  background:rgba(0,0,0,.3);flex-shrink:0;
+}
+.ph-dot{width:7px;height:7px;border-radius:50%;animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.ph-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:.12em;text-transform:uppercase;flex:1}
+.ph-sub{font-family:'Orbitron',monospace;font-size:10px;color:rgba(200,220,240,.35)}
+.ph-cls{width:24px;height:24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:3px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:rgba(200,220,240,.5);transition:background .14s,color .14s}
+.ph-cls:hover{background:rgba(255,60,60,.2);color:#ff7070}
+
+/* ── PANEL CONTENTS ──────────────────────────────────────────── */
+/* each panel content block, hidden by default */
+.pcontent{display:none;flex:1;overflow:hidden}
+.pcontent.on{display:flex}
+
+/* -- DIAGNOSTIC -- */
+#pc-diag{flex-direction:column}
+.diag-body{display:grid;grid-template-columns:1fr 190px;grid-template-rows:auto auto 1fr;gap:1px;background:rgba(255,255,255,.04);flex:1;overflow:hidden}
+.dc{background:#050b13;padding:10px 12px;display:flex;flex-direction:column;overflow:hidden}
+.dc.d-pt{grid-column:1;grid-row:1;flex-direction:row!important;align-items:center;gap:10px;padding:7px 12px!important}
+.dc.d-ecg{grid-column:1;grid-row:2}
+.dc.d-bot{grid-column:1;grid-row:3;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.04)}
+.dc.d-v,.dc.d-e{background:#050b13;padding:10px 12px;display:flex;flex-direction:column;overflow-y:auto}
+.dc.d-z{grid-column:2;grid-row:1/4}
+.ptn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;flex:1}
+.spill{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:20px}
+.pill-ok{background:rgba(74,222,128,.1);color:#4ade80;border:1px solid rgba(74,222,128,.22)}
+.pill-cr{background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.22)}
+.dclk{font-family:'Orbitron',monospace;font-size:10px;color:rgba(200,220,240,.35);font-variant-numeric:tabular-nums}
+.slbl{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+#ecg-c{width:100%;height:54px;display:block}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.vt{background:rgba(255,255,255,.035);border:1px solid rgba(34,211,238,.09);border-radius:3px;padding:6px 8px}
+.vtl{font-family:'Orbitron',monospace;font-size:8px;color:rgba(200,220,240,.38);letter-spacing:.07em;margin-bottom:3px}
+.vtv{font-family:'Orbitron',monospace;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.vtv small{font-size:9px;margin-left:2px;color:rgba(200,220,240,.38)}
+.egrid{display:flex;flex-wrap:wrap;gap:4px}
+.ebtn{background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.17);border-radius:3px;color:#22d3ee;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:11px;padding:4px 7px;cursor:pointer;transition:background .13s,opacity .13s}
+.ebtn:hover{background:rgba(34,211,238,.15)}
+.ebtn.done{opacity:.5}
+.zrow{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.035)}
+.zi{width:16px;text-align:center;font-size:12px}
+.zn{font-family:'Rajdhani',sans-serif;font-weight:500;font-size:11px;flex:1}
+.zb{font-size:9px;font-family:'Orbitron',monospace;padding:2px 4px;border-radius:2px}
+.zb.ok{background:rgba(74,222,128,.08);color:#4ade80;border:1px solid rgba(74,222,128,.15)}
+.zb.wn{background:rgba(251,146,60,.08);color:#fb923c;border:1px solid rgba(251,146,60,.17)}
+.zb.cr{background:rgba(248,113,113,.08);color:#f87171;border:1px solid rgba(248,113,113,.17)}
+
+/* -- IMAGERIE -- */
+#pc-img{flex-direction:row}
+.img-body{display:grid;grid-template-columns:140px 1fr 178px;gap:1px;background:rgba(255,255,255,.04);flex:1;overflow:hidden}
+.ic{background:#040810;padding:10px 12px;overflow:hidden;display:flex;flex-direction:column}
+.ic.xc{padding:0;background:#010307;align-items:center;justify-content:center;position:relative}
+#xray-c{max-width:100%;max-height:100%;display:block}
+.scl{position:absolute;left:0;right:0;height:2px;background:rgba(167,139,250,.38);box-shadow:0 0 8px rgba(167,139,250,.4);animation:scan 3.5s linear infinite}
+@keyframes scan{from{top:0%}to{top:100%}}
+.pti{padding:5px 7px;border-radius:3px;font-family:'Rajdhani',sans-serif;font-size:12px;cursor:pointer;border:1px solid transparent;margin-bottom:3px;transition:all .13s}
+.pti.a{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.28);color:#a78bfa}
+.pti:not(.a):hover{background:rgba(255,255,255,.04)}
+.rtabs{display:flex;flex-direction:column;gap:3px;margin-bottom:8px}
+.rt{padding:4px 7px;background:rgba(255,255,255,.025);border:1px solid rgba(167,139,250,.08);border-radius:3px;font-family:'Rajdhani',sans-serif;font-size:11px;cursor:pointer;color:rgba(200,220,240,.45);transition:all .13s}
+.rt.a{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:#a78bfa}
+.rt:not(.a):hover{color:#e8eef6;background:rgba(255,255,255,.05)}
+.fbox{flex:1;overflow-y:auto}
+.fi{padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px;line-height:1.5;color:rgba(200,220,240,.5)}
+.fi b{display:block;font-family:'Rajdhani',sans-serif;font-size:12px;color:#a78bfa;font-weight:600;margin-bottom:1px}
+.xmeta{margin-top:auto;font-family:'Orbitron',monospace;font-size:9px;color:rgba(200,220,240,.28);line-height:1.9}
+
+/* -- CHIRURGIE -- */
+#pc-chir{flex-direction:column}
+.cl{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.cs{padding:9px 15px;background:#040a06;border-bottom:1px solid rgba(255,255,255,.04)}
+.cs.grow{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.ptcw{display:flex;align-items:center;gap:10px}
+.ptci{flex:1}
+.ptcn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px}
+.ptcd{font-size:11px;color:rgba(200,220,240,.42);margin-top:1px}
+.ptcm{text-align:right}
+.ptcp{font-family:'Orbitron',monospace;font-size:12px;color:#4ade80;font-variant-numeric:tabular-nums}
+.ptct{font-size:10px;color:rgba(200,220,240,.35);font-family:'Orbitron',monospace;margin-top:2px}
+.pw{background:rgba(255,255,255,.06);border-radius:2px;height:5px;overflow:hidden;margin-top:6px}
+.pf{height:100%;border-radius:2px;background:#4ade80;box-shadow:0 0 6px rgba(74,222,128,.4);transition:width .4s ease}
+.slist{display:flex;flex-direction:column;gap:4px;overflow-y:auto;flex:1;padding-right:2px}
+.sr{display:flex;align-items:center;gap:8px;padding:7px 9px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:3px;cursor:pointer;transition:all .13s}
+.sr:hover{background:rgba(74,222,128,.05);border-color:rgba(74,222,128,.17)}
+.sr.done{background:rgba(74,222,128,.07);border-color:rgba(74,222,128,.2)}
+.sck{width:15px;height:15px;border:1.5px solid rgba(255,255,255,.16);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .13s}
+.sr.done .sck{background:#4ade80;border-color:#4ade80;color:#042012}
+.snm{font-family:'Orbitron',monospace;font-size:9px;color:rgba(200,220,240,.32);width:16px;text-align:center;flex-shrink:0}
+.sr.done .snm{color:#4ade80}
+.stx{flex:1;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:500;line-height:1.3}
+.sr.done .stx{color:rgba(200,220,240,.38);text-decoration:line-through}
+.sdu{font-family:'Orbitron',monospace;font-size:9px;color:rgba(200,220,240,.28);flex-shrink:0}
+.cfoot{display:flex;gap:6px;justify-content:flex-end;padding:8px 14px;background:rgba(0,0,0,.22);border-top:1px solid rgba(255,255,255,.04);flex-shrink:0}
+.cfb{padding:5px 13px;border-radius:3px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:.05em;cursor:pointer;transition:all .13s}
+.cfb.p{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.28);color:#4ade80}
+.cfb.p:hover{background:rgba(74,222,128,.2)}
+.cfb.s{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(200,220,240,.45)}
+.cfb.s:hover{background:rgba(255,255,255,.08);color:#e8eef6}
+
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
 </style>
 </head>
 <body>
 
-<div id="bg-a" class="bgl"></div>
-<div id="bg-b" class="bgl"></div>
-<div id="bg-v"></div>
+<!-- Backgrounds -->
+<div class="bg on" id="bg-home"></div>
+<div class="bg" id="bg-diag"></div>
+<div class="bg" id="bg-img"></div>
+<div class="bg" id="bg-chir"></div>
+<div id="vignette"></div>
 
-<div id="labels">
-  <a class="fvl" data-m="d" href="demo/">
-    <div class="fvk">E</div>
-    <span class="fvt">Diagnostic</span>
-  </a>
-  <a class="fvl" data-m="i" href="imagerie/">
-    <div class="fvk">E</div>
-    <span class="fvt">Imagerie</span>
-  </a>
-  <a class="fvl" data-m="c" href="chirurgie/">
-    <div class="fvk">E</div>
-    <span class="fvt">Chirurgie</span>
-  </a>
+<!-- Back button (scene only) -->
+<div id="btn-back" onclick="goHome()">← Accueil</div>
+
+<!-- HOME VIEW -->
+<div class="view on" id="view-home">
+  <div id="home-logo">⚕ NOVA <span>MÉDICAL</span></div>
+  <div id="home-sub">Système de gestion médicale · NOVACITY</div>
+  <div id="home-options">
+    <div class="hoption" data-m="d" onclick="goScene('d')">
+      <div class="hoption-color"></div>
+      <div class="hoption-label">Diagnostic</div>
+      <div class="hoption-arrow">›</div>
+    </div>
+    <div class="hoption" data-m="i" onclick="goScene('i')">
+      <div class="hoption-color"></div>
+      <div class="hoption-label">Imagerie</div>
+      <div class="hoption-arrow">›</div>
+    </div>
+    <div class="hoption" data-m="c" onclick="goScene('c')">
+      <div class="hoption-color"></div>
+      <div class="hoption-label">Chirurgie</div>
+      <div class="hoption-arrow">›</div>
+    </div>
+  </div>
 </div>
 
-<div id="hint">NOVA OMC v1.3 — NOVACITY</div>
+<!-- SCENE VIEW -->
+<div class="view" id="view-scene">
+  <div id="fvm-label">
+    <div id="fvm-cancel" onclick="goHome(); event.stopPropagation()">×</div>
+    <div id="fvm-content" onclick="openPanel()">
+      <span id="fvm-icon"></span>
+      <span id="fvm-text"></span>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL OVERLAY -->
+<div id="panel-overlay" onclick="if(event.target===this)closePanel()">
+  <div id="panel">
+
+    <!-- Shared header (content set by JS) -->
+    <div class="ph" id="panel-header">
+      <div class="ph-dot" id="ph-dot"></div>
+      <span class="ph-title" id="ph-title"></span>
+      <span class="ph-sub" id="ph-sub"></span>
+      <div class="ph-cls" onclick="closePanel()">✕</div>
+    </div>
+
+    <!-- DIAGNOSTIC content -->
+    <div class="pcontent" id="pc-diag">
+      <div class="diag-body">
+        <div class="dc d-pt">
+          <span class="ptn">Doe, John — #0142</span>
+          <span class="spill pill-ok">Stable</span>
+          <span class="dclk" id="dclk">00:00</span>
+        </div>
+        <div class="dc d-ecg">
+          <div class="slbl" style="color:#22d3ee;margin-bottom:4px">ECG — <span id="ecg-lbl">NSR 72 bpm</span></div>
+          <canvas id="ecg-c" height="54"></canvas>
+        </div>
+        <div class="dc d-bot">
+          <div class="dc d-v">
+            <div class="slbl" style="color:#22d3ee">Constantes</div>
+            <div class="vgrid">
+              <div class="vt"><div class="vtl">FRÉQ. CARD.</div><div class="vtv" style="color:#22d3ee" id="v-bpm">72<small>bpm</small></div></div>
+              <div class="vt"><div class="vtl">SpO₂</div><div class="vtv" style="color:#22d3ee" id="v-spo2">98<small>%</small></div></div>
+              <div class="vt"><div class="vtl">PRESSION</div><div class="vtv" style="color:#22d3ee;font-size:13px" id="v-bp">120/80<small>mmHg</small></div></div>
+              <div class="vt"><div class="vtl">TEMP.</div><div class="vtv" style="color:#22d3ee" id="v-tmp">37.1<small>°C</small></div></div>
+            </div>
+          </div>
+          <div class="dc d-e">
+            <div class="slbl" style="color:#22d3ee">Examens</div>
+            <div class="egrid">
+              <button class="ebtn" onclick="this.classList.toggle('done')">🔍 Évaluation</button>
+              <button class="ebtn" onclick="this.classList.toggle('done')">💓 Tension</button>
+              <button class="ebtn" onclick="this.classList.toggle('done')">🫁 SpO₂</button>
+              <button class="ebtn" onclick="this.classList.toggle('done')">🧠 Neuro</button>
+              <button class="ebtn" onclick="this.classList.toggle('done')">📈 ECG</button>
+              <button class="ebtn" onclick="this.classList.toggle('done')">🩺 Ausculter</button>
+              <button class="ebtn" onclick="this.classList.toggle('done')">🩸 Glycémie</button>
+              <button class="ebtn" onclick="this.classList.toggle('done')">🌡️ Temp.</button>
+            </div>
+            <div style="margin-top:auto;font-family:'Orbitron',monospace;font-size:9px;color:rgba(200,220,240,.38);line-height:1.9;padding-top:8px">⚡ SAIGNEMENT ACTIF<br>GCS : 14 / 15</div>
+          </div>
+        </div>
+        <div class="dc d-z">
+          <div class="slbl" style="color:#22d3ee">Zones</div>
+          <div class="zrow"><span class="zi">🧠</span><span class="zn">Tête</span><span class="zb ok">OK</span></div>
+          <div class="zrow"><span class="zi">🫀</span><span class="zn">Torse</span><span class="zb wn">1 blessure</span></div>
+          <div class="zrow"><span class="zi">💪</span><span class="zn">Bras G.</span><span class="zb ok">OK</span></div>
+          <div class="zrow"><span class="zi">💪</span><span class="zn">Bras D.</span><span class="zb ok">OK</span></div>
+          <div class="zrow"><span class="zi">🦵</span><span class="zn">Jambe G.</span><span class="zb cr">CRITIQUE</span></div>
+          <div class="zrow"><span class="zi">🦵</span><span class="zn">Jambe D.</span><span class="zb ok">OK</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMAGERIE content -->
+    <div class="pcontent" id="pc-img">
+      <div class="img-body">
+        <div class="ic">
+          <div class="slbl" style="color:#a78bfa">Patients</div>
+          <div class="pti a">Doe, J. #0142</div>
+          <div class="pti">Martin, L. #0138</div>
+          <div class="pti">Garcia, R. #0135</div>
+          <div class="xmeta">ACQN: 14:23:07<br>kVp: 120 · mAs: 250<br>DFOV: 40 cm</div>
+        </div>
+        <div class="ic xc">
+          <canvas id="xray-c" width="300" height="440"></canvas>
+          <div class="scl"></div>
+        </div>
+        <div class="ic">
+          <div class="slbl" style="color:#a78bfa">Région</div>
+          <div class="rtabs">
+            <div class="rt a" onclick="setReg(this,'thorax')">Thorax</div>
+            <div class="rt" onclick="setReg(this,'abdomen')">Abdomen</div>
+            <div class="rt" onclick="setReg(this,'crane')">Crâne</div>
+            <div class="rt" onclick="setReg(this,'membres')">Membres</div>
+          </div>
+          <div class="slbl" style="color:#a78bfa">Résultats</div>
+          <div class="fbox" id="fbox"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHIRURGIE content -->
+    <div class="pcontent" id="pc-chir">
+      <div class="cl">
+        <div class="cs">
+          <div class="ptcw">
+            <div class="ptci">
+              <div class="ptcn">Doe, John — #0142</div>
+              <div class="ptcd">Fracture tibia G. + lacérations multiples</div>
+            </div>
+            <div class="ptcm">
+              <div class="ptcp" id="cprog">0 / 8</div>
+              <div class="ptct" id="ctmr">00:00</div>
+            </div>
+          </div>
+          <div class="pw"><div class="pf" id="pf" style="width:0%"></div></div>
+        </div>
+        <div class="cs grow">
+          <div class="slbl" style="color:#4ade80;flex-shrink:0">Étapes opératoires</div>
+          <div class="slist" id="slist"></div>
+        </div>
+        <div class="cfoot">
+          <button class="cfb s" onclick="resetS()">Réinitialiser</button>
+          <button class="cfb p" onclick="doneAll()">Compléter tout</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel -->
+</div><!-- /panel-overlay -->
 
 <script>
-const BGS={d:'bg_diagnostic.jpg',i:'bg_imagerie.jpg',c:'bg_chirurgie.jpg'};
-let front='a',cur=null;
-const bgA=document.getElementById('bg-a'),bgB=document.getElementById('bg-b');
+// ── Config ────────────────────────────────────────────────────────
+const MODULES = {
+  d: { bg:'bg-diag', icon:'🩺', text:'Diagnostic',  dot:'#22d3ee', title:'Monitoring — Diagnostic', sub:'NOVA OMC v1.3',  panelId:'pc-diag', maxW:'900px' },
+  i: { bg:'bg-img',  icon:'📡', text:'Imagerie',    dot:'#a78bfa', title:'Imagerie Médicale',       sub:'SCANNER NOVA', panelId:'pc-img',  maxW:'900px' },
+  c: { bg:'bg-chir', icon:'✚',  text:'Chirurgie',   dot:'#4ade80', title:'Protocole Chirurgical',   sub:'BLOC OP. A',   panelId:'pc-chir', maxW:'580px' },
+};
+const PANEL_BORDER = { d:'#22d3ee', i:'#a78bfa', c:'#4ade80' };
 
-Object.values(BGS).forEach(s=>{const im=new Image();im.src=s;});
-bgA.style.backgroundImage=`url('${BGS.d}')`;cur='d';
+// preload
+Object.values(MODULES).forEach(m=>{const im=new Image();im.src=`bg_${m.bg.replace('bg-','')}.jpg`;});
 
-function switchBg(m){
-  if(cur===m)return;cur=m;
-  const url=`url('${BGS[m]}')`;
-  if(front==='a'){bgB.style.backgroundImage=url;bgB.style.opacity='1';bgA.style.opacity='0';front='b';}
-  else{bgA.style.backgroundImage=url;bgA.style.opacity='1';bgB.style.opacity='0';front='a';}
+let curMod = null;
+
+// ── Navigation ────────────────────────────────────────────────────
+function goHome() {
+  stopAll();
+  document.getElementById('view-home').classList.add('on');
+  document.getElementById('view-scene').classList.remove('on');
+  document.getElementById('btn-back').classList.remove('on');
+  document.getElementById('vignette').classList.remove('scene-mode');
+  document.getElementById('panel-overlay').classList.remove('on');
+  // switch bg to home
+  document.querySelectorAll('.bg').forEach(b=>b.classList.remove('on'));
+  document.getElementById('bg-home').classList.add('on');
+  curMod = null;
 }
 
-document.querySelectorAll('.fvl').forEach(el=>{
-  el.addEventListener('mouseenter',()=>switchBg(el.dataset.m));
+function goScene(m) {
+  curMod = m;
+  const cfg = MODULES[m];
+  // switch background
+  document.querySelectorAll('.bg').forEach(b=>b.classList.remove('on'));
+  document.getElementById(cfg.bg).classList.add('on');
+  // configure label
+  document.getElementById('fvm-icon').textContent = cfg.icon;
+  document.getElementById('fvm-text').textContent = cfg.text;
+  // switch views
+  document.getElementById('view-home').classList.remove('on');
+  document.getElementById('view-scene').classList.add('on');
+  document.getElementById('btn-back').classList.add('on');
+  document.getElementById('vignette').classList.add('scene-mode');
+}
+
+function openPanel() {
+  if(!curMod) return;
+  const cfg = MODULES[curMod];
+  // configure panel header
+  document.getElementById('ph-dot').style.cssText = `background:${cfg.dot};box-shadow:0 0 5px ${cfg.dot}`;
+  document.getElementById('ph-title').textContent = cfg.title;
+  document.getElementById('ph-title').style.color = cfg.dot;
+  document.getElementById('ph-sub').textContent = cfg.sub;
+  document.getElementById('panel').style.borderTopColor = cfg.dot;
+  document.getElementById('panel').style.maxWidth = cfg.maxW;
+  // show correct content
+  document.querySelectorAll('.pcontent').forEach(p=>p.classList.remove('on'));
+  document.getElementById(cfg.panelId).classList.add('on');
+  // open overlay
+  document.getElementById('panel-overlay').classList.add('on');
+  // start module
+  if(curMod==='d'){ startEcg(); startDiagClock(); }
+  if(curMod==='i'){ drawXray(); setReg(document.querySelector('.rt.a'),'thorax'); }
+  if(curMod==='c'){ initSteps(); startChirTimer(); }
+}
+
+function closePanel() {
+  document.getElementById('panel-overlay').classList.remove('on');
+  stopAll();
+}
+
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('panel-overlay').classList.contains('on')) closePanel();
+    else if(document.getElementById('view-scene').classList.contains('on')) goHome();
+  }
 });
+
+// ── ECG ───────────────────────────────────────────────────────────
+let ecgRaf=null;
+const ECGW=(()=>{
+  const n=120,out=new Float32Array(n);
+  function g(t,mu,s,h){return h*Math.exp(-0.5*((t-mu)/s)**2);}
+  for(let i=0;i<n;i++){const t=i/n;out[i]+=g(t,.12,.025,.15)+g(t,.20,.008,-.1)+g(t,.22,.012,1.0)+g(t,.24,.009,-.35)+g(t,.38,.04,.32);}
+  return out;
+})();
+
+function startEcg(){
+  const canvas=document.getElementById('ecg-c');
+  canvas.width=canvas.clientWidth||500;
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  let ph=0;
+  function draw(){
+    ctx.fillStyle='#040c14';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(34,211,238,.06)';ctx.lineWidth=.5;
+    for(let x=0;x<W;x+=20){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=14){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    ctx.beginPath();ctx.strokeStyle='#22d3ee';ctx.lineWidth=1.5;ctx.shadowBlur=6;ctx.shadowColor='rgba(34,211,238,.5)';
+    const mid=H*.58,amp=H*.37,NW=ECGW.length;
+    for(let px=0;px<W;px++){const idx=Math.floor(((px/W+ph)*NW*2.5))%NW;const y=mid-ECGW[idx]*amp;px===0?ctx.moveTo(px,y):ctx.lineTo(px,y);}
+    ctx.stroke();ctx.shadowBlur=0;
+    ph=(ph+1.5/W)%1;
+    ecgRaf=requestAnimationFrame(draw);
+  }
+  draw();startVFl();
+}
+function stopEcg(){if(ecgRaf){cancelAnimationFrame(ecgRaf);ecgRaf=null;}clearInterval(vfInt);}
+
+let vfInt=null,bpm=72,spo2=98,tmp=37.1;
+function startVFl(){
+  clearInterval(vfInt);
+  vfInt=setInterval(()=>{
+    bpm=Math.max(58,Math.min(110,bpm+(Math.random()-.5)*3));
+    spo2=Math.max(94,Math.min(100,spo2+(Math.random()-.5)*.4));
+    tmp=Math.max(36,Math.min(39,tmp+(Math.random()-.5)*.04));
+    const rb=Math.round(bpm);
+    const b=document.getElementById('v-bpm');if(b){b.innerHTML=`${rb}<small>bpm</small>`;b.style.color=(rb>100||rb<60)?'#f87171':'#22d3ee';}
+    const s=document.getElementById('v-spo2');if(s)s.innerHTML=`${Math.round(spo2)}<small>%</small>`;
+    const t=document.getElementById('v-tmp');if(t)t.innerHTML=`${tmp.toFixed(1)}<small>°C</small>`;
+    const l=document.getElementById('ecg-lbl');if(l)l.textContent=`NSR ${rb} bpm`;
+  },2000);
+}
+let diagInt=null,diagStart=0;
+function startDiagClock(){diagStart=Date.now();clearInterval(diagInt);diagInt=setInterval(()=>{const el=document.getElementById('dclk');if(el)el.textContent=fmt(Math.floor((Date.now()-diagStart)/1000));},1000);}
+function fmt(s){return`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
+
+// ── X-Ray ─────────────────────────────────────────────────────────
+function drawXray(){
+  const c=document.getElementById('xray-c'),ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2;
+  ctx.fillStyle='#010307';ctx.fillRect(0,0,W,H);
+  const bone='rgba(195,215,245,.52)';ctx.strokeStyle=bone;ctx.shadowColor='rgba(167,139,250,.18)';ctx.shadowBlur=3;
+  ctx.lineWidth=1;
+  for(let y=65;y<400;y+=17){ctx.fillStyle=bone;ctx.beginPath();ctx.roundRect(cx-6,y,12,11,2);ctx.fill();ctx.stroke();}
+  ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(cx,80);ctx.lineTo(cx,252);ctx.stroke();
+  ctx.lineWidth=1.6;[-1,1].forEach(s=>{ctx.beginPath();ctx.moveTo(cx+s*8,79);ctx.bezierCurveTo(cx+s*36,69,cx+s*88,67,cx+s*114,73);ctx.stroke();});
+  ctx.lineWidth=.9;
+  for(let r=0;r<8;r++){const y=93+r*20,sp=55+(r<4?r*6:(7-r)*6);[-1,1].forEach(s=>{ctx.beginPath();ctx.moveTo(cx+s*5,y);ctx.bezierCurveTo(cx+s*sp*.55,y-2,cx+s*sp*.87,y+9,cx+s*sp,y+15);ctx.stroke();});}
+  ctx.strokeStyle='rgba(195,215,245,.17)';ctx.lineWidth=.6;
+  ctx.beginPath();ctx.ellipse(cx-56,178,47,78,-.08,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(cx+56,178,47,78,.08,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle=bone;ctx.lineWidth=1.6;ctx.beginPath();ctx.ellipse(cx,378,60,33,0,0,Math.PI*2);ctx.stroke();
+  ctx.shadowBlur=9;ctx.shadowColor='rgba(248,113,113,.7)';ctx.strokeStyle='rgba(248,113,113,.9)';ctx.lineWidth=1.8;
+  const ry=93+6*20,rsp=55+(6<4?6*6:(7-6)*6);
+  ctx.beginPath();ctx.moveTo(cx-5,ry);ctx.bezierCurveTo(cx-rsp*.55,ry-2,cx-rsp*.87,ry+9,cx-rsp,ry+15);ctx.stroke();
+  ctx.shadowBlur=0;ctx.fillStyle='rgba(248,113,113,.85)';ctx.font='bold 8px Orbitron,monospace';ctx.fillText('# Fr.',cx-rsp-28,ry+15);
+  ctx.fillStyle='rgba(167,139,250,.1)';ctx.beginPath();ctx.ellipse(cx-56,244,37,17,0,0,Math.PI*2);ctx.fill();
+}
+const FINDINGS={
+  thorax:[{t:'Côte 7 gauche',b:"Fracture non déplacée. Pas d'hémopneumothorax."},{t:'Poumon gauche',b:'Opacité basale, épanchement pleural ~150 ml.'},{t:'Poumon droit',b:'Parenchyme aéré homogène, sans anomalie.'},{t:'Cœur',b:'Silhouette cardiaque normale.'}],
+  abdomen:[{t:'Foie',b:'Structure homogène, pas de lésion focale.'},{t:'Rate',b:'Légèrement augmentée. Contusion à surveiller.'},{t:'Reins',b:"Pas d'anomalie bilatéralement."}],
+  crane:[{t:'Voûte crânienne',b:'Pas de fracture. Calvarium intact.'},{t:'Sinus',b:'Opacité sinusienne droite modérée.'},{t:'Base du crâne',b:'Pas de lésion osseuse.'}],
+  membres:[{t:'Tibia gauche',b:'Fracture diaphysaire déplacée. Chirurgie recommandée.'},{t:'Fémur',b:'Pas de lésion osseuse. Densité normale.'},{t:'Bassin',b:'Pas de fracture détectée.'}],
+};
+function setReg(el,key){
+  document.querySelectorAll('.rt').forEach(t=>t.classList.remove('a'));if(el)el.classList.add('a');
+  const box=document.getElementById('fbox');
+  box.innerHTML=(FINDINGS[key]||[]).map(f=>`<div class="fi"><b>${f.t}</b>${f.b}</div>`).join('');
+}
+
+// ── Surgery ───────────────────────────────────────────────────────
+const STEPS=[
+  {tx:"Vérification identité & consentement",du:'1 min'},
+  {tx:"Installation & préparation site opératoire",du:'3 min'},
+  {tx:"Induction anesthésique — intubation",du:'4 min'},
+  {tx:"Antisepsie & champs stériles",du:'2 min'},
+  {tx:"Incision cutanée et dissection",du:'5 min'},
+  {tx:"Contrôle hémostase — cautérisation",du:'3 min'},
+  {tx:"Réduction & fixation fracture (plaque+vis)",du:'15 min'},
+  {tx:"Fermeture par plans — suture + pansement",du:'6 min'},
+];
+let chirInt=null,chirStart=0;
+function initSteps(){
+  document.getElementById('slist').innerHTML=STEPS.map((s,i)=>
+    `<div class="sr" onclick="toggleStep(this)"><div class="sck"></div><div class="snm">${String(i+1).padStart(2,'0')}</div><div class="stx">${s.tx}</div><div class="sdu">${s.du}</div></div>`
+  ).join('');
+  updateProg();
+}
+function toggleStep(el){el.classList.toggle('done');updateProg();}
+function updateProg(){
+  const rows=[...document.querySelectorAll('.sr')],done=rows.filter(r=>r.classList.contains('done')).length,tot=rows.length;
+  const pf=document.getElementById('pf');if(pf)pf.style.width=(tot?done/tot*100:0)+'%';
+  const cp=document.getElementById('cprog');if(cp)cp.textContent=`${done} / ${tot}`;
+}
+function resetS(){document.querySelectorAll('.sr').forEach(r=>r.classList.remove('done'));updateProg();}
+function doneAll(){document.querySelectorAll('.sr').forEach(r=>r.classList.add('done'));updateProg();}
+function startChirTimer(){chirStart=Date.now();clearInterval(chirInt);chirInt=setInterval(()=>{const el=document.getElementById('ctmr');if(el)el.textContent=fmt(Math.floor((Date.now()-chirStart)/1000));},1000);}
+
+function stopAll(){stopEcg();clearInterval(diagInt);clearInterval(chirInt);diagInt=chirInt=null;}
 </script>
 </body>
 </html>
