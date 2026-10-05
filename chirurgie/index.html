@@ -562,17 +562,16 @@ function makeScalpelGame(label, onDone){
   const TOL=22;
   const covered=new Set();
   let dragging=false, cursorPos=null, flashMsg='', flashT=0;
+  let slips=0, done=false;
 
   return {
     label: label||'Incision au scalpel',
     render(ctx){
-      // Background grid
       ctx.strokeStyle='rgba(0,212,255,0.05)';
       ctx.lineWidth=1;
       for(let x=40;x<GW;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,GH);ctx.stroke();}
       for(let y=40;y<GH;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(GW,y);ctx.stroke();}
 
-      // Draw guide path (dotted)
       ctx.setLineDash([4,6]);
       ctx.strokeStyle='rgba(255,100,100,0.35)';
       ctx.lineWidth=2;
@@ -581,7 +580,6 @@ function makeScalpelGame(label, onDone){
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Draw covered segment
       if(covered.size>0){
         const sorted=[...covered].sort((a,b)=>a-b);
         ctx.strokeStyle='rgba(255,60,60,0.85)';
@@ -595,7 +593,6 @@ function makeScalpelGame(label, onDone){
         ctx.stroke();
       }
 
-      // Draw scalpel cursor
       if(cursorPos){
         ctx.save();
         ctx.strokeStyle='#e0e0e0';
@@ -616,22 +613,29 @@ function makeScalpelGame(label, onDone){
         ctx.restore();
       }
 
-      // Progress text
       const pct=Math.round(covered.size/pts.length*100);
       ctx.fillStyle='rgba(255,100,100,0.8)';
       ctx.font='bold 11px Inter,sans-serif';
       ctx.fillText(pct+'% tracé',10,20);
+      // Slip indicators
+      for(let s=0;s<3;s++){
+        ctx.beginPath();
+        ctx.arc(GW-20-s*18,16,5,0,Math.PI*2);
+        ctx.fillStyle=s<slips?'rgba(255,82,82,0.9)':'rgba(255,82,82,0.15)';
+        ctx.fill();
+        ctx.strokeStyle='rgba(255,82,82,0.4)';
+        ctx.lineWidth=1;
+        ctx.stroke();
+      }
 
-      // Flash message
       if(flashMsg && Date.now()<flashT){
-        ctx.fillStyle='rgba(255,202,40,0.9)';
+        ctx.fillStyle='rgba(255,82,82,0.95)';
         ctx.font='bold 12px Inter,sans-serif';
         ctx.textAlign='center';
         ctx.fillText(flashMsg,GW/2,GH-14);
         ctx.textAlign='left';
       }
 
-      // Start/end markers
       ctx.beginPath();
       ctx.arc(P0.x,P0.y,6,0,Math.PI*2);
       ctx.fillStyle='rgba(0,230,118,0.6)';
@@ -642,19 +646,38 @@ function makeScalpelGame(label, onDone){
       ctx.fill();
     },
     input(type,pos){
+      if(done) return;
       cursorPos=pos;
       if(type==='down'){ dragging=true; }
       if(type==='up'||type==='leave'){ dragging=false; }
       if(dragging && (type==='move'||type==='down')){
+        let onPath=false;
         pts.forEach((p,i)=>{
           const dx=pos.x-p.x, dy=pos.y-p.y;
-          if(Math.sqrt(dx*dx+dy*dy)<TOL) covered.add(i);
+          if(Math.sqrt(dx*dx+dy*dy)<TOL){ covered.add(i); onPath=true; }
         });
+        if(!onPath){
+          const nearest=pts.reduce((best,p)=>{
+            const d=Math.hypot(pos.x-p.x,pos.y-p.y);
+            return d<best.d?{d}:best;
+          },{d:Infinity}).d;
+          if(nearest>TOL*2){
+            slips++;
+            flashMsg='⚠ Dérapage ! ('+(3-slips)+' restant)'; flashT=Date.now()+900;
+            if(slips>=3){
+              done=true;
+              setHint('✗ Trop de dérapages — lésion aggravée !','error');
+              setTimeout(()=>onDone(false),800);
+              return;
+            }
+          }
+        }
         const pct=covered.size/pts.length;
-        if(pct>=0.80){
+        if(pct>=0.80 && !done){
+          done=true;
           setHint('✓ Incision complète !','success');
-          setTimeout(onDone,600);
-        } else {
+          setTimeout(()=>onDone(true),600);
+        } else if(!done){
           setHint('Suivez le tracé en maintenant le bouton — '+(Math.round(pct*100))+'%');
         }
       }
@@ -671,7 +694,7 @@ function makeSutureGame(label, onDone){
   const xs=[80,140,200,260,320];
   const GAP=30;
   let phase='top', current=0, done=[];
-  let flashMsg='',flashT=0;
+  let flashMsg='',flashT=0,errors=0,finished=false;
 
   return {
     label: label||'Points de suture',
@@ -762,12 +785,20 @@ function makeSutureGame(label, onDone){
       ctx.fillText('▲ BORD SUPÉRIEUR',10,wY-GAP-15);
       ctx.fillText('▼ BORD INFÉRIEUR',10,wY+GAP+20);
 
-      // Progress text
       ctx.fillStyle='rgba(0,212,255,0.7)';
       ctx.font='bold 11px Inter,sans-serif';
       ctx.fillText('Points: '+done.length+'/'+N,10,20);
+      // Error indicators
+      for(let e=0;e<3;e++){
+        ctx.beginPath();
+        ctx.arc(GW-20-e*18,16,5,0,Math.PI*2);
+        ctx.fillStyle=e<errors?'rgba(255,82,82,0.9)':'rgba(255,82,82,0.15)';
+        ctx.fill();
+        ctx.strokeStyle='rgba(255,82,82,0.4)';
+        ctx.lineWidth=1;
+        ctx.stroke();
+      }
 
-      // Flash message
       if(flashMsg && Date.now()<flashT){
         ctx.fillStyle='rgba(255,82,82,0.9)';
         ctx.font='bold 12px Inter,sans-serif';
@@ -777,7 +808,7 @@ function makeSutureGame(label, onDone){
       }
     },
     input(type,pos){
-      if(type!=='down') return;
+      if(type!=='down'||finished) return;
       const x=pos.x, y=pos.y;
       xs.forEach((dx,i)=>{
         if(done.includes(i)) return;
@@ -791,14 +822,21 @@ function makeSutureGame(label, onDone){
           done.push(i);
           current++;
           if(current>=N){
+            finished=true;
             setHint('✓ Sutures complètes !','success');
-            setTimeout(onDone,600);
+            setTimeout(()=>onDone(true),600);
           } else {
             phase='top';
             setHint('Point '+(current+1)+' — cliquez HAUT');
           }
         } else if((htop<16||hbot<16)){
-          flashMsg='Point incorrect !'; flashT=Date.now()+800;
+          errors++;
+          flashMsg='⚠ Mauvais point ! ('+(3-errors)+' erreur(s) restante)'; flashT=Date.now()+900;
+          if(errors>=3){
+            finished=true;
+            setHint('✗ Trop d\'erreurs de suture — déhiscence !','error');
+            setTimeout(()=>onDone(false),800);
+          }
         }
       });
     }
@@ -810,13 +848,15 @@ function makeSutureGame(label, onDone){
 // ═══════════════════════════════════════════════════════════════════
 function makeExtractGame(items, onDone){
   const BIN={x:310,y:185,w:72,h:52};
+  const LIMIT=25000;
+  const startT=Date.now();
   const FRAGS=items.map((name,i)=>{
     const positions=[{x:80,y:100},{x:155,y:145},{x:220,y:75},{x:115,y:185}];
     const p=positions[i%positions.length];
     return {name,ox:p.x,oy:p.y,x:p.x,y:p.y,r:18,inBin:false,color:`hsl(${i*60+10},60%,50%)`};
   });
   let drag=null, dragOff={x:0,y:0};
-  let flashMsg='',flashT=0;
+  let flashMsg='',flashT=0,finished=false;
 
   function hitFrag(pos){
     for(let i=FRAGS.length-1;i>=0;i--){
@@ -894,13 +934,26 @@ function makeExtractGame(items, onDone){
         ctx.textAlign='left';
       });
 
-      // Done count
       const doneN=FRAGS.filter(f=>f.inBin).length;
       ctx.fillStyle='rgba(0,212,255,0.7)';
       ctx.font='bold 11px Inter,sans-serif';
       ctx.fillText('Retiré: '+doneN+'/'+FRAGS.length,10,20);
 
-      // Flash
+      // Countdown timer
+      const elapsed=Date.now()-startT;
+      const remain=Math.max(0,Math.ceil((LIMIT-elapsed)/1000));
+      const timerColor=remain<=8?'rgba(255,82,82,0.9)':'rgba(255,202,40,0.8)';
+      ctx.fillStyle=timerColor;
+      ctx.font='bold 11px Inter,sans-serif';
+      ctx.textAlign='right';
+      ctx.fillText('⏱ '+remain+'s',GW-10,20);
+      ctx.textAlign='left';
+      if(!finished && elapsed>=LIMIT){
+        finished=true;
+        setHint('✗ Temps écoulé — hémorragie incontrôlée !','error');
+        setTimeout(()=>onDone(false),800);
+      }
+
       if(flashMsg && Date.now()<flashT){
         ctx.fillStyle='rgba(0,230,118,0.9)';
         ctx.font='bold 12px Inter,sans-serif';
@@ -910,6 +963,7 @@ function makeExtractGame(items, onDone){
       }
     },
     input(type,pos){
+      if(finished) return;
       if(type==='down'){
         const f=hitFrag(pos);
         if(f){drag=f;dragOff={x:pos.x-f.x,y:pos.y-f.y};}
@@ -925,8 +979,9 @@ function makeExtractGame(items, onDone){
             flashMsg='Fragment retiré !'; flashT=Date.now()+600;
             const rem=FRAGS.filter(f=>!f.inBin);
             if(rem.length===0){
+              finished=true;
               setHint('✓ Tous les fragments retirés !','success');
-              setTimeout(onDone,700);
+              setTimeout(()=>onDone(true),700);
             } else {
               setHint('Retirez: '+rem.map(f=>f.name).join(', '));
             }
@@ -948,7 +1003,7 @@ function makeCauterizeGame(label, onDone){
   const dots=[
     {x:160,y:90},{x:240,y:120},{x:130,y:155},{x:200,y:175},{x:270,y:90}
   ].map((p,i)=>({...p,progress:0,done:false,pulse:i*0.4}));
-  let activeIdx=-1, holdStart=0;
+  let activeIdx=-1, holdStart=0, lastActive=-1, interruptions=0, finished=false;
   let cursorPos=null;
 
   function nearDot(pos){
@@ -1029,11 +1084,12 @@ function makeCauterizeGame(label, onDone){
         // Check completion in render (safe with RAF)
         if(isActive && d.progress>=1){
           d.done=true;
-          activeIdx=-1;
+          activeIdx=-1; lastActive=-1;
           const rem=dots.filter(dd=>!dd.done);
-          if(rem.length===0){
+          if(rem.length===0 && !finished){
+            finished=true;
             setHint('✓ Cautérisation complète !','success');
-            setTimeout(onDone,700);
+            setTimeout(()=>onDone(true),700);
           } else {
             setHint('Maintenez sur le point suivant ('+rem.length+' restant)');
           }
@@ -1058,27 +1114,71 @@ function makeCauterizeGame(label, onDone){
         ctx.restore();
       }
 
-      // Count
       const doneN=dots.filter(d=>d.done).length;
       ctx.fillStyle='rgba(255,100,80,0.8)';
       ctx.font='bold 11px Inter,sans-serif';
       ctx.fillText('Cautérisé: '+doneN+'/'+dots.length,10,20);
+      // Interruption indicators
+      for(let e=0;e<4;e++){
+        ctx.beginPath();
+        ctx.arc(GW-20-e*18,16,5,0,Math.PI*2);
+        ctx.fillStyle=e<interruptions?'rgba(255,82,82,0.9)':'rgba(255,82,82,0.15)';
+        ctx.fill();
+        ctx.strokeStyle='rgba(255,82,82,0.4)';
+        ctx.lineWidth=1;
+        ctx.stroke();
+      }
     },
     input(type,pos){
+      if(finished) return;
       cursorPos=(type==='leave')?null:pos;
       if(type==='down'||type==='move'){
         const idx=nearDot(pos);
         if(idx>=0){
           if(activeIdx!==idx){
-            activeIdx=idx;
+            // Interrupting a dot in progress
+            if(activeIdx>=0 && dots[activeIdx] && dots[activeIdx].progress>0 && dots[activeIdx].progress<1){
+              dots[activeIdx].progress=0;
+              interruptions++;
+              if(interruptions>=4){
+                finished=true;
+                setHint('✗ Trop d\'interruptions — brûlure excessive !','error');
+                setTimeout(()=>onDone(false),800);
+                return;
+              }
+              setHint('⚠ Ne bougez pas ! ('+(4-interruptions)+' interruption(s) restante)');
+            }
+            activeIdx=idx; lastActive=idx;
             holdStart=Date.now();
             setHint('Maintenez sur le point...');
           }
         } else {
+          if(activeIdx>=0 && dots[activeIdx] && dots[activeIdx].progress>0 && dots[activeIdx].progress<1){
+            dots[activeIdx].progress=0;
+            interruptions++;
+            if(interruptions>=4){
+              finished=true;
+              setHint('✗ Trop d\'interruptions — brûlure excessive !','error');
+              setTimeout(()=>onDone(false),800);
+              return;
+            }
+            setHint('⚠ Ne bougez pas ! ('+(4-interruptions)+' interruption(s) restante)');
+          }
           activeIdx=-1;
         }
       }
       if(type==='up'||type==='leave'){
+        if(activeIdx>=0 && dots[activeIdx] && dots[activeIdx].progress>0 && dots[activeIdx].progress<1){
+          dots[activeIdx].progress=0;
+          interruptions++;
+          if(interruptions>=4){
+            finished=true;
+            setHint('✗ Trop d\'interruptions — brûlure excessive !','error');
+            setTimeout(()=>onDone(false),800);
+            return;
+          }
+          setHint('⚠ Ne bougez pas ! ('+(4-interruptions)+' interruption(s) restante)');
+        }
         activeIdx=-1;
       }
     }
@@ -1099,15 +1199,20 @@ function startCurrentGame(){
   stopRAF();
   GTX.clearRect(0,0,GW,GH);
 
-  function onDone(){
+  function onDone(success){
+    GS=null; stopRAF();
+    if(!success){
+      addLog('Étape '+opGameIdx+': ÉCHEC — '+def.label,'info');
+      resolveOp(false);
+      return;
+    }
     opGameIdx++;
     const pct=Math.round(opGameIdx/total*100);
     document.getElementById('gameProgress').style.width=pct+'%';
     addLog('Étape '+opGameIdx+'/'+total+': '+def.label,'info');
     if(opGameIdx>=total){
       document.getElementById('progSteps').textContent=total+'/'+total;
-      GS=null; stopRAF();
-      setTimeout(resolveOp,400);
+      setTimeout(()=>resolveOp(true),400);
     } else {
       startCurrentGame();
     }
@@ -1121,7 +1226,7 @@ function startCurrentGame(){
     setHint('Cliquez alternativement: HAUT puis BAS de la plaie');
   } else if(def.type==='extract'){
     GS=makeExtractGame(def.items||['Fragment 1','Fragment 2'],onDone);
-    setHint('Faites GLISSER chaque élément vers la poubelle');
+    setHint('Faites GLISSER chaque élément vers la poubelle (⏱ 25s)');
   } else if(def.type==='cauterize'){
     GS=makeCauterizeGame(def.label,onDone);
     setHint('Maintenez le curseur sur chaque point rouge jusqu\'à complétion');
@@ -1157,10 +1262,8 @@ function closeGame(){
   activeOp=null; opGameIdx=0;
 }
 
-function resolveOp(){
+function resolveOp(success){
   if(!activeOp) return;
-  const roll=Math.random()*100;
-  const success=roll > activeOp.risk;
   opResults[activeOp.id]=success?'success':'fail';
   const ov=document.getElementById('outcomeOverlay');
   ov.className='outcome-overlay show '+(success?'success':'failure');
