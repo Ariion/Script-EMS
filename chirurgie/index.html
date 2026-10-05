@@ -68,7 +68,7 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .col-right{width:min(190px,33%);flex-shrink:0;border-left:1px solid var(--border)}
 
 /* ── Section headers ── */
-.sec-head{display:flex;align-items:center;gap:6px;padding:7px 12px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);background:rgba(0,212,255,0.03);flex-shrink:0}
+.sec-head{display:flex;align-items:center;gap:6px;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);background:rgba(0,212,255,0.03);flex-shrink:0}
 .sec-head .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 6px var(--cyan);animation:blink 2s ease-in-out infinite}
 .sec-head.purple .dot{background:var(--purple);box-shadow:0 0 6px var(--purple)}
 .sec-head.purple{color:var(--purple)}
@@ -88,12 +88,12 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .panel-block{padding:10px 12px;border-bottom:1px solid var(--border)}
 
 /* ── ECG ── */
-.ecg-wrap{padding:10px 12px;border-bottom:1px solid var(--border)}
+.ecg-wrap{padding:8px 8px;border-bottom:1px solid var(--border)}
 .ecg-label{font-size:8px;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;opacity:0.7}
 #ecgCanvas{width:100%;height:42px;display:block;background:rgba(0,0,0,0.3);border-radius:3px}
 
 /* ── Monitoring ── */
-.monitor-block{padding:10px 12px;border-bottom:1px solid var(--border)}
+.monitor-block{padding:8px 8px;border-bottom:1px solid var(--border)}
 .monitor-label{font-size:8px;color:var(--fg3);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:7px}
 .mon-vitals{display:flex;flex-direction:column;gap:4px}
 .mv-item{font-size:10px;font-weight:600;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px;padding:3px 0}
@@ -103,26 +103,26 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 #monActive{display:none;flex-direction:column;gap:4px}
 
 /* ── Stat cells ── */
-.stat-cells{display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.stat-cells{display:flex;gap:4px;padding:6px 8px;border-bottom:1px solid var(--border);flex-shrink:0}
 .stat-cell{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:5px 6px;text-align:center}
 .stat-cell-lbl{font-size:7px;color:var(--fg3);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
 .stat-cell-val{font-size:14px;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--cyan)}
 .stat-cell-val.danger{color:var(--red)}.stat-cell-val.warn{color:var(--yellow)}
 
 /* ── Exam rows (operation list) ── */
-.exam-rows{display:flex;flex-direction:column;gap:2px;padding:8px}
-.exam-row{display:flex;align-items:center;gap:7px;padding:6px 8px;background:var(--panel);border:1px solid var(--border);border-radius:3px;cursor:pointer;transition:all .15s;min-height:32px}
+.exam-rows{display:flex;flex-direction:column;gap:2px;padding:6px}
+.exam-row{display:flex;align-items:center;gap:5px;padding:5px 6px;background:var(--panel);border:1px solid var(--border);border-radius:3px;cursor:pointer;transition:all .15s;min-height:28px}
 .exam-row:hover{border-color:var(--border2);background:rgba(0,212,255,0.04)}
 .exam-row.done{opacity:0.5;cursor:default}
-.exam-icon{font-size:14px;flex-shrink:0;width:18px;text-align:center}
-.exam-lbl{flex:1;font-size:10px;color:var(--fg2);font-weight:500}
-.exam-val{font-size:8px;font-weight:700;letter-spacing:0.8px;padding:2px 5px;border-radius:2px;border:1px solid transparent}
+.exam-icon{font-size:13px;flex-shrink:0;width:16px;text-align:center}
+.exam-lbl{flex:1;font-size:9px;color:var(--fg2);font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exam-val{font-size:7px;font-weight:700;letter-spacing:0.5px;padding:2px 4px;border-radius:2px;border:1px solid transparent;flex-shrink:0}
 .exam-val.ok{color:var(--green);border-color:rgba(0,230,118,0.3);background:rgba(0,230,118,0.08)}
 .exam-val.danger{color:var(--red);border-color:rgba(255,82,82,0.3);background:rgba(255,82,82,0.08)}
 .exam-val.warn{color:var(--yellow);border-color:rgba(255,202,40,0.3);background:rgba(255,202,40,0.08)}
 
 /* ── Patient card ── */
-.patient-card{padding:10px 12px;border-top:1px solid var(--border);margin-top:auto}
+.patient-card{padding:8px 8px;border-top:1px solid var(--border);margin-top:auto}
 .pat-id{font-size:8px;color:var(--fg3);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px}
 .pat-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--fg);line-height:1.1;margin-bottom:2px}
 .pat-meta{font-size:9px;color:var(--fg2);margin-bottom:6px}
