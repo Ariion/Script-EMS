@@ -4,148 +4,64 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <title>Nova Medical — Démo</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Orbitron:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;500&display=swap">
 <style>
-:root{
-  --bg:#050508;--surface:rgba(5,9,18,.95);--border:rgba(255,255,255,.07);
-  --fg:#dce8f4;--fg-dim:#7a90a8;
-  --cd:#22d3ee;--ci:#a78bfa;--cc:#4ade80;
-  color-scheme:dark;
-}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;overflow:hidden;user-select:none}
+html,body{height:100%;background:#050508;font-family:'Rajdhani',system-ui,sans-serif;overflow:hidden;user-select:none;color:#dce8f4}
 
-/* backgrounds */
 .bgl{position:fixed;inset:0;background-size:cover;background-position:center;transition:opacity .7s ease}
 #bg-a{z-index:0}
 #bg-b{z-index:1;opacity:0}
-#bg-v{position:fixed;inset:0;z-index:2;background:radial-gradient(ellipse at center,rgba(2,4,12,.38) 0%,rgba(2,4,12,.72) 100%)}
+#bg-v{position:fixed;inset:0;z-index:2;background:radial-gradient(ellipse at center,rgba(2,4,12,.36) 0%,rgba(2,4,12,.75) 100%)}
 
-/* labels */
-#labels{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:11vh;gap:9px}
-.fvl{display:flex;align-items:stretch;background:rgba(0,0,0,.76);border:1px solid rgba(255,255,255,.12);border-radius:3px;overflow:hidden;cursor:pointer;min-width:215px;backdrop-filter:blur(6px);transition:background .15s,border-color .15s,transform .12s,box-shadow .15s}
+#labels{
+  position:fixed;inset:0;z-index:10;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-end;
+  padding-bottom:12vh;gap:10px;
+}
+
+.fvl{
+  display:flex;align-items:stretch;
+  background:rgba(0,0,0,.76);border:1px solid rgba(255,255,255,.12);
+  border-radius:3px;overflow:hidden;
+  min-width:218px;cursor:pointer;
+  backdrop-filter:blur(6px);
+  text-decoration:none;
+  transition:background .15s,border-color .15s,transform .12s,box-shadow .15s;
+}
 .fvl:hover{background:rgba(0,0,0,.88);transform:translateX(5px)}
-.fvl[data-m=d]:hover{border-color:rgba(34,211,238,.45);box-shadow:0 0 14px rgba(34,211,238,.14)}
-.fvl[data-m=i]:hover{border-color:rgba(167,139,250,.45);box-shadow:0 0 14px rgba(167,139,250,.14)}
-.fvl[data-m=c]:hover{border-color:rgba(74,222,128,.45);box-shadow:0 0 14px rgba(74,222,128,.14)}
-.fvk{width:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px}
-.fvl[data-m=d] .fvk{background:rgba(34,211,238,.88);color:#042028}
-.fvl[data-m=i] .fvk{background:rgba(167,139,250,.88);color:#1a0a32}
-.fvl[data-m=c] .fvk{background:rgba(74,222,128,.88);color:#042012}
-.fvt{padding:7px 14px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px;letter-spacing:.09em;text-transform:uppercase;color:#fff;transition:color .15s}
-.fvl[data-m=d]:hover .fvt{color:var(--cd)}
-.fvl[data-m=i]:hover .fvt{color:var(--ci)}
-.fvl[data-m=c]:hover .fvt{color:var(--cc)}
 
-/* overlay */
-#ov{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .22s}
-#ov.on{opacity:1;pointer-events:all}
-.mp{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;width:85vw;max-width:920px;height:82vh;max-height:700px;display:flex;flex-direction:column;transform:scale(.93) translateY(14px);transition:transform .22s;border-top-width:2px}
-#ov.on .mp{transform:scale(1) translateY(0)}
-#md{border-top-color:var(--cd)}
-#mi{border-top-color:var(--ci)}
-#mc{border-top-color:var(--cc);max-width:580px}
+.fvl[data-m=d]:hover{border-color:rgba(34,211,238,.45);box-shadow:0 0 16px rgba(34,211,238,.14)}
+.fvl[data-m=i]:hover{border-color:rgba(167,139,250,.45);box-shadow:0 0 16px rgba(167,139,250,.14)}
+.fvl[data-m=c]:hover{border-color:rgba(74,222,128,.45);box-shadow:0 0 16px rgba(74,222,128,.14)}
 
-/* header */
-.mh{display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.28);flex-shrink:0}
-.mhdot{width:7px;height:7px;border-radius:50%;animation:bl 2s ease-in-out infinite}
-@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
-.mhdot.d{background:var(--cd);box-shadow:0 0 5px var(--cd)}
-.mhdot.i{background:var(--ci);box-shadow:0 0 5px var(--ci)}
-.mhdot.c{background:var(--cc);box-shadow:0 0 5px var(--cc)}
-.mhtitle{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:.12em;text-transform:uppercase;flex:1}
-.mhtitle.d{color:var(--cd)}.mhtitle.i{color:var(--ci)}.mhtitle.c{color:var(--cc)}
-.mhsub{font-family:'Orbitron',monospace;font-size:10px;color:var(--fg-dim)}
-.mcls{width:24px;height:24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:3px;color:var(--fg-dim);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;transition:background .15s,color .15s}
-.mcls:hover{background:rgba(255,60,60,.2);color:#ff6060}
+.fvk{
+  width:34px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;
+}
+.fvl[data-m=d] .fvk{background:rgba(34,211,238,.9);color:#042028}
+.fvl[data-m=i] .fvk{background:rgba(167,139,250,.9);color:#1a0a32}
+.fvl[data-m=c] .fvk{background:rgba(74,222,128,.9);color:#042012}
 
-.slbl{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:7px}
-.slbl.d{color:var(--cd)}.slbl.i{color:var(--ci)}.slbl.c{color:var(--cc)}
+.fvt{
+  padding:8px 16px;
+  font-family:'Rajdhani',sans-serif;font-weight:600;
+  font-size:14px;letter-spacing:.09em;text-transform:uppercase;
+  color:#fff;transition:color .15s;
+}
+.fvl[data-m=d]:hover .fvt{color:#22d3ee}
+.fvl[data-m=i]:hover .fvt{color:#a78bfa}
+.fvl[data-m=c]:hover .fvt{color:#4ade80}
 
-/* DIAGNOSTIC */
-.dl{display:grid;grid-template-columns:1fr 200px;grid-template-rows:auto auto 1fr;gap:1px;background:rgba(255,255,255,.04);flex:1;overflow:hidden}
-.dc{background:#050b12;padding:10px 12px;display:flex;flex-direction:column;overflow:hidden}
-.d-pt{grid-column:1;grid-row:1;flex-direction:row!important;align-items:center;gap:10px;padding:8px 12px!important}
-.d-ecg{grid-column:1;grid-row:2}
-.d-bot{grid-column:1;grid-row:3;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.04)}
-.d-v,.d-e{background:#050b12;padding:10px 12px;display:flex;flex-direction:column;overflow-y:auto}
-.d-z{grid-column:2;grid-row:1/4}
-.ptn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;flex:1}
-.spill{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:2px 9px;border-radius:20px}
-.pill-ok{background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.25)}
-.pill-cr{background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.25)}
-.dclk{font-family:'Orbitron',monospace;font-size:10px;color:var(--fg-dim);font-variant-numeric:tabular-nums}
-#ecg-c{width:100%;height:58px;display:block}
-.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.vt{background:rgba(255,255,255,.04);border:1px solid rgba(34,211,238,.1);border-radius:4px;padding:7px 9px}
-.vtl{font-family:'Orbitron',monospace;font-size:8px;color:var(--fg-dim);letter-spacing:.07em;margin-bottom:4px}
-.vtv{font-family:'Orbitron',monospace;font-size:20px;font-weight:600;color:var(--cd);font-variant-numeric:tabular-nums;line-height:1}
-.vtv small{font-size:10px;margin-left:2px;color:var(--fg-dim)}
-.egrid{display:flex;flex-wrap:wrap;gap:5px}
-.ebtn{background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.18);border-radius:3px;color:var(--cd);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:11px;letter-spacing:.04em;padding:4px 8px;cursor:pointer;transition:background .13s,opacity .13s}
-.ebtn:hover{background:rgba(34,211,238,.16)}
-.ebtn.done{opacity:.5}
-.zrow{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.zi{font-size:13px;width:18px;text-align:center}
-.zn{font-family:'Rajdhani',sans-serif;font-weight:500;font-size:12px;flex:1}
-.zb{font-size:9px;font-family:'Orbitron',monospace;padding:2px 5px;border-radius:2px}
-.zb.ok{background:rgba(74,222,128,.09);color:#4ade80;border:1px solid rgba(74,222,128,.17)}
-.zb.wn{background:rgba(251,146,60,.1);color:#fb923c;border:1px solid rgba(251,146,60,.2)}
-.zb.cr{background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.2)}
-
-/* IMAGERIE */
-.il{display:grid;grid-template-columns:145px 1fr 185px;gap:1px;background:rgba(255,255,255,.04);flex:1;overflow:hidden}
-.ic{background:#040810;padding:10px 12px;overflow:hidden;display:flex;flex-direction:column}
-.ic.xc{padding:0;background:#010307;align-items:center;justify-content:center;position:relative}
-#xray-c{max-width:100%;max-height:100%;display:block}
-.scl{position:absolute;left:0;right:0;height:2px;background:rgba(167,139,250,.4);box-shadow:0 0 8px rgba(167,139,250,.45);animation:sc 3.5s linear infinite}
-@keyframes sc{from{top:0%}to{top:100%}}
-.pti{padding:5px 8px;border-radius:3px;font-family:'Rajdhani',sans-serif;font-size:12px;cursor:pointer;border:1px solid transparent;margin-bottom:3px;transition:all .13s}
-.pti.a{background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.3);color:var(--ci)}
-.pti:not(.a):hover{background:rgba(255,255,255,.04)}
-.rtabs{display:flex;flex-direction:column;gap:3px;margin-bottom:9px}
-.rt{padding:5px 8px;background:rgba(255,255,255,.03);border:1px solid rgba(167,139,250,.09);border-radius:3px;font-family:'Rajdhani',sans-serif;font-size:12px;cursor:pointer;color:var(--fg-dim);transition:all .13s}
-.rt.a{background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.32);color:var(--ci)}
-.rt:not(.a):hover{background:rgba(255,255,255,.05);color:var(--fg)}
-.fbox{flex:1;overflow-y:auto}
-.fi{padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px;line-height:1.5;color:var(--fg-dim)}
-.fi b{display:block;font-family:'Rajdhani',sans-serif;font-size:12px;color:var(--ci);font-weight:600;margin-bottom:1px}
-.xray-meta{margin-top:auto;font-family:'Orbitron',monospace;font-size:9px;color:var(--fg-dim);line-height:1.9}
-
-/* CHIRURGIE */
-.cl{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.cs{padding:10px 16px;background:#040a06;border-bottom:1px solid rgba(255,255,255,.04)}
-.cs.grow{flex:1;overflow:hidden;display:flex;flex-direction:column}
-.ptcw{display:flex;align-items:center;gap:10px}
-.ptci{flex:1}
-.ptcn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px}
-.ptcd{font-size:11px;color:var(--fg-dim);margin-top:2px}
-.ptcm{text-align:right}
-.ptcp{font-family:'Orbitron',monospace;font-size:12px;color:var(--cc);font-variant-numeric:tabular-nums}
-.ptct{font-size:10px;color:var(--fg-dim);font-family:'Orbitron',monospace;margin-top:2px}
-.pw{background:rgba(255,255,255,.07);border-radius:2px;height:5px;overflow:hidden;margin-top:7px}
-.pf{height:100%;border-radius:2px;background:var(--cc);box-shadow:0 0 6px rgba(74,222,128,.4);transition:width .4s ease}
-.slist{display:flex;flex-direction:column;gap:5px;overflow-y:auto;flex:1;padding-right:2px}
-.sr{display:flex;align-items:center;gap:8px;padding:7px 9px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.05);border-radius:3px;cursor:pointer;transition:all .13s}
-.sr:hover{background:rgba(74,222,128,.05);border-color:rgba(74,222,128,.18)}
-.sr.done{background:rgba(74,222,128,.07);border-color:rgba(74,222,128,.22)}
-.sck{width:16px;height:16px;border:1.5px solid rgba(255,255,255,.18);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .13s}
-.sr.done .sck{background:var(--cc);border-color:var(--cc);color:#042012}
-.snm{font-family:'Orbitron',monospace;font-size:9px;color:var(--fg-dim);width:18px;text-align:center;flex-shrink:0}
-.sr.done .snm{color:var(--cc)}
-.stx{flex:1;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:500;line-height:1.3}
-.sr.done .stx{color:var(--fg-dim);text-decoration:line-through}
-.sdu{font-family:'Orbitron',monospace;font-size:9px;color:var(--fg-dim);flex-shrink:0}
-.cfoot{display:flex;gap:7px;justify-content:flex-end;padding:9px 16px;background:rgba(0,0,0,.25);border-top:1px solid rgba(255,255,255,.05);flex-shrink:0}
-.cfb{padding:6px 14px;border-radius:3px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:.05em;cursor:pointer;transition:all .13s}
-.cfb.p{background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.32);color:var(--cc)}
-.cfb.p:hover{background:rgba(74,222,128,.22)}
-.cfb.s{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);color:var(--fg-dim)}
-.cfb.s:hover{background:rgba(255,255,255,.08);color:var(--fg)}
-
-::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+/* hint bas de page */
+#hint{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  z-index:10;font-family:'Orbitron',monospace;font-size:9px;
+  letter-spacing:.14em;color:rgba(255,255,255,.2);
+  text-align:center;pointer-events:none;
+}
 </style>
 </head>
 <body>
@@ -155,317 +71,40 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 <div id="bg-v"></div>
 
 <div id="labels">
-  <div class="fvl" data-m="d"><div class="fvk">E</div><span class="fvt">Diagnostic</span></div>
-  <div class="fvl" data-m="i"><div class="fvk">E</div><span class="fvt">Imagerie</span></div>
-  <div class="fvl" data-m="c"><div class="fvk">E</div><span class="fvt">Chirurgie</span></div>
+  <a class="fvl" data-m="d" href="demo/">
+    <div class="fvk">E</div>
+    <span class="fvt">Diagnostic</span>
+  </a>
+  <a class="fvl" data-m="i" href="imagerie/">
+    <div class="fvk">E</div>
+    <span class="fvt">Imagerie</span>
+  </a>
+  <a class="fvl" data-m="c" href="chirurgie/">
+    <div class="fvk">E</div>
+    <span class="fvt">Chirurgie</span>
+  </a>
 </div>
 
-<div id="ov">
-
-  <!-- DIAGNOSTIC -->
-  <div id="md" class="mp" hidden>
-    <div class="mh">
-      <div class="mhdot d"></div>
-      <span class="mhtitle d">Monitoring — Diagnostic</span>
-      <span class="mhsub">NOVA OMC v1.3</span>
-      <button class="mcls" onclick="closeM()">✕</button>
-    </div>
-    <div class="dl">
-      <div class="dc d-pt">
-        <span class="ptn">Doe, John — #0142</span>
-        <span class="spill pill-ok">Stable</span>
-        <span class="dclk" id="dclk">00:00</span>
-      </div>
-      <div class="dc d-ecg">
-        <div class="slbl d" style="margin-bottom:4px">ECG temps réel — <span id="ecg-lbl">NSR 72 bpm</span></div>
-        <canvas id="ecg-c" height="58"></canvas>
-      </div>
-      <div class="d-bot">
-        <div class="d-v">
-          <div class="slbl d">Constantes</div>
-          <div class="vgrid">
-            <div class="vt"><div class="vtl">FRÉQ. CARD.</div><div class="vtv" id="v-bpm">72<small>bpm</small></div></div>
-            <div class="vt"><div class="vtl">SpO₂</div><div class="vtv" id="v-spo2">98<small>%</small></div></div>
-            <div class="vt"><div class="vtl">PRESSION</div><div class="vtv" id="v-bp" style="font-size:14px">120/80<small>mmHg</small></div></div>
-            <div class="vt"><div class="vtl">TEMP.</div><div class="vtv" id="v-tmp">37.1<small>°C</small></div></div>
-          </div>
-        </div>
-        <div class="d-e">
-          <div class="slbl d">Examens</div>
-          <div class="egrid">
-            <button class="ebtn" onclick="this.classList.toggle('done')">🔍 Évaluation</button>
-            <button class="ebtn" onclick="this.classList.toggle('done')">💓 Tension</button>
-            <button class="ebtn" onclick="this.classList.toggle('done')">🫁 SpO₂</button>
-            <button class="ebtn" onclick="this.classList.toggle('done')">🧠 Neuro</button>
-            <button class="ebtn" onclick="this.classList.toggle('done')">📈 ECG</button>
-            <button class="ebtn" onclick="this.classList.toggle('done')">🩺 Ausculter</button>
-            <button class="ebtn" onclick="this.classList.toggle('done')">🩸 Glycémie</button>
-            <button class="ebtn" onclick="this.classList.toggle('done')">🌡️ Temp.</button>
-          </div>
-          <div style="margin-top:auto;font-size:10px;font-family:'Orbitron',monospace;color:var(--fg-dim);line-height:1.9;padding-top:8px">
-            ⚡ SAIGNEMENT ACTIF<br>GCS : 14 / 15
-          </div>
-        </div>
-      </div>
-      <div class="dc d-z">
-        <div class="slbl d">Zones</div>
-        <div class="zrow"><span class="zi">🧠</span><span class="zn">Tête</span><span class="zb ok">OK</span></div>
-        <div class="zrow"><span class="zi">🫀</span><span class="zn">Torse</span><span class="zb wn">1 blessure</span></div>
-        <div class="zrow"><span class="zi">💪</span><span class="zn">Bras G.</span><span class="zb ok">OK</span></div>
-        <div class="zrow"><span class="zi">💪</span><span class="zn">Bras D.</span><span class="zb ok">OK</span></div>
-        <div class="zrow"><span class="zi">🦵</span><span class="zn">Jambe G.</span><span class="zb cr">CRITIQUE</span></div>
-        <div class="zrow"><span class="zi">🦵</span><span class="zn">Jambe D.</span><span class="zb ok">OK</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- IMAGERIE -->
-  <div id="mi" class="mp" hidden>
-    <div class="mh">
-      <div class="mhdot i"></div>
-      <span class="mhtitle i">Imagerie Médicale</span>
-      <span class="mhsub">SCANNER NOVA</span>
-      <button class="mcls" onclick="closeM()">✕</button>
-    </div>
-    <div class="il">
-      <div class="ic">
-        <div class="slbl i">Patients</div>
-        <div class="pti a">Doe, J. #0142</div>
-        <div class="pti">Martin, L. #0138</div>
-        <div class="pti">Garcia, R. #0135</div>
-        <div class="xray-meta">ACQN: 14:23:07<br>kVp: 120<br>mAs: 250<br>DFOV: 40cm</div>
-      </div>
-      <div class="ic xc">
-        <canvas id="xray-c" width="320" height="460"></canvas>
-        <div class="scl"></div>
-      </div>
-      <div class="ic">
-        <div class="slbl i">Région</div>
-        <div class="rtabs">
-          <div class="rt a" onclick="setReg(this,'thorax')">Thorax</div>
-          <div class="rt" onclick="setReg(this,'abdomen')">Abdomen</div>
-          <div class="rt" onclick="setReg(this,'crane')">Crâne</div>
-          <div class="rt" onclick="setReg(this,'membres')">Membres</div>
-        </div>
-        <div class="slbl i">Résultats</div>
-        <div class="fbox" id="fbox"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CHIRURGIE -->
-  <div id="mc" class="mp" hidden>
-    <div class="mh">
-      <div class="mhdot c"></div>
-      <span class="mhtitle c">Protocole Chirurgical</span>
-      <span class="mhsub">BLOC OP. A — 14:28</span>
-      <button class="mcls" onclick="closeM()">✕</button>
-    </div>
-    <div class="cl">
-      <div class="cs">
-        <div class="ptcw">
-          <div class="ptci">
-            <div class="ptcn">Doe, John — #0142</div>
-            <div class="ptcd">Fracture tibia G. + lacérations multiples</div>
-          </div>
-          <div class="ptcm">
-            <div class="ptcp" id="cprog">0 / 8</div>
-            <div class="ptct" id="ctmr">00:00</div>
-          </div>
-        </div>
-        <div class="pw"><div class="pf" id="pf" style="width:0%"></div></div>
-      </div>
-      <div class="cs grow">
-        <div class="slbl c" style="flex-shrink:0">Étapes opératoires</div>
-        <div class="slist" id="slist"></div>
-      </div>
-      <div class="cfoot">
-        <button class="cfb s" onclick="resetS()">Réinitialiser</button>
-        <button class="cfb p" onclick="doneAll()">Compléter tout</button>
-      </div>
-    </div>
-  </div>
-
-</div>
+<div id="hint">NOVA OMC v1.3 — NOVACITY</div>
 
 <script>
 const BGS={d:'bg_diagnostic.jpg',i:'bg_imagerie.jpg',c:'bg_chirurgie.jpg'};
-let bgFront='a',curBg=null;
+let front='a',cur=null;
 const bgA=document.getElementById('bg-a'),bgB=document.getElementById('bg-b');
+
 Object.values(BGS).forEach(s=>{const im=new Image();im.src=s;});
-bgA.style.backgroundImage=`url('${BGS.d}')`;curBg='d';
+bgA.style.backgroundImage=`url('${BGS.d}')`;cur='d';
 
 function switchBg(m){
-  if(curBg===m)return;curBg=m;
+  if(cur===m)return;cur=m;
   const url=`url('${BGS[m]}')`;
-  if(bgFront==='a'){bgB.style.backgroundImage=url;bgB.style.opacity='1';bgA.style.opacity='0';bgFront='b';}
-  else{bgA.style.backgroundImage=url;bgA.style.opacity='1';bgB.style.opacity='0';bgFront='a';}
+  if(front==='a'){bgB.style.backgroundImage=url;bgB.style.opacity='1';bgA.style.opacity='0';front='b';}
+  else{bgA.style.backgroundImage=url;bgA.style.opacity='1';bgB.style.opacity='0';front='a';}
 }
 
 document.querySelectorAll('.fvl').forEach(el=>{
   el.addEventListener('mouseenter',()=>switchBg(el.dataset.m));
-  el.addEventListener('click',()=>openM(el.dataset.m));
 });
-
-const ov=document.getElementById('ov');
-let cur=null;
-const IDS={d:'md',i:'mi',c:'mc'};
-
-function openM(m){
-  if(cur){document.getElementById(IDS[cur]).hidden=true;}
-  cur=m;document.getElementById(IDS[m]).hidden=false;ov.classList.add('on');switchBg(m);
-  if(m==='d'){startEcg();startDiagClock();}
-  if(m==='i'){drawXray();setReg(document.querySelector('.rt.a'),'thorax');}
-  if(m==='c'){initSteps();startChirTimer();}
-}
-
-function closeM(){
-  ov.classList.remove('on');
-  setTimeout(()=>{
-    if(cur){document.getElementById(IDS[cur]).hidden=true;}
-    stopEcg();stopTimers();cur=null;
-  },230);
-}
-
-ov.addEventListener('click',e=>{if(e.target===ov)closeM();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM();});
-
-// ECG
-let ecgRaf=null;
-const ECGW=(()=>{
-  const n=120,out=new Float32Array(n);
-  function g(t,mu,sig,h){return h*Math.exp(-0.5*((t-mu)/sig)**2);}
-  for(let i=0;i<n;i++){
-    const t=i/n;
-    out[i]+=g(t,.12,.025,.15)+g(t,.20,.008,-.1)+g(t,.22,.012,1.0)+g(t,.24,.009,-.35)+g(t,.38,.04,.32);
-  }
-  return out;
-})();
-
-function startEcg(){
-  const canvas=document.getElementById('ecg-c');
-  canvas.width=canvas.clientWidth||500;
-  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
-  let phase=0;
-  function draw(){
-    ctx.fillStyle='#040c14';ctx.fillRect(0,0,W,H);
-    ctx.strokeStyle='rgba(34,211,238,.06)';ctx.lineWidth=.5;
-    for(let x=0;x<W;x+=20){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
-    for(let y=0;y<H;y+=14){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
-    ctx.beginPath();ctx.strokeStyle='#22d3ee';ctx.lineWidth=1.5;
-    ctx.shadowBlur=6;ctx.shadowColor='rgba(34,211,238,.5)';
-    const mid=H*.58,amp=H*.38,NW=ECGW.length;
-    for(let px=0;px<W;px++){
-      const idx=Math.floor(((px/W+phase)*NW*2.5))%NW;
-      const y=mid-ECGW[idx]*amp;
-      px===0?ctx.moveTo(px,y):ctx.lineTo(px,y);
-    }
-    ctx.stroke();ctx.shadowBlur=0;
-    phase=(phase+1.5/W)%1;
-    ecgRaf=requestAnimationFrame(draw);
-  }
-  draw();startVitalFlicker();
-}
-
-function stopEcg(){if(ecgRaf){cancelAnimationFrame(ecgRaf);ecgRaf=null;}clearInterval(vfInt);}
-
-let vfInt=null,bpm=72,spo2=98,tmp=37.1;
-function startVitalFlicker(){
-  clearInterval(vfInt);
-  vfInt=setInterval(()=>{
-    bpm=Math.max(58,Math.min(110,bpm+(Math.random()-.5)*3));
-    spo2=Math.max(94,Math.min(100,spo2+(Math.random()-.5)*.4));
-    tmp=Math.max(36,Math.min(39,tmp+(Math.random()-.5)*.04));
-    const rb=Math.round(bpm);
-    const bpmEl=document.getElementById('v-bpm');
-    if(bpmEl){bpmEl.innerHTML=`${rb}<small>bpm</small>`;bpmEl.style.color=(rb>100||rb<60)?'#f87171':'var(--cd)';}
-    const sEl=document.getElementById('v-spo2');if(sEl)sEl.innerHTML=`${Math.round(spo2)}<small>%</small>`;
-    const tEl=document.getElementById('v-tmp');if(tEl)tEl.innerHTML=`${tmp.toFixed(1)}<small>°C</small>`;
-    const lbl=document.getElementById('ecg-lbl');if(lbl)lbl.textContent=`NSR ${rb} bpm`;
-  },2000);
-}
-
-let diagInt=null,diagStart=0;
-function startDiagClock(){diagStart=Date.now();clearInterval(diagInt);diagInt=setInterval(()=>{const el=document.getElementById('dclk');if(el)el.textContent=fmt(Math.floor((Date.now()-diagStart)/1000));},1000);}
-function fmt(s){return`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
-
-// X-Ray
-function drawXray(){
-  const c=document.getElementById('xray-c'),ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2;
-  ctx.fillStyle='#010307';ctx.fillRect(0,0,W,H);
-  const bone='rgba(195,215,245,.52)';
-  ctx.strokeStyle=bone;ctx.shadowColor='rgba(167,139,250,.2)';ctx.shadowBlur=3;
-  // spine
-  ctx.lineWidth=1;
-  for(let y=70;y<420;y+=18){ctx.fillStyle=bone;ctx.beginPath();ctx.roundRect(cx-7,y,14,12,2);ctx.fill();ctx.stroke();}
-  // sternum
-  ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(cx,85);ctx.lineTo(cx,260);ctx.stroke();
-  // clavicles
-  ctx.lineWidth=1.8;
-  [-1,1].forEach(s=>{ctx.beginPath();ctx.moveTo(cx+s*9,82);ctx.bezierCurveTo(cx+s*40,72,cx+s*95,70,cx+s*122,76);ctx.stroke();});
-  // ribs
-  ctx.lineWidth=1;
-  for(let r=0;r<8;r++){
-    const y=98+r*21,sp=58+(r<4?r*7:(7-r)*7);
-    [-1,1].forEach(s=>{ctx.beginPath();ctx.moveTo(cx+s*6,y);ctx.bezierCurveTo(cx+s*sp*.55,y-2,cx+s*sp*.88,y+10,cx+s*sp,y+16);ctx.stroke();});
-  }
-  // lungs
-  ctx.strokeStyle='rgba(195,215,245,.18)';ctx.lineWidth=.7;
-  ctx.beginPath();ctx.ellipse(cx-60,185,50,82,-.08,0,Math.PI*2);ctx.stroke();
-  ctx.beginPath();ctx.ellipse(cx+60,185,50,82,.08,0,Math.PI*2);ctx.stroke();
-  // pelvis
-  ctx.strokeStyle=bone;ctx.lineWidth=1.8;
-  ctx.beginPath();ctx.ellipse(cx,390,65,35,0,0,Math.PI*2);ctx.stroke();
-  // fracture highlight
-  ctx.shadowBlur=10;ctx.shadowColor='rgba(248,113,113,.7)';ctx.strokeStyle='rgba(248,113,113,.9)';ctx.lineWidth=2;
-  const ry=98+6*21,rsp=58+(6<4?6*7:(7-6)*7);
-  ctx.beginPath();ctx.moveTo(cx-6,ry);ctx.bezierCurveTo(cx-rsp*.55,ry-2,cx-rsp*.88,ry+10,cx-rsp,ry+16);ctx.stroke();
-  ctx.shadowBlur=0;ctx.fillStyle='rgba(248,113,113,.85)';ctx.font='bold 9px Orbitron,monospace';
-  ctx.fillText('# Fr.',cx-rsp-30,ry+16);
-  // pleural effusion
-  ctx.fillStyle='rgba(167,139,250,.1)';ctx.beginPath();ctx.ellipse(cx-60,252,40,18,0,0,Math.PI*2);ctx.fill();
-}
-
-const FINDINGS={
-  thorax:[{t:'Côte 7 gauche',b:"Fracture non déplacée, trait net. Pas d'hémopneumothorax."},{t:'Poumon gauche',b:'Opacité basale, épanchement pleural minime ~150 ml.'},{t:'Poumon droit',b:'Parenchyme aéré homogène. Pas d\'anomalie.'},{t:'Cœur',b:'Silhouette cardiaque normale. Pas de cardiomégalie.'}],
-  abdomen:[{t:'Foie',b:'Structure homogène. Pas de lésion focale visible.'},{t:'Rate',b:'Volume légèrement augmenté. Contusion à surveiller.'},{t:'Reins',b:"Pas d'anomalie bilatéralement."}],
-  crane:[{t:'Voûte crânienne',b:'Pas de fracture visible. Calvarium intact.'},{t:'Sinus',b:'Opacité sinusienne droite modérée.'},{t:'Base du crâne',b:'Pas de lésion osseuse identifiée.'}],
-  membres:[{t:'Tibia gauche',b:'Fracture diaphysaire avec déplacement modéré. Réduction chirurgicale recommandée.'},{t:'Fémur',b:'Pas de lésion osseuse. Densité normale.'},{t:'Bassin',b:'Pas de fracture. Articulations coxo-fémorales normales.'}],
-};
-function setReg(el,key){
-  document.querySelectorAll('.rt').forEach(t=>t.classList.remove('a'));
-  if(el)el.classList.add('a');
-  const box=document.getElementById('fbox');
-  box.innerHTML=(FINDINGS[key]||[]).map(f=>`<div class="fi"><b>${f.t}</b>${f.b}</div>`).join('');
-}
-
-// Surgery
-const STEPS=[
-  {tx:"Vérification identité patient & consentement",du:'1 min'},
-  {tx:"Installation & préparation site opératoire",du:'3 min'},
-  {tx:"Induction anesthésique — intubation",du:'4 min'},
-  {tx:"Antisepsie & champs opératoires stériles",du:'2 min'},
-  {tx:"Incision cutanée et dissection tissulaire",du:'5 min'},
-  {tx:"Contrôle hémostase — cautérisation",du:'3 min'},
-  {tx:"Réduction & fixation de la fracture (plaque)",du:'15 min'},
-  {tx:"Fermeture par plans — suture + pansement",du:'6 min'},
-];
-let chirInt=null,chirStart=0;
-function initSteps(){
-  const list=document.getElementById('slist');
-  list.innerHTML=STEPS.map((s,i)=>`<div class="sr" onclick="toggleStep(this)"><div class="sck"></div><div class="snm">${String(i+1).padStart(2,'0')}</div><div class="stx">${s.tx}</div><div class="sdu">${s.du}</div></div>`).join('');
-  updateProg();
-}
-function toggleStep(el){el.classList.toggle('done');updateProg();}
-function updateProg(){
-  const rows=[...document.querySelectorAll('.sr')],done=rows.filter(r=>r.classList.contains('done')).length,tot=rows.length;
-  const pf=document.getElementById('pf');if(pf)pf.style.width=(tot?done/tot*100:0)+'%';
-  const cp=document.getElementById('cprog');if(cp)cp.textContent=`${done} / ${tot}`;
-}
-function resetS(){document.querySelectorAll('.sr').forEach(r=>r.classList.remove('done'));updateProg();}
-function doneAll(){document.querySelectorAll('.sr').forEach(r=>r.classList.add('done'));updateProg();}
-function startChirTimer(){chirStart=Date.now();clearInterval(chirInt);chirInt=setInterval(()=>{const el=document.getElementById('ctmr');if(el)el.textContent=fmt(Math.floor((Date.now()-chirStart)/1000));},1000);}
-function stopTimers(){clearInterval(diagInt);clearInterval(chirInt);clearInterval(vfInt);diagInt=chirInt=vfInt=null;}
 </script>
 </body>
 </html>
