@@ -129,8 +129,8 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 
 /* ── Center viewer ── */
 .viewer-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px}
-#scanFrame{position:relative;height:100%;display:flex;align-items:center;justify-content:center}
-#bodySvg{height:100%;max-height:100%;width:auto;display:block}
+#scanFrame{position:relative;width:min(200px,28vw);flex-shrink:0}
+#bodySvg{width:100%;height:auto;display:block}
 .marker{position:absolute;width:14px;height:14px;border-radius:50%;border:2px solid var(--red);background:rgba(255,82,82,0.25);cursor:pointer;transform:translate(-50%,-50%);animation:pulse 1.5s infinite;box-shadow:0 0 10px rgba(255,82,82,0.6);z-index:10}
 .marker.yellow{border-color:var(--yellow);background:rgba(255,202,40,0.25);box-shadow:0 0 10px rgba(255,202,40,0.5)}
 .marker.green{border-color:var(--green);background:rgba(0,230,118,0.15);box-shadow:none;animation:none;cursor:default}
