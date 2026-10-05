@@ -19,22 +19,35 @@
 html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;font-size:13px;overflow:hidden}
 
 /* ── DISPATCH BAR ── */
-#dispatch-bar{
-  display:flex;align-items:center;gap:6px;padding:5px 14px;
-  background:#020509;border-bottom:1px solid rgba(255,255,255,0.06);
-  flex-shrink:0;
+/* ── DEBUG PANEL (test only — not in game) ── */
+#debug-toggle{
+  position:fixed;bottom:14px;right:14px;z-index:200;
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.12);
+  color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
 }
-.db-label{font-size:8px;color:var(--fg3);letter-spacing:1.5px;text-transform:uppercase;margin-right:4px;flex-shrink:0}
+#debug-toggle:hover{background:rgba(0,0,0,0.9);color:rgba(255,255,255,0.7)}
+#debug-panel{
+  position:fixed;bottom:50px;right:14px;z-index:200;
+  background:rgba(4,7,14,0.97);border:1px solid rgba(255,255,255,0.09);
+  border-radius:6px;padding:10px 12px;min-width:180px;
+  display:none;
+}
+#debug-panel.open{display:block}
+.db-title{font-size:8px;color:rgba(255,255,255,0.25);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,0.06)}
 .sc-btn{
-  padding:3px 8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  display:block;width:100%;margin-bottom:4px;padding:5px 8px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
   border-radius:2px;color:var(--fg2);cursor:pointer;font-size:9px;font-weight:600;
-  font-family:inherit;transition:all .15s;
+  font-family:inherit;transition:all .15s;text-align:left;
 }
 .sc-btn:hover,.sc-btn.active{background:rgba(0,212,255,0.09);border-color:rgba(0,212,255,0.25);color:var(--cyan)}
 .sc-btn.active{box-shadow:0 0 0 1px rgba(0,212,255,0.12) inset}
 
 /* ── APP LAYOUT ── */
-.app{display:flex;flex-direction:column;height:calc(100vh - 26px);background:var(--bg)}
+.app{display:flex;flex-direction:column;height:100vh;background:var(--bg)}
 .topbar{
   display:flex;align-items:center;gap:8px;padding:8px 14px;
   background:rgba(6,10,20,0.98);border-bottom:1px solid var(--border2);flex-shrink:0;
@@ -80,20 +93,51 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 
 /* Exam action rows */
 .exam-section{padding:6px 10px;display:flex;flex-direction:column;gap:4px}
-.exam-row{display:flex;align-items:center;gap:6px;padding:5px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:3px;cursor:pointer;transition:all .15s}
-.exam-row:hover:not(.done){background:rgba(0,212,255,0.07);border-color:rgba(0,212,255,0.22)}
+.exam-row{
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;gap:6px;padding:6px 8px;
+  background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);
+  border-radius:3px;cursor:grab;user-select:none;transition:border-color .15s;
+}
+.exam-row:active:not(.done){cursor:grabbing}
+.exam-row:hover:not(.done){border-color:rgba(0,212,255,0.22)}
 .exam-row.done{background:rgba(0,230,118,0.05);border-color:rgba(0,230,118,0.18);cursor:default}
-.exam-row.loading{opacity:0.7;cursor:wait}
-.exam-icon{font-size:12px;width:16px;text-align:center;flex-shrink:0}
-.exam-lbl{flex:1;font-size:10px;font-weight:600;color:var(--fg2);font-family:'Rajdhani',sans-serif;letter-spacing:0.3px}
+/* hold fill bar */
+.exam-fill{position:absolute;left:0;top:0;bottom:0;background:rgba(0,212,255,0.10);transition:width .05s linear;pointer-events:none;z-index:0}
+.exam-row.done .exam-fill{background:rgba(0,230,118,0.10);width:100%!important}
+.exam-icon{font-size:12px;width:16px;text-align:center;flex-shrink:0;z-index:1}
+.exam-lbl{flex:1;font-size:10px;font-weight:600;color:var(--fg2);font-family:'Rajdhani',sans-serif;letter-spacing:0.3px;z-index:1}
 .exam-row.done .exam-lbl{color:var(--fg)}
-.exam-val{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--fg3);white-space:nowrap}
+.exam-val{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--fg3);white-space:nowrap;z-index:1}
 .exam-val.ok{color:var(--green)}
 .exam-val.warn{color:var(--yellow)}
 .exam-val.danger{color:var(--red);animation:pulse .8s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-.exam-spin{width:10px;height:10px;border:1.5px solid rgba(0,212,255,0.2);border-top-color:var(--cyan);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+.exam-hint{font-size:8px;color:var(--fg3);z-index:1;letter-spacing:0.3px}
+.exam-row.done .exam-hint{display:none}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* Scan beam */
+.scan-beam{
+  position:absolute;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,0.9),transparent);
+  box-shadow:0 0 16px 4px rgba(0,212,255,0.5),0 0 40px 8px rgba(0,212,255,0.2);
+  pointer-events:none;border-radius:2px;display:none;
+}
+.scan-beam.running{display:block;animation:scanBeam 2s ease-in-out forwards}
+@keyframes scanBeam{0%{top:0%;opacity:0}5%{opacity:1}95%{opacity:1}100%{top:100%;opacity:0}}
+
+/* Scan button */
+.scan-btn-wrap{padding:8px 10px;flex-shrink:0;border-top:1px solid var(--border)}
+.scan-btn{
+  width:100%;padding:8px;background:rgba(0,212,255,0.07);
+  border:1px solid rgba(0,212,255,0.22);border-radius:3px;
+  color:var(--cyan);font-family:'Rajdhani',sans-serif;font-weight:700;
+  font-size:12px;letter-spacing:0.5px;text-transform:uppercase;
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.scan-btn:hover{background:rgba(0,212,255,0.14);border-color:rgba(0,212,255,0.40)}
+.scan-btn:disabled{opacity:0.45;cursor:not-allowed}
 
 /* Critical stabilisation button */
 .crit-section{padding:8px 10px;border-top:1px solid rgba(255,82,82,0.15);flex-shrink:0}
@@ -218,15 +262,16 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 </head>
 <body>
 
-<!-- DISPATCH BAR (outside medical interface) -->
-<div id="dispatch-bar">
-  <span class="db-label">DISPATCH</span>
-  <button class="sc-btn active" onclick="loadScenario('gunshot',this)">🔫 Fusillade</button>
-  <button class="sc-btn" onclick="loadScenario('accident',this)">🚗 Accident</button>
-  <button class="sc-btn" onclick="loadScenario('stab',this)">🔪 Couteau</button>
-  <button class="sc-btn" onclick="loadScenario('fall',this)">🏗 Chute</button>
-  <button class="sc-btn" onclick="loadScenario('fire',this)">🔥 Brûlures</button>
-  <button class="sc-btn" onclick="loadScenario('minor',this)">🩹 Mineur</button>
+<!-- DEBUG PANEL — test only, not part of the in-game interface -->
+<button id="debug-toggle" title="Scénarios (test)" onclick="document.getElementById('debug-panel').classList.toggle('open')">⚙</button>
+<div id="debug-panel">
+  <div class="db-title">⚙ SCÉNARIOS TEST</div>
+  <button class="sc-btn active" onclick="loadScenario('gunshot',this);document.getElementById('debug-panel').classList.remove('open')">🔫 Fusillade</button>
+  <button class="sc-btn" onclick="loadScenario('accident',this);document.getElementById('debug-panel').classList.remove('open')">🚗 Accident</button>
+  <button class="sc-btn" onclick="loadScenario('stab',this);document.getElementById('debug-panel').classList.remove('open')">🔪 Couteau</button>
+  <button class="sc-btn" onclick="loadScenario('fall',this);document.getElementById('debug-panel').classList.remove('open')">🏗 Chute</button>
+  <button class="sc-btn" onclick="loadScenario('fire',this);document.getElementById('debug-panel').classList.remove('open')">🔥 Brûlures</button>
+  <button class="sc-btn" onclick="loadScenario('minor',this);document.getElementById('debug-panel').classList.remove('open')">🩹 Mineur</button>
 </div>
 
 <div class="app">
@@ -278,40 +323,54 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 
         <!-- Exam buttons -->
         <div class="exam-section">
-          <div class="exam-row" id="er-bpm" onclick="doExam('bpm')">
+          <div class="exam-row" id="er-bpm" onmousedown="holdExam('bpm')" onmouseup="releaseExam('bpm')" onmouseleave="releaseExam('bpm')" ontouchstart="holdExam('bpm')" ontouchend="releaseExam('bpm')">
+            <div class="exam-fill" id="ef-bpm" style="width:0%"></div>
             <span class="exam-icon">📟</span>
             <span class="exam-lbl">Mesurer BPM</span>
-            <span class="exam-val" id="ev-bpm">—</span>
+            <span class="exam-hint">Maintenir</span>
+            <span class="exam-val" id="ev-bpm"></span>
           </div>
-          <div class="exam-row" id="er-bp" onclick="doExam('bp')">
+          <div class="exam-row" id="er-bp" onmousedown="holdExam('bp')" onmouseup="releaseExam('bp')" onmouseleave="releaseExam('bp')" ontouchstart="holdExam('bp')" ontouchend="releaseExam('bp')">
+            <div class="exam-fill" id="ef-bp" style="width:0%"></div>
             <span class="exam-icon">🩸</span>
             <span class="exam-lbl">Prise de tension</span>
-            <span class="exam-val" id="ev-bp">—</span>
+            <span class="exam-hint">Maintenir</span>
+            <span class="exam-val" id="ev-bp"></span>
           </div>
-          <div class="exam-row" id="er-spo2" onclick="doExam('spo2')">
+          <div class="exam-row" id="er-spo2" onmousedown="holdExam('spo2')" onmouseup="releaseExam('spo2')" onmouseleave="releaseExam('spo2')" ontouchstart="holdExam('spo2')" ontouchend="releaseExam('spo2')">
+            <div class="exam-fill" id="ef-spo2" style="width:0%"></div>
             <span class="exam-icon">🫁</span>
             <span class="exam-lbl">Mesurer SpO₂</span>
-            <span class="exam-val" id="ev-spo2">—</span>
+            <span class="exam-hint">Maintenir</span>
+            <span class="exam-val" id="ev-spo2"></span>
           </div>
-          <div class="exam-row" id="er-temp" onclick="doExam('temp')">
+          <div class="exam-row" id="er-temp" onmousedown="holdExam('temp')" onmouseup="releaseExam('temp')" onmouseleave="releaseExam('temp')" ontouchstart="holdExam('temp')" ontouchend="releaseExam('temp')">
+            <div class="exam-fill" id="ef-temp" style="width:0%"></div>
             <span class="exam-icon">🌡️</span>
             <span class="exam-lbl">Température</span>
-            <span class="exam-val" id="ev-temp">—</span>
+            <span class="exam-hint">Maintenir</span>
+            <span class="exam-val" id="ev-temp"></span>
           </div>
-          <div class="exam-row" id="er-pain" onclick="doExam('pain')">
+          <div class="exam-row" id="er-pain" onmousedown="holdExam('pain')" onmouseup="releaseExam('pain')" onmouseleave="releaseExam('pain')" ontouchstart="holdExam('pain')" ontouchend="releaseExam('pain')">
+            <div class="exam-fill" id="ef-pain" style="width:0%"></div>
             <span class="exam-icon">😣</span>
             <span class="exam-lbl">Évaluer douleur</span>
-            <span class="exam-val" id="ev-pain">—</span>
+            <span class="exam-hint">Maintenir</span>
+            <span class="exam-val" id="ev-pain"></span>
           </div>
-          <div class="exam-row" id="er-cons" onclick="doExam('cons')">
+          <div class="exam-row" id="er-cons" onmousedown="holdExam('cons')" onmouseup="releaseExam('cons')" onmouseleave="releaseExam('cons')" ontouchstart="holdExam('cons')" ontouchend="releaseExam('cons')">
+            <div class="exam-fill" id="ef-cons" style="width:0%"></div>
             <span class="exam-icon">🧠</span>
             <span class="exam-lbl">État de conscience</span>
-            <span class="exam-val" id="ev-cons">—</span>
+            <span class="exam-hint">Maintenir</span>
+            <span class="exam-val" id="ev-cons"></span>
           </div>
-          <div class="exam-row" id="er-blood" onclick="doExam('blood')">
+          <div class="exam-row" id="er-blood" onmousedown="holdExam('blood')" onmouseup="releaseExam('blood')" onmouseleave="releaseExam('blood')" ontouchstart="holdExam('blood')" ontouchend="releaseExam('blood')">
+            <div class="exam-fill" id="ef-blood" style="width:0%"></div>
             <span class="exam-icon">🩻</span>
             <span class="exam-lbl">Vol. sanguin estimé</span>
-            <span class="exam-val" id="ev-blood">—</span>
+            <span class="exam-hint">Maintenir</span>
+            <span class="exam-val" id="ev-blood"></span>
           </div>
         </div>
       </div>
@@ -356,13 +415,20 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
                   <line x1="60" y1="20" x2="60" y2="186"/>
                 </g>
               </svg>
-            <div id="markersLayer" style="position:absolute;inset:0"></div>
+            <div id="markersLayer" style="position:absolute;inset:0;opacity:0;transition:opacity .4s"></div>
+            <div class="scan-beam" id="scanBeam"></div>
           </div>
           <div class="scan-stats">
             <div class="stat-cell"><div class="stat-cell-label">Trauma Index</div><div class="stat-cell-val" id="statTrauma">—</div></div>
             <div class="stat-cell"><div class="stat-cell-label">Régions</div><div class="stat-cell-val" id="statRegions">—</div></div>
             <div class="stat-cell"><div class="stat-cell-label">Évaluation</div><div style="padding-top:2px"><span class="stat-cell-assess assess-stable" id="statAssess">—</span></div></div>
           </div>
+        </div>
+        <div class="scan-btn-wrap">
+          <button class="scan-btn" id="scanBtn" onclick="launchScan()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="3" x2="11" y2="3" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".5"/><line x1="1" y1="9" x2="11" y2="9" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".5"/></svg>
+            Lancer scan du corps
+          </button>
         </div>
       </div>
 
@@ -542,7 +608,10 @@ let ecgCtx, ecgW, ecgH, ecgPhase = 0, ecgBpm = 72;
 
 // Exam state
 const examDone = {};
+const examHold = {}; // {type: {timer, progress}}
+const EXAM_HOLD_MS = 2000;
 let critStabilized = false;
+let scanDone = false;
 
 // Game state
 let gameCurrentStep = -1;
@@ -635,7 +704,18 @@ function loadScenario(key, btn) {
     r.classList.remove('done','loading');
     r.style.pointerEvents = '';
   });
-  document.querySelectorAll('.exam-val').forEach(v => { v.textContent = '—'; v.className = 'exam-val'; });
+  document.querySelectorAll('.exam-val').forEach(v => { v.textContent = ''; v.className = 'exam-val'; });
+  document.querySelectorAll('.exam-fill').forEach(f => { f.style.width = '0%'; });
+  document.querySelectorAll('.exam-hint').forEach(h => { h.style.display = ''; });
+  // Cancel any running holds
+  Object.keys(examHold).forEach(k => { clearInterval(examHold[k].timer); delete examHold[k]; });
+  // Reset scan
+  scanDone = false;
+  document.getElementById('markersLayer').style.opacity = '0';
+  document.getElementById('scanBtn').disabled = false;
+  const beam = document.getElementById('scanBeam');
+  beam.classList.remove('running');
+  beam.style.display = 'none';
   document.getElementById('bpmWrap').style.display = 'none';
   document.getElementById('bpmDisp').textContent = '—';
   document.getElementById('critSection').style.display = 'none';
@@ -662,76 +742,120 @@ function loadScenario(key, btn) {
   showBodyView();
 }
 
-// ── Exam actions ──────────────────────────────────────────────
-const EXAM_DELAY = 1400;
-function doExam(type) {
+// ── Exam hold actions ─────────────────────────────────────────
+function holdExam(type) {
+  if (examDone[type] || examHold[type]) return;
+  const fill = document.getElementById('ef-' + type);
+  if (!fill) return;
+  let progress = 0;
+  const timer = setInterval(() => {
+    progress += 50;
+    const pct = Math.min(100, progress / EXAM_HOLD_MS * 100);
+    fill.style.width = pct + '%';
+    if (progress >= EXAM_HOLD_MS) {
+      clearInterval(timer);
+      delete examHold[type];
+      revealExam(type);
+    }
+  }, 50);
+  examHold[type] = { timer, progress };
+}
+
+function releaseExam(type) {
+  if (!examHold[type]) return;
+  clearInterval(examHold[type].timer);
+  delete examHold[type];
+  const fill = document.getElementById('ef-' + type);
+  if (fill) fill.style.width = '0%';
+}
+
+function revealExam(type) {
   if (examDone[type]) return;
   const row = document.getElementById('er-' + type);
   const val = document.getElementById('ev-' + type);
   if (!row || !val) return;
-  row.classList.add('loading');
-  row.style.pointerEvents = 'none';
-  val.className = 'exam-val';
-  val.innerHTML = '<div class="exam-spin"></div>';
+  row.classList.add('done');
+  examDone[type] = true;
   const s = currentScenario;
-  setTimeout(() => {
-    row.classList.remove('loading');
-    row.classList.add('done');
-    examDone[type] = true;
-    let txt = '', cls = 'ok', msg = '';
-    switch(type) {
-      case 'bpm':
-        txt = s.bpm + ' bpm';
-        cls = s.bpm > 120 ? 'danger' : s.bpm < 50 ? 'warn' : 'ok';
-        msg = `BPM : ${s.bpm} bpm${cls==='danger'?' — TACHYCARDIE':''}`;
-        ecgBpm = s.bpm;
-        document.getElementById('bpmDisp').textContent = s.bpm;
-        document.getElementById('bpmWrap').style.display = 'flex';
-        updateBpmArc(s.bpm);
-        document.getElementById('ecgRhythm').textContent = `NSR ${s.bpm} bpm`;
-        break;
-      case 'bp':
-        txt = s.bp + ' mmHg';
-        const sys = parseInt(s.bp.split('/')[0]);
-        cls = sys < 80 ? 'danger' : sys < 100 ? 'warn' : 'ok';
-        msg = `Tension : ${s.bp} mmHg${cls==='danger'?' — HYPOTENSION SÉVÈRE':''}`;
-        break;
-      case 'spo2':
-        txt = s.spo2 + '%';
-        cls = s.spo2 < 90 ? 'danger' : s.spo2 < 95 ? 'warn' : 'ok';
-        msg = `SpO₂ : ${s.spo2}%${cls==='danger'?' — HYPOXIE CRITIQUE':''}`;
-        break;
-      case 'temp':
-        txt = s.temp.toFixed(1) + '°C';
-        cls = s.temp > 38.5 ? 'warn' : 'ok';
-        msg = `Température : ${s.temp.toFixed(1)}°C`;
-        break;
-      case 'pain':
-        txt = s.pain + '/10';
-        cls = s.pain >= 8 ? 'danger' : s.pain >= 5 ? 'warn' : 'ok';
-        msg = `Douleur : ${s.pain}/10`;
-        break;
-      case 'cons':
-        txt = s.conscious ? 'OUI' : 'NON';
-        cls = s.conscious ? 'ok' : 'danger';
-        msg = `Conscience : ${s.conscious ? 'Patient conscient' : 'Patient inconscient — GCS < 8'}`;
-        break;
-      case 'blood':
-        txt = s.blood.toFixed(1) + ' L';
-        cls = s.blood < 3.5 ? 'danger' : s.blood < 4.5 ? 'warn' : 'ok';
-        msg = `Vol. sanguin estimé : ${s.blood.toFixed(1)} L${cls==='danger'?' — HÉMORRAGIE MASSIVE':''}`;
-        break;
+  let txt = '', cls = 'ok', msg = '';
+  switch(type) {
+    case 'bpm':
+      txt = s.bpm + ' bpm';
+      cls = s.bpm > 120 ? 'danger' : s.bpm < 50 ? 'warn' : 'ok';
+      msg = `BPM : ${s.bpm} bpm${cls==='danger'?' — TACHYCARDIE':''}`;
+      ecgBpm = s.bpm;
+      document.getElementById('bpmDisp').textContent = s.bpm;
+      document.getElementById('bpmWrap').style.display = 'flex';
+      updateBpmArc(s.bpm);
+      document.getElementById('ecgRhythm').textContent = `NSR ${s.bpm} bpm`;
+      break;
+    case 'bp': {
+      txt = s.bp + ' mmHg';
+      const sys = parseInt(s.bp.split('/')[0]);
+      cls = sys < 80 ? 'danger' : sys < 100 ? 'warn' : 'ok';
+      msg = `Tension : ${s.bp} mmHg${cls==='danger'?' — HYPOTENSION SÉVÈRE':''}`;
+      break;
     }
-    val.textContent = txt;
-    val.className = 'exam-val ' + cls;
-    addLog(msg, cls === 'danger' ? 'err' : cls === 'warn' ? 'warn' : 'ok');
-    checkAllExams();
-  }, EXAM_DELAY);
+    case 'spo2':
+      txt = s.spo2 + '%';
+      cls = s.spo2 < 90 ? 'danger' : s.spo2 < 95 ? 'warn' : 'ok';
+      msg = `SpO₂ : ${s.spo2}%${cls==='danger'?' — HYPOXIE CRITIQUE':''}`;
+      break;
+    case 'temp':
+      txt = s.temp.toFixed(1) + '°C';
+      cls = s.temp > 38.5 ? 'warn' : 'ok';
+      msg = `Température : ${s.temp.toFixed(1)}°C`;
+      break;
+    case 'pain':
+      txt = s.pain + '/10';
+      cls = s.pain >= 8 ? 'danger' : s.pain >= 5 ? 'warn' : 'ok';
+      msg = `Douleur : ${s.pain}/10`;
+      break;
+    case 'cons':
+      txt = s.conscious ? 'OUI' : 'NON';
+      cls = s.conscious ? 'ok' : 'danger';
+      msg = `Conscience : ${s.conscious ? 'Patient conscient' : 'Patient inconscient — GCS < 8'}`;
+      break;
+    case 'blood':
+      txt = s.blood.toFixed(1) + ' L';
+      cls = s.blood < 3.5 ? 'danger' : s.blood < 4.5 ? 'warn' : 'ok';
+      msg = `Vol. sanguin : ${s.blood.toFixed(1)} L${cls==='danger'?' — HÉMORRAGIE MASSIVE':''}`;
+      break;
+  }
+  val.textContent = txt;
+  val.className = 'exam-val ' + cls;
+  addLog(msg, cls === 'danger' ? 'err' : cls === 'warn' ? 'warn' : 'ok');
+  checkAllExams();
+}
+
+// ── Body scan ─────────────────────────────────────────────────
+function launchScan() {
+  if (scanDone) return;
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  btn.textContent = '⟳ Scan en cours…';
+  const beam = document.getElementById('scanBeam');
+  beam.style.display = 'block';
+  beam.classList.remove('running');
+  void beam.offsetWidth; // reflow
+  beam.classList.add('running');
+  addLog('Scan corporel lancé…', 'info');
+  setTimeout(() => {
+    beam.classList.remove('running');
+    beam.style.display = 'none';
+    document.getElementById('markersLayer').style.opacity = '1';
+    scanDone = true;
+    btn.textContent = '✓ Scan effectué';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'rgba(0,230,118,0.25)';
+    btn.style.background = 'rgba(0,230,118,0.06)';
+    addLog(`Scan complet — ${currentScenario.injuries.length} zone(s) détectée(s)`, 'ok');
+  }, 2200);
 }
 
 function checkAllExams() {
   const count = Object.keys(examDone).length;
-  if (count < 3) return;
+  if (count < 2) return;
   const s = currentScenario;
   // Update stats
   document.getElementById('statTrauma').textContent = s.trauma;
