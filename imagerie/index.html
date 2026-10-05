@@ -4,13 +4,14 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Nova Imagerie — X-Ray Scanner</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap"/>
 <style>
 :root{
-  --bg:#040810;--panel:#080f1e;--panel2:#0a1220;
-  --cyan:#00d4ff;--cyan2:#0088bb;
+  --bg:#060a14;--panel:#0b1120;--panel2:#0e1628;
+  --cyan:#00d4ff;--cyan2:#0099cc;
   --green:#00e676;--yellow:#ffca28;--red:#ff5252;--orange:#ff9800;
-  --fg:#def0ff;--fg2:rgba(222,240,255,0.55);--fg3:rgba(222,240,255,0.30);
+  --fg:#e8f4ff;--fg2:rgba(232,244,255,0.55);--fg3:rgba(232,244,255,0.30);
   --border:rgba(0,212,255,0.12);--border2:rgba(0,212,255,0.22);
   color-scheme:dark;
 }
@@ -30,6 +31,11 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .sidebar{width:220px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
 .viewer{flex:1;position:relative;overflow:hidden;background:var(--bg);display:flex;align-items:center;justify-content:center}
 .results{width:280px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.tb-station{font-size:10px;color:var(--fg2);letter-spacing:0.5px}
+.tb-badge{padding:3px 8px;background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.18);border-radius:2px;font-size:9px;font-weight:700;font-family:'Orbitron',sans-serif;letter-spacing:1px;color:var(--cyan)}
+.sec-head{display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);background:rgba(0,212,255,0.03);flex-shrink:0}
+.sec-head .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 6px var(--cyan);animation:blink 2s ease-in-out infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 .sb-head{padding:10px 12px;border-bottom:1px solid var(--border);font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan)}
 .sb-section{padding:8px 12px;border-bottom:1px solid var(--border)}
 .sb-label{font-size:8px;color:var(--fg3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
@@ -124,8 +130,9 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
       NOVA IMAGERIE
     </div>
     <div class="tb-sep"></div>
-    <span style="font-size:10px;color:var(--fg2);letter-spacing:0.5px">X-RAY · SCANNER · IRM</span>
+    <span class="tb-station">X-RAY · SCANNER · IRM</span>
     <div class="tb-right">
+      <span class="tb-badge">NOVA OMC v1.3</span>
       <button class="tb-btn active-tab" onclick="setMode('xray',this)">X-RAY</button>
       <button class="tb-btn" onclick="setMode('scanner',this)">SCANNER</button>
       <button class="tb-btn" onclick="setMode('irm',this)">IRM</button>
@@ -135,7 +142,7 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 
   <div class="main">
     <div class="sidebar">
-      <div class="sb-head">PATIENTS À PROXIMITÉ</div>
+      <div class="sec-head"><span class="dot"></span>PATIENTS À PROXIMITÉ</div>
       <div class="sb-section">
         <div class="sb-label">Sélectionner</div>
         <div class="patient-sel">
@@ -182,7 +189,7 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
     </div>
 
     <div class="results">
-      <div class="res-head">RÉSULTATS · DÉTAILS</div>
+      <div class="sec-head"><span class="dot"></span>RÉSULTATS · DÉTAILS</div>
       <div class="res-body">
         <div class="res-section">
           <div class="res-label">Patient actif</div>
