@@ -18,97 +18,96 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;font-size:13px;overflow:hidden}
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh}
-.hidden{display:none!important}
 
-/* ── DEBUG PANEL ───────────────────────────────────────────── */
+/* ── DEBUG PANEL ─────────────────────────────────────────────── */
 #debug-toggle{
   position:fixed;bottom:14px;right:14px;z-index:300;
-  width:28px;height:28px;border-radius:50%;
-  background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.12);
-  color:rgba(255,255,255,0.35);font-size:13px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .15s;
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.10);
+  color:rgba(255,255,255,0.30);font-size:12px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
 }
-#debug-toggle:hover{background:rgba(0,0,0,0.9);color:rgba(255,255,255,0.65)}
+#debug-toggle:hover{background:rgba(0,0,0,0.9);color:rgba(255,255,255,0.60)}
 #debug-panel{
-  position:fixed;bottom:50px;right:14px;z-index:300;
+  position:fixed;bottom:48px;right:14px;z-index:300;
   background:rgba(4,7,14,0.97);border:1px solid rgba(255,255,255,0.09);
-  border-radius:6px;padding:10px 12px;min-width:180px;
-  display:none;
+  border-radius:6px;padding:9px 11px;min-width:176px;display:none;
 }
 #debug-panel.open{display:block}
-.db-title{font-size:8px;color:rgba(255,255,255,0.25);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.db-title{font-size:8px;color:rgba(255,255,255,0.22);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.06)}
 .sc-btn{
-  display:block;width:100%;margin-bottom:4px;padding:5px 8px;
+  display:block;width:100%;margin-bottom:3px;padding:4px 8px;
   background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
   border-radius:2px;color:var(--fg2);cursor:pointer;font-size:9px;font-weight:600;
   font-family:inherit;transition:all .15s;text-align:left;
 }
 .sc-btn:hover,.sc-btn.active{background:rgba(167,139,250,0.09);border-color:rgba(167,139,250,0.25);color:var(--purple)}
 .sc-btn.active{box-shadow:0 0 0 1px rgba(167,139,250,0.12) inset}
-.sc-btn.nav{color:rgba(0,212,255,0.8);border-color:rgba(0,212,255,0.18)}
-.sc-btn.nav:hover{background:rgba(0,212,255,0.09);border-color:rgba(0,212,255,0.30);color:var(--cyan)}
+.sc-btn.nav{color:rgba(0,212,255,0.75);border-color:rgba(0,212,255,0.16)}
+.sc-btn.nav:hover{background:rgba(0,212,255,0.08);color:var(--cyan)}
 
-/* ── TOPBAR ────────────────────────────────────────────────── */
-.topbar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(4,8,16,0.98);border-bottom:1px solid var(--border2);flex-shrink:0;z-index:20}
+/* ── TOPBAR ──────────────────────────────────────────────────── */
+.topbar{display:flex;align-items:center;gap:8px;padding:7px 14px;background:rgba(4,8,16,0.98);border-bottom:1px solid var(--border2);flex-shrink:0;z-index:20}
 .tb-logo{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;color:var(--purple);display:flex;align-items:center;gap:6px}
-.tb-sep{width:1px;height:16px;background:var(--border2);margin:0 6px}
+.tb-sep{width:1px;height:16px;background:var(--border2);margin:0 4px}
 .tb-station{font-size:10px;color:var(--fg2);letter-spacing:0.5px}
-.tb-badge{padding:3px 8px;background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.22);border-radius:2px;font-size:9px;font-weight:700;font-family:'Orbitron',sans-serif;letter-spacing:1px;color:var(--purple)}
-.tb-right{margin-left:auto;display:flex;align-items:center;gap:6px}
-.tb-btn{padding:4px 10px;background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.18);border-radius:3px;color:var(--cyan);font-size:9px;font-weight:700;font-family:inherit;letter-spacing:1px;cursor:pointer;transition:all .15s;text-transform:uppercase}
+.tb-badge{padding:2px 7px;background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.22);border-radius:2px;font-size:9px;font-weight:700;font-family:'Orbitron',sans-serif;letter-spacing:1px;color:var(--purple)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:5px}
+.tb-btn{padding:3px 9px;background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.18);border-radius:3px;color:var(--cyan);font-size:9px;font-weight:700;font-family:inherit;letter-spacing:1px;cursor:pointer;transition:all .15s;text-transform:uppercase}
 .tb-btn:hover{background:rgba(0,212,255,0.14)}
 .tb-btn.close{color:var(--red);border-color:rgba(255,82,82,0.20);background:rgba(255,82,82,0.05)}
 .tb-btn.close:hover{background:rgba(255,82,82,0.12)}
 
-/* ── MAIN LAYOUT ───────────────────────────────────────────── */
-.main{display:flex;flex:1;overflow:hidden}
-.sidebar{width:200px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.viewer{flex:1;position:relative;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px}
-.results-panel{width:265px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+/* ── MAIN LAYOUT ─────────────────────────────────────────────── */
+.main{display:flex;flex:1;overflow:hidden;min-height:0}
+.sidebar{width:195px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(167,139,250,0.2);border-radius:2px}
+/* ── CENTER VIEWER (body SVG fills it, overlay on top) ────────── */
+.viewer{flex:1;position:relative;overflow:hidden;background:var(--bg)}
+.results-panel{width:260px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
 
-/* ── SIDEBAR ───────────────────────────────────────────────── */
-.sec-head{display:flex;align-items:center;gap:6px;padding:7px 12px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--purple);background:rgba(167,139,250,0.03);flex-shrink:0}
-.sec-head .dot{width:6px;height:6px;border-radius:50%;background:var(--purple);box-shadow:0 0 6px var(--purple);animation:blink 2s ease-in-out infinite;flex-shrink:0}
+/* ── SIDEBAR COMPONENTS ──────────────────────────────────────── */
+.sec-head{display:flex;align-items:center;gap:5px;padding:6px 11px;border-bottom:1px solid var(--border);font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--purple);background:rgba(167,139,250,0.03);flex-shrink:0}
+.sec-head .dot{width:5px;height:5px;border-radius:50%;background:var(--purple);box-shadow:0 0 5px var(--purple);animation:blink 2s ease-in-out infinite;flex-shrink:0}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-.sb-section{padding:8px 12px;border-bottom:1px solid var(--border)}
-.sb-label{font-size:8px;color:var(--fg3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
-.patient-card{padding:7px 9px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.16);border-radius:4px}
-.pat-name{font-size:11px;font-weight:700;color:var(--fg);margin-bottom:2px}
+.sb-section{padding:7px 11px;border-bottom:1px solid var(--border)}
+.sb-label{font-size:8px;color:var(--fg3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.patient-card{padding:6px 9px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.16);border-radius:3px}
+.pat-name{font-size:11px;font-weight:700;color:var(--fg);margin-bottom:1px}
 .pat-meta{font-size:9px;color:var(--fg3)}
-.mode-list{display:flex;flex-direction:column;gap:3px;padding:0 12px 8px}
-.mode-btn{padding:8px 10px;background:rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.07);border-radius:4px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:7px}
-.mode-btn:hover{background:rgba(167,139,250,0.07);border-color:rgba(167,139,250,0.22)}
+.mode-list{display:flex;flex-direction:column;gap:3px;padding:6px 11px 8px}
+.mode-btn{padding:7px 9px;background:rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.07);border-radius:3px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:7px}
+.mode-btn:hover{background:rgba(167,139,250,0.07);border-color:rgba(167,139,250,0.20)}
 .mode-btn.active{background:rgba(167,139,250,0.11);border-color:rgba(167,139,250,0.35)}
-.mode-icon{font-size:14px;line-height:1;flex-shrink:0}
+.mode-icon{font-size:13px;line-height:1;flex-shrink:0}
 .mode-info{flex:1;min-width:0}
-.mode-name{font-size:10px;font-weight:700;color:var(--fg);margin-bottom:1px}
+.mode-name{font-size:10px;font-weight:700;color:var(--fg)}
 .mode-desc{font-size:8px;color:var(--fg3)}
 .mode-btn.active .mode-name{color:var(--purple)}
-.status-box{margin:8px 12px 10px;padding:9px;background:rgba(0,0,0,0.30);border:1px solid var(--border);border-radius:4px}
-.status-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.status-box{margin:6px 11px 8px;padding:8px;background:rgba(0,0,0,0.30);border:1px solid var(--border);border-radius:3px}
+.status-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
 .status-lbl{font-size:8px;color:var(--fg3);text-transform:uppercase;letter-spacing:0.8px}
 .status-badge{padding:2px 6px;border-radius:2px;font-size:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
 .status-badge.idle{background:rgba(232,244,255,0.06);border:1px solid rgba(232,244,255,0.12);color:var(--fg3)}
-.status-badge.prep{background:rgba(255,202,40,0.12);border:1px solid rgba(255,202,40,0.28);color:var(--yellow);animation:scanBlink .8s ease-in-out infinite}
-.status-badge.scanning{background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.28);color:var(--cyan);animation:scanBlink .8s ease-in-out infinite}
+.status-badge.prep{background:rgba(255,202,40,0.12);border:1px solid rgba(255,202,40,0.28);color:var(--yellow);animation:sBlink .8s ease-in-out infinite}
+.status-badge.scanning{background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.28);color:var(--cyan);animation:sBlink .8s ease-in-out infinite}
 .status-badge.done{background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.28);color:var(--green)}
-@keyframes scanBlink{0%,100%{opacity:1}50%{opacity:0.35}}
-.status-mode{font-size:10px;font-weight:700;color:var(--fg);margin-top:4px}
-.status-progress{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;margin-top:7px}
+@keyframes sBlink{0%,100%{opacity:1}50%{opacity:0.35}}
+.status-mode{font-size:10px;font-weight:700;color:var(--fg);margin-top:3px}
+.status-progress{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;margin-top:6px}
 .status-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:2px;transition:width .4s ease;width:0%}
 
-/* ── VIEWER CENTER ─────────────────────────────────────────── */
-.viewer-label{font-size:8px;color:var(--fg3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;opacity:0.65;flex-shrink:0}
-.scan-row{display:flex;align-items:center;justify-content:center;gap:18px;flex:1;min-height:0;width:100%;max-height:300px}
-.scan-wrap{position:relative;height:100%;max-height:290px;flex-shrink:0}
+/* ── BODY SVG (fills viewer absolutely) ─────────────────────── */
+.scan-wrap{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  height:calc(100% - 24px);
+  max-height:360px;
+  /* width is determined by SVG aspect ratio */
+}
 .scan-wrap svg{height:100%;width:auto;display:block}
-.scan-beam{position:absolute;left:0;right:0;height:3px;top:0;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.9),transparent);box-shadow:0 0 8px rgba(0,212,255,0.8),0 0 20px rgba(0,212,255,0.4);display:none;pointer-events:none;border-radius:1px}
-.scan-beam.xray{background:linear-gradient(90deg,transparent,rgba(220,240,255,0.95),transparent);box-shadow:0 0 10px rgba(180,220,255,0.9),0 0 24px rgba(180,220,255,0.4)}
-.scan-beam.ct{background:linear-gradient(90deg,transparent,rgba(0,212,255,0.95),transparent);box-shadow:0 0 10px rgba(0,212,255,0.9),0 0 24px rgba(0,212,255,0.4)}
-.scan-beam.echo{background:linear-gradient(90deg,transparent,rgba(0,230,118,0.90),transparent);box-shadow:0 0 10px rgba(0,230,118,0.8),0 0 22px rgba(0,230,118,0.35)}
-@keyframes beamSweep{0%{top:0%;opacity:0}5%{opacity:1}92%{opacity:0.9}100%{top:100%;opacity:0}}
-.scan-beam.running{display:block;animation:beamSweep 2.2s ease-in-out forwards}
 .markers-layer{position:absolute;inset:0;pointer-events:none}
 .body-marker{position:absolute;transform:translate(-50%,-50%);opacity:0;transition:opacity .4s}
 .body-marker.visible{opacity:1}
@@ -116,52 +115,89 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .body-marker.danger .body-marker-dot{color:var(--red);border-color:var(--red);background:rgba(255,82,82,0.25)}
 .body-marker.warning .body-marker-dot{color:var(--yellow);border-color:var(--yellow);background:rgba(255,202,40,0.18)}
 .body-marker.normal .body-marker-dot{color:var(--cyan);border-color:var(--cyan);background:rgba(0,212,255,0.15)}
+.scan-beam{position:absolute;left:0;right:0;height:3px;top:0;display:none;pointer-events:none;border-radius:1px}
+.scan-beam.xray{background:linear-gradient(90deg,transparent,rgba(220,240,255,0.95),transparent);box-shadow:0 0 10px rgba(180,220,255,0.9),0 0 24px rgba(180,220,255,0.4)}
+.scan-beam.ct{background:linear-gradient(90deg,transparent,rgba(0,212,255,0.95),transparent);box-shadow:0 0 10px rgba(0,212,255,0.9),0 0 24px rgba(0,212,255,0.4)}
+.scan-beam.echo{background:linear-gradient(90deg,transparent,rgba(0,230,118,0.90),transparent);box-shadow:0 0 10px rgba(0,230,118,0.8),0 0 22px rgba(0,230,118,0.35)}
+@keyframes beamSweep{0%{top:0%;opacity:0}5%{opacity:1}92%{opacity:0.9}100%{top:100%;opacity:0}}
+.scan-beam.running{display:block;animation:beamSweep 2.2s ease-in-out forwards}
 
-/* ── PREP SIDE (steps + hold) ──────────────────────────────── */
-.prep-side{display:flex;flex-direction:column;gap:6px;width:220px;flex-shrink:0}
-.mg-step{padding:8px 11px;background:rgba(0,0,0,0.30);border:1px solid rgba(255,255,255,0.07);border-radius:4px;display:flex;align-items:center;gap:8px;transition:all .2s}
+/* ── VIEWER LABEL (top center) ───────────────────────────────── */
+.viewer-label{
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  font-size:8px;color:var(--fg3);letter-spacing:1.5px;text-transform:uppercase;
+  white-space:nowrap;pointer-events:none;z-index:10;
+}
+
+/* ── PREP OVERLAY (floating bottom-right of viewer) ──────────── */
+.prep-overlay{
+  position:absolute;
+  bottom:14px;right:14px;
+  width:210px;
+  background:rgba(6,9,20,0.88);
+  border:1px solid rgba(167,139,250,0.22);
+  border-radius:6px;
+  padding:10px;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  z-index:20;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.prep-overlay-title{font-size:8px;color:var(--purple);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px;opacity:0.8}
+.mg-step{display:flex;align-items:center;gap:7px;padding:5px 8px;background:rgba(0,0,0,0.30);border:1px solid rgba(255,255,255,0.06);border-radius:3px;transition:all .2s}
 .mg-step.active{background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.28)}
 .mg-step.done{background:rgba(0,230,118,0.05);border-color:rgba(0,230,118,0.18)}
-.mg-step-num{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--fg3);flex-shrink:0;transition:all .2s}
+.mg-step-num{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--fg3);flex-shrink:0;transition:all .2s}
 .mg-step.active .mg-step-num{border-color:var(--purple);color:var(--purple);background:rgba(167,139,250,0.12)}
 .mg-step.done .mg-step-num{border-color:var(--green);color:var(--green);background:rgba(0,230,118,0.10)}
-.mg-step-text{flex:1;font-size:9px;font-weight:600;color:var(--fg2)}
+.mg-step-text{flex:1;font-size:9px;font-weight:600;color:var(--fg2);line-height:1.2}
 .mg-step.active .mg-step-text{color:var(--fg)}
 .mg-step.done .mg-step-text{color:var(--fg3);text-decoration:line-through;opacity:0.6}
-.mg-step-check{font-size:12px;color:var(--green);opacity:0;flex-shrink:0}
+.mg-step-check{font-size:11px;color:var(--green);opacity:0;flex-shrink:0;transition:opacity .2s}
 .mg-step.done .mg-step-check{opacity:1}
-.hold-btn{width:100%;padding:12px;background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.25);border-radius:6px;color:var(--purple);font-size:10px;font-weight:700;font-family:'Orbitron',sans-serif;letter-spacing:1.5px;cursor:pointer;position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;text-transform:uppercase;transition:background .2s,border-color .2s;margin-top:4px}
-.hold-btn:hover:not(.disabled){background:rgba(167,139,250,0.11);border-color:rgba(167,139,250,0.35)}
-.hold-btn.scanning-mode{background:rgba(0,212,255,0.07);border-color:rgba(0,212,255,0.28);color:var(--cyan)}
-.hold-btn.disabled{opacity:0.35;cursor:not-allowed;pointer-events:none}
-.hold-fill{position:absolute;top:0;left:0;bottom:0;background:rgba(167,139,250,0.18);width:0%;border-radius:inherit}
-.hold-btn.scanning-mode .hold-fill{background:rgba(0,212,255,0.15)}
-.hold-txt{position:relative;z-index:1;pointer-events:none}
-.done-msg{text-align:center;font-size:9px;color:var(--green);letter-spacing:1px;padding:10px;margin-top:4px;background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.18);border-radius:4px;display:none}
-.done-msg.visible{display:block}
 
-/* ── RESULTS PANEL ─────────────────────────────────────────── */
-.res-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 12px}
-.res-scroll::-webkit-scrollbar{width:4px}
-.res-scroll::-webkit-scrollbar-track{background:transparent}
+/* Hold button */
+.hold-btn{
+  width:100%;padding:11px 8px;margin-top:2px;
+  background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.28);
+  border-radius:5px;color:var(--purple);font-size:9px;font-weight:700;
+  font-family:'Orbitron',sans-serif;letter-spacing:1.5px;cursor:pointer;
+  position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;
+  text-transform:uppercase;transition:background .2s,border-color .2s;
+}
+.hold-btn:hover:not(.disabled){background:rgba(167,139,250,0.12);border-color:rgba(167,139,250,0.42)}
+.hold-btn.scan-mode{background:rgba(0,212,255,0.07);border-color:rgba(0,212,255,0.30);color:var(--cyan)}
+.hold-btn.scan-mode:hover:not(.disabled){background:rgba(0,212,255,0.12)}
+.hold-btn.disabled{opacity:0.35;cursor:not-allowed;pointer-events:none}
+.hold-fill{position:absolute;top:0;left:0;bottom:0;background:rgba(167,139,250,0.18);width:0%;border-radius:inherit;transition:none}
+.hold-btn.scan-mode .hold-fill{background:rgba(0,212,255,0.15)}
+.hold-txt{position:relative;z-index:1;pointer-events:none;display:block;text-align:center}
+.done-badge{font-size:9px;color:var(--green);letter-spacing:1px;text-align:center;padding:5px;background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.18);border-radius:3px;display:none;margin-top:2px}
+.done-badge.visible{display:block}
+
+/* ── RESULTS PANEL ───────────────────────────────────────────── */
+.res-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:9px 11px}
+.res-scroll::-webkit-scrollbar{width:3px}
 .res-scroll::-webkit-scrollbar-thumb{background:rgba(167,139,250,0.25);border-radius:2px}
 .res-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px;opacity:0.35}
-.res-empty-icon{font-size:28px}
-.res-empty-txt{font-size:10px;color:var(--fg3);letter-spacing:0.5px;text-align:center}
-.res-card{margin-bottom:8px;background:rgba(0,0,0,0.28);border:1px solid var(--border);border-radius:4px;overflow:hidden;transform:translateX(20px);opacity:0;transition:all .4s ease}
+.res-empty-icon{font-size:26px}
+.res-empty-txt{font-size:10px;color:var(--fg3);letter-spacing:0.3px;text-align:center}
+.res-card{margin-bottom:7px;background:rgba(0,0,0,0.28);border:1px solid var(--border);border-radius:4px;overflow:hidden;transform:translateX(18px);opacity:0;transition:all .4s ease}
 .res-card.visible{transform:translateX(0);opacity:1}
-.res-card-head{padding:6px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.res-card-head{padding:5px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
 .res-card-head.danger{color:var(--red);background:rgba(255,82,82,0.06)}
 .res-card-head.warning{color:var(--yellow);background:rgba(255,202,40,0.05)}
 .res-card-head.normal{color:var(--cyan);background:rgba(0,212,255,0.04)}
-.res-card-body{padding:8px 10px;font-size:10px;color:var(--fg2);line-height:1.5}
+.res-card-body{padding:7px 9px;font-size:10px;color:var(--fg2);line-height:1.5}
 .res-card-body strong{color:var(--fg);font-weight:600}
-.res-meta{font-size:8px;color:var(--fg3);margin-top:4px;letter-spacing:0.3px}
-.res-summary{padding:7px 10px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.18);border-radius:4px;margin-bottom:8px;transform:translateY(-8px);opacity:0;transition:all .5s ease .3s}
+.res-meta{font-size:8px;color:var(--fg3);margin-top:3px}
+.res-summary{padding:6px 9px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.18);border-radius:4px;margin-bottom:7px;transform:translateY(-6px);opacity:0;transition:all .5s ease .2s}
 .res-summary.visible{transform:translateY(0);opacity:1}
-.res-sum-label{font-size:8px;color:var(--purple);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.res-sum-label{font-size:8px;color:var(--purple);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
 .res-sum-val{font-size:12px;font-weight:700;color:var(--fg)}
-.res-action-row{display:flex;gap:6px;padding:9px 12px;border-top:1px solid var(--border);flex-shrink:0}
+.res-action-row{display:flex;gap:5px;padding:8px 11px;border-top:1px solid var(--border);flex-shrink:0}
 .res-action-btn{flex:1;padding:6px;border-radius:3px;font-size:9px;font-weight:700;font-family:inherit;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;transition:all .15s}
 .res-action-btn.primary{background:rgba(0,230,118,0.10);border:1px solid rgba(0,230,118,0.28);color:var(--green)}
 .res-action-btn.primary:hover{background:rgba(0,230,118,0.18)}
@@ -171,7 +207,7 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 </head>
 <body>
 
-<button id="debug-toggle" title="Scénarios (test)" onclick="document.getElementById('debug-panel').classList.toggle('open')">⚙</button>
+<button id="debug-toggle" title="Scénarios" onclick="document.getElementById('debug-panel').classList.toggle('open')">⚙</button>
 <div id="debug-panel">
   <div class="db-title">⚙ SCÉNARIOS TEST</div>
   <button class="sc-btn active" id="sc-gunshot" onclick="applyScenario('gunshot',this)">🔫 Fusillade</button>
@@ -180,22 +216,22 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
   <button class="sc-btn" id="sc-fall" onclick="applyScenario('fall',this)">🏗 Chute</button>
   <button class="sc-btn" id="sc-fire" onclick="applyScenario('fire',this)">🔥 Brûlures</button>
   <button class="sc-btn" id="sc-minor" onclick="applyScenario('minor',this)">🩹 Mineur</button>
-  <div style="height:1px;background:rgba(255,255,255,0.06);margin:6px 0"></div>
+  <div style="height:1px;background:rgba(255,255,255,0.06);margin:5px 0"></div>
   <button class="sc-btn nav" onclick="window.location.href='../chirurgie/'">✚ → Chirurgie</button>
 </div>
 
 <div class="app">
   <div class="topbar">
     <div class="tb-logo">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M7 4v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M7 4v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       ARIION IMAGERIE
     </div>
     <div class="tb-sep"></div>
-    <span class="tb-station">SERVICE IMAGERIE MÉDICALE</span>
+    <span class="tb-station">SERVICE IMAGERIE</span>
     <div class="tb-right">
       <span class="tb-badge" id="topBadge">PRÊT</span>
-      <button class="tb-btn" onclick="window.location.href='../demo/'">← Diagnostic</button>
-      <button class="tb-btn close" onclick="window.parent.postMessage('closePanel','*');window.location.href='../'">✕ FERMER</button>
+      <button class="tb-btn" onclick="window.location.href='../demo/'">← Diag</button>
+      <button class="tb-btn close" onclick="window.parent.postMessage('closePanel','*');window.location.href='../'">✕</button>
     </div>
   </div>
 
@@ -216,21 +252,21 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
           <div class="mode-icon">🦴</div>
           <div class="mode-info">
             <div class="mode-name">Radiographie</div>
-            <div class="mode-desc">Os, fractures, corps étrangers</div>
+            <div class="mode-desc">Os, fractures</div>
           </div>
         </div>
         <div class="mode-btn" onclick="selectMode('ct')" id="mode-ct">
           <div class="mode-icon">🧠</div>
           <div class="mode-info">
             <div class="mode-name">Scanner CT</div>
-            <div class="mode-desc">Lésions internes, hémorragies</div>
+            <div class="mode-desc">Lésions internes</div>
           </div>
         </div>
         <div class="mode-btn" onclick="selectMode('echo')" id="mode-echo">
           <div class="mode-icon">💓</div>
           <div class="mode-info">
             <div class="mode-name">Échographie</div>
-            <div class="mode-desc">Organes, liquides, FAST</div>
+            <div class="mode-desc">Organes, FAST</div>
           </div>
         </div>
       </div>
@@ -244,70 +280,70 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
       </div>
     </div>
 
-    <!-- VIEWER -->
-    <div class="viewer">
-      <div class="viewer-label" id="viewerLabel">SÉLECTIONNER MODE — MAINTENIR POUR SCANNER</div>
-      <div class="scan-row">
-        <!-- Body SVG -->
-        <div class="scan-wrap" id="scanWrap">
-          <svg id="bodySvg" viewBox="0 0 120 340" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <filter id="holoFilter" x="-22%" y="-5%" width="144%" height="115%" color-interpolation-filters="sRGB">
-                <feColorMatrix type="matrix" values="0 0 0 0 0  0 0.40 0.60 0 0  0 0 1 0 0  -0.35 -0.35 -0.35 0 1.05" result="c"/>
-                <feGaussianBlur in="c" stdDeviation="4.5" result="g"/>
-                <feComposite in="g" in2="c" operator="atop" result="gclip"/>
-                <feMerge><feMergeNode in="gclip"/><feMergeNode in="c"/></feMerge>
-              </filter>
-              <filter id="xrayFilter" x="-22%" y="-5%" width="144%" height="115%" color-interpolation-filters="sRGB">
-                <feColorMatrix type="matrix" values="0.9 0.9 0.9 0 0  0.9 0.9 0.9 0 0  0.9 0.9 0.9 0 0  -0.35 -0.35 -0.35 0 1.05" result="c"/>
-                <feGaussianBlur in="c" stdDeviation="3" result="g"/>
-                <feComposite in="g" in2="c" operator="atop" result="gclip"/>
-                <feMerge><feMergeNode in="gclip"/><feMergeNode in="c"/></feMerge>
-              </filter>
-              <filter id="echoFilter" x="-22%" y="-5%" width="144%" height="115%" color-interpolation-filters="sRGB">
-                <feColorMatrix type="matrix" values="0 0 0 0 0  0 0.65 0.35 0 0  0 0.20 0.80 0 0  -0.35 -0.35 -0.35 0 1.05" result="c"/>
-                <feGaussianBlur in="c" stdDeviation="5" result="g"/>
-                <feComposite in="g" in2="c" operator="atop" result="gclip"/>
-                <feMerge><feMergeNode in="gclip"/><feMergeNode in="c"/></feMerge>
-              </filter>
-            </defs>
-            <image id="bodyImg" href="data:image/png;base64,            </filter>"
-                   x="0" y="0" width="120" height="340"
-                   preserveAspectRatio="none"
-                   filter="url(#holoFilter)"/>
-            <g stroke="rgba(0,212,255,0.12)" stroke-width="0.6" stroke-dasharray="2,3" fill="none">
-              <line x1="28" y1="70" x2="92" y2="70"/>
-              <line x1="28" y1="146" x2="92" y2="146"/>
-              <line x1="60" y1="20" x2="60" y2="186"/>
-            </g>
-          </svg>
-          <div class="markers-layer" id="markersLayer"></div>
-          <div class="scan-beam" id="scanBeam"></div>
-        </div>
+    <!-- VIEWER (body fills it, overlay floats) -->
+    <div class="viewer" id="viewerEl">
+      <div class="viewer-label" id="viewerLabel">SÉLECTIONNER UN MODE — MAINTENIR POUR SCANNER</div>
 
-        <!-- Prep side -->
-        <div class="prep-side" id="prepSide">
-          <div class="mg-step" id="step0">
-            <div class="mg-step-num">1</div>
-            <div class="mg-step-text">Positionner le patient</div>
-            <div class="mg-step-check">✓</div>
-          </div>
-          <div class="mg-step" id="step1">
-            <div class="mg-step-num">2</div>
-            <div class="mg-step-text">Calibrer l'appareil</div>
-            <div class="mg-step-check">✓</div>
-          </div>
-          <div class="mg-step" id="step2">
-            <div class="mg-step-num">3</div>
-            <div class="mg-step-text" id="step2txt">Configurer paramètres</div>
-            <div class="mg-step-check">✓</div>
-          </div>
-          <div class="hold-btn disabled" id="holdBtn">
-            <div class="hold-fill" id="holdFill"></div>
-            <div class="hold-txt" id="holdTxt">MAINTENIR POUR PRÉPARER</div>
-          </div>
-          <div class="done-msg" id="doneMsg">✓ ACQUISITION TERMINÉE</div>
+      <!-- Body SVG centered -->
+      <div class="scan-wrap" id="scanWrap">
+        <svg id="bodySvg" viewBox="0 0 120 340" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="holoFilter" x="-22%" y="-5%" width="144%" height="115%" color-interpolation-filters="sRGB">
+              <feColorMatrix type="matrix" values="0 0 0 0 0  0 0.40 0.60 0 0  0 0 1 0 0  -0.35 -0.35 -0.35 0 1.05" result="c"/>
+              <feGaussianBlur in="c" stdDeviation="4.5" result="g"/>
+              <feComposite in="g" in2="c" operator="atop" result="gclip"/>
+              <feMerge><feMergeNode in="gclip"/><feMergeNode in="c"/></feMerge>
+            </filter>
+            <filter id="xrayFilter" x="-22%" y="-5%" width="144%" height="115%" color-interpolation-filters="sRGB">
+              <feColorMatrix type="matrix" values="0.9 0.9 0.9 0 0  0.9 0.9 0.9 0 0  0.9 0.9 0.9 0 0  -0.35 -0.35 -0.35 0 1.05" result="c"/>
+              <feGaussianBlur in="c" stdDeviation="3" result="g"/>
+              <feComposite in="g" in2="c" operator="atop" result="gclip"/>
+              <feMerge><feMergeNode in="gclip"/><feMergeNode in="c"/></feMerge>
+            </filter>
+            <filter id="echoFilter" x="-22%" y="-5%" width="144%" height="115%" color-interpolation-filters="sRGB">
+              <feColorMatrix type="matrix" values="0 0 0 0 0  0 0.65 0.35 0 0  0 0.20 0.80 0 0  -0.35 -0.35 -0.35 0 1.05" result="c"/>
+              <feGaussianBlur in="c" stdDeviation="5" result="g"/>
+              <feComposite in="g" in2="c" operator="atop" result="gclip"/>
+              <feMerge><feMergeNode in="gclip"/><feMergeNode in="c"/></feMerge>
+            </filter>
+          </defs>
+          <image id="bodyImg" href="data:image/png;base64,            </filter>"
+                 x="0" y="0" width="120" height="340"
+                 preserveAspectRatio="none"
+                 filter="url(#holoFilter)"/>
+          <g stroke="rgba(0,212,255,0.12)" stroke-width="0.6" stroke-dasharray="2,3" fill="none">
+            <line x1="28" y1="70" x2="92" y2="70"/>
+            <line x1="28" y1="146" x2="92" y2="146"/>
+            <line x1="60" y1="20" x2="60" y2="186"/>
+          </g>
+        </svg>
+        <div class="markers-layer" id="markersLayer"></div>
+        <div class="scan-beam" id="scanBeam"></div>
+      </div>
+
+      <!-- Prep overlay (bottom-right, always visible) -->
+      <div class="prep-overlay" id="prepOverlay">
+        <div class="prep-overlay-title" id="overlayTitle">PRÉPARATION</div>
+        <div class="mg-step" id="step0">
+          <div class="mg-step-num">1</div>
+          <div class="mg-step-text">Positionner le patient</div>
+          <div class="mg-step-check">✓</div>
         </div>
+        <div class="mg-step" id="step1">
+          <div class="mg-step-num">2</div>
+          <div class="mg-step-text">Calibrer l'appareil</div>
+          <div class="mg-step-check">✓</div>
+        </div>
+        <div class="mg-step" id="step2">
+          <div class="mg-step-num">3</div>
+          <div class="mg-step-text" id="step2txt">Configurer paramètres</div>
+          <div class="mg-step-check">✓</div>
+        </div>
+        <div class="hold-btn" id="holdBtn">
+          <div class="hold-fill" id="holdFill"></div>
+          <span class="hold-txt" id="holdTxt">MAINTENIR POUR PRÉPARER</span>
+        </div>
+        <div class="done-badge" id="doneBadge">✓ ACQUISITION TERMINÉE</div>
       </div>
     </div>
 
@@ -330,63 +366,59 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 </div>
 
 <script>
-// ── Scenario data (mirrors diagnostic) ────────────────────────
+// ── Scenarios ──────────────────────────────────────────────────
 const SCENARIOS = {
   gunshot: {
     name:'Patient Dupont', age:34, genre:'M', state:'Conscient',
-    injured:true, critical:true,
     xray:[
-      {sev:'danger',region:'Thorax G',title:'Opacité hémothoracique',detail:'Hémothorax gauche massif. Déviation médiastinale droite. Drainage thoracique urgent.',meta:'Radio PA debout',x:'38%',y:'42%'},
-      {sev:'warning',region:'Côtes 4-6',title:'Fractures costales multiples',detail:'Fractures de côtes 4 à 6 gauches avec volet costal potentiel.',meta:'Incidences obliques',x:'30%',y:'47%'},
+      {sev:'danger',region:'Thorax G',title:'Hémothorax gauche massif',detail:'Opacité totale hémithorax gauche. Déviation médiastinale droite. Drainage thoracique urgent.',meta:'Radio PA debout',x:'38%',y:'42%'},
+      {sev:'warning',region:'Côtes 4–6',title:'Fractures costales multiples',detail:'Fractures côtes 4 à 6 gauches avec volet costal. Immobilisation et antidouleur IV.',meta:'Incidences obliques',x:'30%',y:'47%'},
     ],
     ct:[
-      {sev:'danger',region:'Thorax',title:'Pneumothorax sous tension',detail:'Pneumothorax gauche compressif. Décompression thoracique immédiate requise.',meta:'CT thorax sans injection',x:'38%',y:'40%'},
-      {sev:'warning',region:'Abdomen',title:'Contusion splénique grade II',detail:'Lacération splénique partielle. Hémopéritoine modéré en fosse iliaque gauche.',meta:'CT abdo injection',x:'42%',y:'52%'},
+      {sev:'danger',region:'Thorax',title:'Pneumothorax sous tension',detail:'Pneumothorax gauche compressif. Déviation médiastinale. Décompression immédiate requise.',meta:'CT thorax',x:'38%',y:'40%'},
+      {sev:'warning',region:'Abdomen',title:'Contusion splénique grade II',detail:'Lacération splénique partielle. Hémopéritoine modéré FIG.',meta:'CT abdo injection',x:'42%',y:'52%'},
     ],
     echo:[
-      {sev:'danger',region:'FAST',title:'Hémopéritoine',detail:'Liquide libre abondant en Morrison et Douglas. Chirurgie hémostatique urgente.',meta:'FAST écho',x:'50%',y:'50%'},
-      {sev:'warning',region:'Cœur',title:'Épanchement péricardique',detail:'Minime épanchement péricardique postérieur. Pas de tamponnade. Surveillance.',meta:'ETT',x:'42%',y:'37%'},
+      {sev:'danger',region:'FAST',title:'Hémopéritoine',detail:'Liquide libre abondant Morrison et Douglas. Chirurgie hémostatique urgente.',meta:'FAST écho',x:'50%',y:'50%'},
+      {sev:'warning',region:'Cœur',title:'Épanchement péricardique',detail:'Minime épanchement péricardique postérieur. Surveillance rapprochée.',meta:'ETT',x:'42%',y:'37%'},
     ],
   },
   accident: {
     name:'Patient Martin', age:28, genre:'M', state:'Conscient',
-    injured:true, critical:false,
     xray:[
       {sev:'danger',region:'Jambe D',title:'Fracture tibia-péroné',detail:'Fracture bimalléolaire déplacée. Immobilisation et chirurgie orthopédique.',meta:'Radio membre inf.',x:'75%',y:'80%'},
-      {sev:'warning',region:'Épaule D',title:'Fracture clavicule',detail:'Fracture claviculaire droite peu déplacée. Écharpe antépulsion.',meta:'Incidence face',x:'78%',y:'34%'},
+      {sev:'warning',region:'Épaule D',title:'Fracture clavicule droite',detail:'Fracture claviculaire peu déplacée. Écharpe antépulsion.',meta:'Incidence face',x:'78%',y:'34%'},
     ],
     ct:[
       {sev:'danger',region:'Cerveau',title:'Contusion temporale G',detail:'Foyer contusionnel temporal gauche ±8mm. Surveillance neurologique rapprochée.',meta:'CT cérébral',x:'42%',y:'9%'},
-      {sev:'normal',region:'Rachis C',title:'Rachis cervical stable',detail:'Pas de fracture ni de luxation cervicale. Interligne discaux conservés.',meta:'CT rachis',x:'50%',y:'18%'},
+      {sev:'normal',region:'Rachis C',title:'Rachis cervical stable',detail:'Pas de fracture ni luxation cervicale. Interligne discaux conservés.',meta:'CT rachis',x:'50%',y:'18%'},
     ],
     echo:[
       {sev:'normal',region:'FAST',title:'Abdomen sans épanchement',detail:'Pas de liquide libre intrapéritonéal. Paroi abdominale intacte.',meta:'FAST écho',x:'50%',y:'50%'},
-      {sev:'warning',region:'Genou D',title:'Épanchement articulaire',detail:'Épanchement articulaire du genou droit. Hémarthrose probable.',meta:'Écho musculo',x:'72%',y:'72%'},
+      {sev:'warning',region:'Genou D',title:'Épanchement articulaire',detail:'Hémarthrose genou droit probable. Ponction évacuatrice.',meta:'Écho musculo',x:'72%',y:'72%'},
     ],
   },
   stab: {
     name:'Patient Moreau', age:22, genre:'M', state:'Conscient',
-    injured:true, critical:true,
     xray:[
-      {sev:'warning',region:'Thorax D',title:'Fractures côtes 5-6 D',detail:'Fractures costales 5 et 6 droites. Pneumothorax partiel 20%.',meta:'Radio thorax PA',x:'62%',y:'43%'},
+      {sev:'warning',region:'Thorax D',title:'Fractures côtes 5–6 D',detail:'Fractures costales droites. Pneumothorax partiel 20%.',meta:'Radio thorax PA',x:'62%',y:'43%'},
     ],
     ct:[
-      {sev:'danger',region:'Abdomen',title:'Plaie hépatique grade III',detail:'Lacération hépatique segments V-VI. Hémopéritoine massif. Chirurgie urgente.',meta:'CT abdo inj.',x:'55%',y:'48%'},
-      {sev:'warning',region:'Thorax D',title:'Pneumothorax partiel',detail:'Pneumothorax partiel droit 20%. Surveillance ou drainage selon évolution.',meta:'CT thorax',x:'62%',y:'40%'},
+      {sev:'danger',region:'Abdomen',title:'Plaie hépatique grade III',detail:'Lacération hépatique seg. V–VI. Hémopéritoine massif. Chirurgie urgente.',meta:'CT abdo injection',x:'55%',y:'48%'},
+      {sev:'warning',region:'Thorax D',title:'Pneumothorax partiel',detail:'Pneumothorax droit 20%. Drainage selon évolution.',meta:'CT thorax',x:'62%',y:'40%'},
     ],
     echo:[
-      {sev:'danger',region:'Morrison',title:'Hémopéritoine massif',detail:'Liquide libre abondant en fosse de Morrison. Épanchement sous-phrénique droit.',meta:'FAST écho',x:'55%',y:'47%'},
+      {sev:'danger',region:'Morrison',title:'Hémopéritoine massif',detail:'Liquide libre abondant en fosse de Morrison et sous-phrénique droit.',meta:'FAST écho',x:'55%',y:'47%'},
     ],
   },
   fall: {
     name:'Patient Leroy', age:45, genre:'M', state:'Conscient',
-    injured:true, critical:false,
     xray:[
       {sev:'danger',region:'Rachis L',title:'Tassement L2',detail:'Fracture-tassement vertébrale L2 grade I. Immobilisation rachidienne stricte.',meta:'Radio lombo-sacrée F/P',x:'50%',y:'57%'},
-      {sev:'warning',region:'Poignet D',title:'Fracture radius distal',detail:'Fracture de Pouteau-Colles droite déplacée. Réduction et plâtre.',meta:'Radio poignet',x:'88%',y:'57%'},
+      {sev:'warning',region:'Poignet D',title:'Fracture radius distal',detail:'Fracture de Pouteau-Colles déplacée. Réduction et plâtre.',meta:'Radio poignet',x:'88%',y:'57%'},
     ],
     ct:[
-      {sev:'warning',region:'Rachis L',title:'Fracture L2 stable',detail:'Recul du mur postérieur <30%. Pas de signe de compression médullaire.',meta:'CT rachis lombaire',x:'50%',y:'57%'},
+      {sev:'warning',region:'Rachis L',title:'Fracture L2 stable',detail:'Recul mur postérieur <30%. Pas de compression médullaire.',meta:'CT rachis lombaire',x:'50%',y:'57%'},
       {sev:'normal',region:'Abdomen',title:'Viscères sans anomalie',detail:'Pas de lésion traumatique abdominale. Reins et rate normaux.',meta:'CT abdo injection',x:'50%',y:'50%'},
     ],
     echo:[
@@ -395,26 +427,24 @@ const SCENARIOS = {
   },
   fire: {
     name:'Patient Garnier', age:38, genre:'M', state:'Inconscient',
-    injured:true, critical:true,
     xray:[
-      {sev:'danger',region:'Thorax',title:'Syndrome inhalatoire',detail:'Opacités bilatérales en verre dépoli. Tableau de SDRA débutant. Intubation urgente.',meta:'Radio thorax F',x:'50%',y:'35%'},
+      {sev:'danger',region:'Thorax',title:'Syndrome inhalatoire',detail:'Opacités bilatérales en verre dépoli. SDRA débutant. Intubation urgente.',meta:'Radio thorax F',x:'50%',y:'35%'},
     ],
     ct:[
-      {sev:'danger',region:'Voies aériennes',title:'Brûlures trachéo-bronchiques',detail:'Épaississement muqueux trachéal. Sécrétion bronchique abondante. Fibroscopie urgente.',meta:'CT thorax',x:'50%',y:'25%'},
-      {sev:'warning',region:'Thorax',title:'Opacités post-inhalatoires',detail:'Plages de consolidation bilatérale péri-hilaire. Atélectasies segmentaires.',meta:'CT haute résolution',x:'50%',y:'38%'},
+      {sev:'danger',region:'Voies aériennes',title:'Lésions trachéo-bronchiques',detail:'Épaississement muqueux trachéal. Sécrétions abondantes. Fibroscopie urgente.',meta:'CT thorax',x:'50%',y:'25%'},
+      {sev:'warning',region:'Thorax',title:'Opacités post-inhalatoires',detail:'Consolidation bilatérale péri-hilaire. Atélectasies segmentaires.',meta:'CT haute résolution',x:'50%',y:'38%'},
     ],
     echo:[
-      {sev:'warning',region:'Cœur',title:'Hypokinésie globale',detail:'FEVG estimée 45%. Hypokinésie diffuse liée à la sidération myocardique toxique.',meta:'ETT urgence',x:'42%',y:'37%'},
+      {sev:'warning',region:'Cœur',title:'Hypokinésie globale',detail:'FEVG ~45%. Sidération myocardique toxique probable.',meta:'ETT urgence',x:'42%',y:'37%'},
     ],
   },
   minor: {
     name:'Patient Bernard', age:25, genre:'M', state:'Conscient',
-    injured:false, critical:false,
     xray:[
-      {sev:'normal',region:'Avant-bras G',title:'Pas de fracture',detail:'Os de l\'avant-bras gauche sans anomalie. Corticales régulières. Pas de trait de fracture.',meta:'Radio avant-bras',x:'20%',y:'55%'},
+      {sev:'normal',region:'Avant-bras G',title:'Pas de fracture',detail:'Os sans anomalie. Corticales régulières. Pas de trait de fracture visible.',meta:'Radio avant-bras',x:'20%',y:'55%'},
     ],
     ct:[
-      {sev:'normal',region:'Cerveau',title:'Pas de lésion cérébrale',detail:'Pas d\'hématome. Pas d\'œdème. Sillons et citernes normaux pour l\'âge.',meta:'CT cérébral',x:'50%',y:'8%'},
+      {sev:'normal',region:'Cerveau',title:'Pas de lésion cérébrale',detail:'Pas d\'hématome. Pas d\'oedème. Sillons et citernes normaux.',meta:'CT cérébral',x:'50%',y:'8%'},
     ],
     echo:[
       {sev:'normal',region:'FAST',title:'Abdomen libre',detail:'Pas de liquide libre. Aucune anomalie des organes pleins visibles.',meta:'FAST écho',x:'50%',y:'50%'},
@@ -422,9 +452,15 @@ const SCENARIOS = {
   },
 };
 
+const MODE_META = {
+  xray:  { name:'Radiographie', filter:'xrayFilter', beam:'xray', step2:'Régler exposition (kV/mAs)', btnLabel:'MAINTENIR — ACQUISITION RADIO' },
+  ct:    { name:'Scanner CT',   filter:'holoFilter',  beam:'ct',   step2:'Paramétrer séquence CT',    btnLabel:'MAINTENIR — ACQUISITION CT' },
+  echo:  { name:'Échographie',  filter:'echoFilter',  beam:'echo', step2:'Appliquer gel conducteur',  btnLabel:'MAINTENIR — ACQUISITION ECHO' },
+};
+
 // ── State ──────────────────────────────────────────────────────
 let currentMode = 'xray';
-let scanPhase = 'idle';
+let scanPhase = 'idle'; // idle | prep | acq | done
 let currentStep = -1;
 let holdInterval = null;
 let holdProgress = 0;
@@ -435,12 +471,6 @@ const HOLD_STEP_MS = 1500;
 const HOLD_SCAN_MS = 2500;
 const PREP_STEPS = 3;
 
-const MODE_META = {
-  xray:  { name:'Radiographie',  filter:'xrayFilter', beam:'xray', step2:'Régler exposition (kV/mAs)', btnLabel:'MAINTENIR — ACQUISITION RADIO' },
-  ct:    { name:'Scanner CT',    filter:'holoFilter',  beam:'ct',   step2:'Paramétrer séquence CT',    btnLabel:'MAINTENIR — ACQUISITION CT' },
-  echo:  { name:'Échographie',   filter:'echoFilter',  beam:'echo', step2:'Appliquer gel conducteur',  btnLabel:'MAINTENIR — ACQUISITION ECHO' },
-};
-
 // ── Load scenario from localStorage ───────────────────────────
 (function initScenario() {
   try {
@@ -449,30 +479,23 @@ const MODE_META = {
       scenarioKey = saved;
       scenario = SCENARIOS[saved];
       const btn = document.getElementById('sc-' + saved);
-      if (btn) {
-        document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-      }
+      if (btn) { document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
     }
-  } catch(e) {}
+  } catch(e){}
   updatePatientCard();
 })();
 
 function updatePatientCard() {
   document.getElementById('patName').textContent = scenario.name || '— Non sélectionné —';
-  document.getElementById('patMeta').textContent = (scenario.age || '?') + ' ans · ' + (scenario.genre || 'M') + ' · ' + (scenario.state || 'Conscient');
+  document.getElementById('patMeta').textContent = (scenario.age||'?') + ' ans · ' + (scenario.genre||'M') + ' · ' + (scenario.state||'Conscient');
 }
 
-// ── Apply scenario (debug panel) ──────────────────────────────
+// ── Apply scenario ─────────────────────────────────────────────
 function applyScenario(key, btn) {
-  document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  scenarioKey = key;
-  scenario = SCENARIOS[key];
-  try {
-    localStorage.setItem('nova_scenario', key);
-    localStorage.setItem('ariion_scenario', key);
-  } catch(e) {}
+  scenarioKey = key; scenario = SCENARIOS[key];
+  try { localStorage.setItem('nova_scenario',key); localStorage.setItem('ariion_scenario',key); } catch(e){}
   updatePatientCard();
   resetScan();
   document.getElementById('debug-panel').classList.remove('open');
@@ -482,25 +505,27 @@ function applyScenario(key, btn) {
 function selectMode(mode) {
   if (scanPhase !== 'idle') return;
   currentMode = mode;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('mode-' + mode).classList.add('active');
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mode-'+mode).classList.add('active');
   document.getElementById('statusMode').textContent = MODE_META[mode].name;
   document.getElementById('step2txt').textContent = MODE_META[mode].step2;
-  document.getElementById('bodyImg').setAttribute('filter', 'url(#' + MODE_META[mode].filter + ')');
+  document.getElementById('bodyImg').setAttribute('filter','url(#'+MODE_META[mode].filter+')');
   resetSteps();
 }
 
+// ── Reset steps ────────────────────────────────────────────────
 function resetSteps() {
   currentStep = -1;
-  for (let i = 0; i < PREP_STEPS; i++) {
-    const el = document.getElementById('step' + i);
-    el.classList.remove('active', 'done');
+  for (let i=0;i<PREP_STEPS;i++) {
+    const el = document.getElementById('step'+i);
+    el.classList.remove('active','done');
   }
   const btn = document.getElementById('holdBtn');
-  btn.classList.add('disabled');
-  btn.classList.remove('scanning-mode');
+  btn.classList.remove('disabled','scan-mode');
   document.getElementById('holdTxt').textContent = 'MAINTENIR POUR PRÉPARER';
   document.getElementById('holdFill').style.width = '0%';
+  document.getElementById('overlayTitle').textContent = 'PRÉPARATION';
+  document.getElementById('overlayTitle').style.color = '';
 }
 
 // ── Phase ──────────────────────────────────────────────────────
@@ -508,42 +533,36 @@ function setPhase(phase) {
   scanPhase = phase;
   const badge = document.getElementById('statusBadge');
   badge.className = 'status-badge ' + phase;
-  const labels = { idle:'INACTIF', prep:'PRÉPARATION', scanning:'ACQUISITION', done:'TERMINÉ' };
-  badge.textContent = labels[phase] || phase.toUpperCase();
+  const labels = {idle:'INACTIF',prep:'PRÉPARATION',acq:'ACQUISITION',done:'TERMINÉ'};
+  badge.textContent = labels[phase]||phase.toUpperCase();
   const fill = document.getElementById('statusFill');
-  const topBadge = document.getElementById('topBadge');
-  if (phase === 'idle')     { fill.style.width = '0%';   topBadge.textContent = 'PRÊT'; }
-  if (phase === 'prep')     { fill.style.width = '35%';  topBadge.textContent = 'PRÉP.'; }
-  if (phase === 'scanning') { fill.style.width = '70%';  topBadge.textContent = 'SCAN'; }
-  if (phase === 'done')     { fill.style.width = '100%'; topBadge.textContent = 'RÉSULTAT'; }
+  const top = document.getElementById('topBadge');
+  if (phase==='idle')  { fill.style.width='0%';   top.textContent='PRÊT'; }
+  if (phase==='prep')  { fill.style.width='35%';  top.textContent='PRÉP.'; }
+  if (phase==='acq')   { fill.style.width='70%';  top.textContent='SCAN'; }
+  if (phase==='done')  { fill.style.width='100%'; top.textContent='RÉSULTAT'; }
 }
 
-// ── Step advance ───────────────────────────────────────────────
-function startPrep() {
-  if (scanPhase !== 'idle') return;
-  setPhase('prep');
-  advanceStep();
-}
-
+// ── Advance step ───────────────────────────────────────────────
 function advanceStep() {
-  if (currentStep >= 0 && currentStep < PREP_STEPS) {
-    const prev = document.getElementById('step' + currentStep);
-    prev.classList.remove('active');
-    prev.classList.add('done');
+  if (currentStep>=0 && currentStep<PREP_STEPS) {
+    const prev = document.getElementById('step'+currentStep);
+    prev.classList.remove('active'); prev.classList.add('done');
   }
   currentStep++;
   const btn = document.getElementById('holdBtn');
   if (currentStep < PREP_STEPS) {
-    document.getElementById('step' + currentStep).classList.add('active');
-    btn.classList.remove('disabled', 'scanning-mode');
-    document.getElementById('holdTxt').textContent = 'MAINTENIR — ÉTAPE ' + (currentStep + 1) + '/' + PREP_STEPS;
+    document.getElementById('step'+currentStep).classList.add('active');
+    btn.classList.remove('disabled','scan-mode');
+    document.getElementById('holdTxt').textContent = 'MAINTENIR — ÉTAPE '+(currentStep+1)+'/'+PREP_STEPS;
     document.getElementById('holdFill').style.width = '0%';
   } else {
     btn.classList.remove('disabled');
-    btn.classList.add('scanning-mode');
+    btn.classList.add('scan-mode');
     document.getElementById('holdTxt').textContent = MODE_META[currentMode].btnLabel;
     document.getElementById('holdFill').style.width = '0%';
-    setPhase('scanning');
+    setPhase('acq');
+    document.getElementById('overlayTitle').textContent = 'ACQUISITION';
   }
 }
 
@@ -553,150 +572,124 @@ function holdStart(e) {
   const btn = document.getElementById('holdBtn');
   if (btn.classList.contains('disabled')) return;
   if (holdInterval) return;
-
-  if (scanPhase === 'idle') {
-    startPrep();
-    return;
-  }
-
+  if (scanPhase === 'idle') { setPhase('prep'); advanceStep(); return; }
   holdProgress = 0;
   const duration = currentStep < PREP_STEPS ? HOLD_STEP_MS : HOLD_SCAN_MS;
-  const tickMs = 30;
   const fillEl = document.getElementById('holdFill');
-
-  holdInterval = setInterval(() => {
-    holdProgress += tickMs;
-    fillEl.style.width = Math.min(100, (holdProgress / duration) * 100) + '%';
+  holdInterval = setInterval(()=>{
+    holdProgress += 30;
+    fillEl.style.width = Math.min(100,(holdProgress/duration)*100)+'%';
     if (holdProgress >= duration) {
-      clearInterval(holdInterval);
-      holdInterval = null;
+      clearInterval(holdInterval); holdInterval = null;
       fillEl.style.width = '0%';
-      if (currentStep < PREP_STEPS) {
-        advanceStep();
-      } else {
-        launchAcquisition();
-      }
+      if (currentStep < PREP_STEPS) advanceStep(); else launchAcquisition();
     }
-  }, tickMs);
+  }, 30);
 }
 
 function holdEnd() {
-  if (holdInterval) {
-    clearInterval(holdInterval);
-    holdInterval = null;
-    document.getElementById('holdFill').style.width = '0%';
-  }
+  if (holdInterval) { clearInterval(holdInterval); holdInterval=null; document.getElementById('holdFill').style.width='0%'; }
 }
 
 // ── Acquisition ────────────────────────────────────────────────
 function launchAcquisition() {
   const btn = document.getElementById('holdBtn');
   btn.classList.add('disabled');
-  document.getElementById('holdTxt').textContent = 'ACQUISITION EN COURS…';
-
+  document.getElementById('holdTxt').textContent = 'EN COURS…';
   const beam = document.getElementById('scanBeam');
   beam.className = 'scan-beam ' + MODE_META[currentMode].beam;
   void beam.offsetWidth;
   beam.classList.add('running');
-
-  beam.addEventListener('animationend', () => {
-    beam.className = 'scan-beam';
-    showResults();
-  }, { once: true });
+  beam.addEventListener('animationend',()=>{ beam.className='scan-beam'; showResults(); },{once:true});
 }
 
-// ── Results ────────────────────────────────────────────────────
+// ── Show results ───────────────────────────────────────────────
 function showResults() {
   setPhase('done');
-
-  const modeResults = scenario[currentMode] || [];
+  const results = scenario[currentMode] || [];
   const content = document.getElementById('resContent');
   document.getElementById('resEmpty').style.display = 'none';
   content.style.display = 'block';
 
-  const sevCount = { danger:0, warning:0, normal:0 };
-  modeResults.forEach(c => { if (c.sev in sevCount) sevCount[c.sev]++; });
-
-  const sumLabel = sevCount.danger > 0 ? 'CRITIQUE' : sevCount.warning > 0 ? 'ANORMAL' : 'NORMAL';
-  const sumColor = sevCount.danger > 0 ? 'var(--red)' : sevCount.warning > 0 ? 'var(--yellow)' : 'var(--green)';
+  const sev = {danger:0,warning:0,normal:0};
+  results.forEach(c=>{ if(c.sev in sev) sev[c.sev]++; });
+  const lbl = sev.danger>0?'CRITIQUE':sev.warning>0?'ANORMAL':'NORMAL';
+  const col = sev.danger>0?'var(--red)':sev.warning>0?'var(--yellow)':'var(--green)';
 
   const sumEl = document.createElement('div');
   sumEl.className = 'res-summary';
-  sumEl.innerHTML = '<div class="res-sum-label">' + MODE_META[currentMode].name + ' — Résultat global</div>'
-                  + '<div class="res-sum-val" style="color:' + sumColor + '">' + sumLabel + '</div>';
+  sumEl.innerHTML = '<div class="res-sum-label">'+MODE_META[currentMode].name+' — Bilan</div>'
+    +'<div class="res-sum-val" style="color:'+col+'">'+lbl+'</div>';
   content.appendChild(sumEl);
-  setTimeout(() => sumEl.classList.add('visible'), 50);
+  setTimeout(()=>sumEl.classList.add('visible'),50);
 
-  modeResults.forEach((card, i) => {
+  results.forEach((card,i)=>{
     const el = document.createElement('div');
     el.className = 'res-card';
-    const icon = card.sev === 'danger' ? '⚠' : card.sev === 'warning' ? '▲' : '●';
-    el.innerHTML = '<div class="res-card-head ' + card.sev + '">' + icon + ' ' + card.region + '</div>'
-      + '<div class="res-card-body"><strong>' + card.title + '</strong><br>' + card.detail
-      + '<div class="res-meta">' + card.meta + '</div></div>';
+    const icon = card.sev==='danger'?'⚠':card.sev==='warning'?'▲':'●';
+    el.innerHTML = '<div class="res-card-head '+card.sev+'">'+icon+' '+card.region+'</div>'
+      +'<div class="res-card-body"><strong>'+card.title+'</strong><br>'+card.detail
+      +'<div class="res-meta">'+card.meta+'</div></div>';
     content.appendChild(el);
-    setTimeout(() => el.classList.add('visible'), 200 + i * 180);
+    setTimeout(()=>el.classList.add('visible'), 200+i*180);
   });
 
-  placeMarkers(modeResults);
-
+  placeMarkers(results);
   document.getElementById('resActions').style.display = 'flex';
-  document.getElementById('doneMsg').classList.add('visible');
-  document.getElementById('holdBtn').classList.add('disabled');
-  document.getElementById('viewerLabel').textContent = MODE_META[currentMode].name.toUpperCase() + ' — TERMINÉ';
+  document.getElementById('doneBadge').classList.add('visible');
+  document.getElementById('viewerLabel').textContent = MODE_META[currentMode].name.toUpperCase()+' — TERMINÉ';
   document.getElementById('viewerLabel').style.color = 'var(--green)';
+  document.getElementById('overlayTitle').textContent = 'TERMINÉ';
+  document.getElementById('overlayTitle').style.color = 'var(--green)';
 }
 
 function placeMarkers(results) {
   const layer = document.getElementById('markersLayer');
   layer.innerHTML = '';
-  results.forEach((r, i) => {
-    if (!r.x || !r.y) return;
+  results.forEach((r,i)=>{
+    if (!r.x||!r.y) return;
     const m = document.createElement('div');
-    m.className = 'body-marker ' + r.sev;
-    m.style.left = r.x;
-    m.style.top = r.y;
+    m.className = 'body-marker '+r.sev;
+    m.style.left = r.x; m.style.top = r.y;
     m.innerHTML = '<div class="body-marker-dot"></div>';
     layer.appendChild(m);
-    setTimeout(() => m.classList.add('visible'), 400 + i * 130);
+    setTimeout(()=>m.classList.add('visible'),400+i*130);
   });
 }
 
 // ── Reset ──────────────────────────────────────────────────────
 function resetScan() {
-  if (holdInterval) { clearInterval(holdInterval); holdInterval = null; }
-  scanPhase = 'idle';
-  setPhase('idle');
+  if (holdInterval) { clearInterval(holdInterval); holdInterval=null; }
+  scanPhase = 'idle'; setPhase('idle');
   document.getElementById('resEmpty').style.display = 'flex';
   document.getElementById('resContent').style.display = 'none';
   document.getElementById('resContent').innerHTML = '';
   document.getElementById('resActions').style.display = 'none';
-  document.getElementById('doneMsg').classList.remove('visible');
-  document.getElementById('viewerLabel').textContent = 'SÉLECTIONNER MODE — MAINTENIR POUR SCANNER';
+  document.getElementById('doneBadge').classList.remove('visible');
+  document.getElementById('viewerLabel').textContent = 'SÉLECTIONNER UN MODE — MAINTENIR POUR SCANNER';
   document.getElementById('viewerLabel').style.color = '';
   document.getElementById('markersLayer').innerHTML = '';
   document.getElementById('scanBeam').className = 'scan-beam';
   resetSteps();
 }
 
-// ── Enable hold button on page load ──────────────────────────
-(function initHold() {
+// ── Init hold btn ──────────────────────────────────────────────
+(function initHold(){
   const btn = document.getElementById('holdBtn');
-  btn.classList.remove('disabled');
   btn.addEventListener('mousedown', holdStart);
   btn.addEventListener('mouseup', holdEnd);
   btn.addEventListener('mouseleave', holdEnd);
-  btn.addEventListener('touchstart', e => holdStart(e), { passive: false });
+  btn.addEventListener('touchstart', e=>holdStart(e), {passive:false});
   btn.addEventListener('touchend', holdEnd);
 })();
 
-// ── NUI message ────────────────────────────────────────────────
-window.addEventListener('message', function(e) {
+// ── NUI ────────────────────────────────────────────────────────
+window.addEventListener('message',function(e){
   const d = e.data;
-  if (!d || !d.action) return;
-  if (d.action === 'openWithScenario' && d.scenario) {
+  if (!d||!d.action) return;
+  if (d.action==='openWithScenario'&&d.scenario) {
     const key = d.scenario;
-    if (SCENARIOS[key]) applyScenario(key, document.getElementById('sc-' + key));
+    if (SCENARIOS[key]) applyScenario(key, document.getElementById('sc-'+key));
   }
 });
 </script>
