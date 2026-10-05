@@ -63,9 +63,9 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 /* ── 3-column grid ── */
 .main{display:flex;flex:1;overflow:hidden}
 .col{display:flex;flex-direction:column;overflow:hidden}
-.col-left{width:220px;flex-shrink:0;border-right:1px solid var(--border)}
-.col-center{flex:1;position:relative}
-.col-right{width:260px;flex-shrink:0;border-left:1px solid var(--border)}
+.col-left{width:min(185px,28%);flex-shrink:0;border-right:1px solid var(--border)}
+.col-center{flex:1;position:relative;min-width:100px}
+.col-right{width:min(215px,33%);flex-shrink:0;border-left:1px solid var(--border)}
 
 /* ── Section headers ── */
 .sec-head{display:flex;align-items:center;gap:6px;padding:7px 12px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);background:rgba(0,212,255,0.03);flex-shrink:0}

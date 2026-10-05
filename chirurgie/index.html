@@ -63,9 +63,9 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 /* ── 3-column grid ── */
 .main{display:flex;flex:1;overflow:hidden}
 .col{display:flex;flex-direction:column;overflow:hidden}
-.col-left{width:220px;flex-shrink:0;border-right:1px solid var(--border)}
-.col-center{flex:1;position:relative}
-.col-right{width:260px;flex-shrink:0;border-left:1px solid var(--border)}
+.col-left{width:min(155px,28%);flex-shrink:0;border-right:1px solid var(--border)}
+.col-center{flex:1;position:relative;min-width:80px}
+.col-right{width:min(190px,33%);flex-shrink:0;border-left:1px solid var(--border)}
 
 /* ── Section headers ── */
 .sec-head{display:flex;align-items:center;gap:6px;padding:7px 12px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);background:rgba(0,212,255,0.03);flex-shrink:0}
@@ -128,9 +128,9 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .pat-meta{font-size:9px;color:var(--fg2);margin-bottom:6px}
 
 /* ── Center viewer ── */
-.viewer-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:10px}
-#scanFrame{position:relative;height:88%;aspect-ratio:120/340;max-width:46%}
-#bodySvg{width:100%;height:100%;display:block}
+.viewer-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:8px;overflow:visible}
+#scanFrame{position:relative;height:88%;aspect-ratio:120/340}
+#bodySvg{width:100%;height:auto;display:block}
 .marker{position:absolute;width:14px;height:14px;border-radius:50%;border:2px solid var(--red);background:rgba(255,82,82,0.25);cursor:pointer;transform:translate(-50%,-50%);animation:pulse 1.5s infinite;box-shadow:0 0 10px rgba(255,82,82,0.6);z-index:10}
 .marker.yellow{border-color:var(--yellow);background:rgba(255,202,40,0.25);box-shadow:0 0 10px rgba(255,202,40,0.5)}
 .marker.green{border-color:var(--green);background:rgba(0,230,118,0.15);box-shadow:none;animation:none;cursor:default}
