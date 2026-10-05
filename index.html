@@ -361,8 +361,11 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
       <div class="ph-cls" onclick="closePanel()">✕</div>
     </div>
 
-    <!-- DIAGNOSTIC content -->
-    <div class="pcontent" id="pc-diag">
+    <!-- Real interface loaded via iframe -->
+    <iframe id="panel-frame" src="" style="flex:1;border:none;width:100%;height:100%;display:block"></iframe>
+
+    <!-- (legacy mini-panels kept but hidden) -->
+    <div class="pcontent" id="pc-diag" style="display:none">
       <div class="diag-body">
         <div class="dc d-pt">
           <span class="ptn">Doe, John — #0142</span>
@@ -471,9 +474,9 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 <script>
 // ── Config ────────────────────────────────────────────────────────
 const MODULES = {
-  d: { bg:'bg-diag', icon:'🩺', text:'Appuyer E — Diagnostic',  url:'demo/' },
-  i: { bg:'bg-img',  icon:'📡', text:'Appuyer E — Imagerie',    url:'imagerie/' },
-  c: { bg:'bg-chir', icon:'✚',  text:'Appuyer E — Chirurgie',   url:'chirurgie/' },
+  d: { bg:'bg-diag', icon:'🩺', text:'Appuyer E — Diagnostic',  dot:'#00d4ff', title:'Monitoring — Diagnostic', sub:'NOVA OMC v1.3',  url:'demo/',      maxW:'900px' },
+  i: { bg:'bg-img',  icon:'📡', text:'Appuyer E — Imagerie',    dot:'#a78bfa', title:'Imagerie Médicale',       sub:'SCANNER NOVA',   url:'imagerie/',  maxW:'900px' },
+  c: { bg:'bg-chir', icon:'✚',  text:'Appuyer E — Chirurgie',   dot:'#4ade80', title:'Protocole Chirurgical',   sub:'BLOC OP. A',     url:'chirurgie/', maxW:'580px' },
 };
 
 // preload
@@ -513,11 +516,31 @@ function goScene(m) {
 
 function openPanel() {
   if(!curMod) return;
-  window.location.href = MODULES[curMod].url;
+  const cfg = MODULES[curMod];
+  const dot = document.getElementById('ph-dot');
+  dot.style.background = cfg.dot;
+  dot.style.boxShadow = `0 0 5px ${cfg.dot}`;
+  const title = document.getElementById('ph-title');
+  title.textContent = cfg.title;
+  title.style.color = cfg.dot;
+  document.getElementById('ph-sub').textContent = cfg.sub;
+  const panel = document.getElementById('panel');
+  panel.style.borderTopColor = cfg.dot;
+  panel.style.maxWidth = cfg.maxW;
+  document.getElementById('panel-frame').src = cfg.url;
+  document.getElementById('panel-overlay').classList.add('on');
+}
+
+function closePanel() {
+  document.getElementById('panel-overlay').classList.remove('on');
+  document.getElementById('panel-frame').src = '';
 }
 
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape' && document.getElementById('view-scene').classList.contains('on')) goHome();
+  if(e.key==='Escape') {
+    if(document.getElementById('panel-overlay').classList.contains('on')) { closePanel(); return; }
+    if(document.getElementById('view-scene').classList.contains('on')) goHome();
+  }
   if(e.key==='e'||e.key==='E') openPanel();
 });
 
