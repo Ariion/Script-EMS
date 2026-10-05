@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
@@ -8,243 +8,168 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;600;700&display=swap"/>
 <style>
 :root{
-  --bg:#060a14;
-  --panel:#0b1120;
-  --panel2:#0e1628;
-  --border:rgba(0,212,255,0.12);
-  --border2:rgba(0,212,255,0.22);
-  --cyan:#00d4ff;
-  --cyan2:#0099cc;
-  --green:#00e676;
-  --yellow:#ffca28;
-  --red:#ff5252;
-  --orange:#ff9800;
-  --fg:#e8f4ff;
-  --fg2:rgba(232,244,255,0.55);
-  --fg3:rgba(232,244,255,0.30);
+  --bg:#060a14;--panel:#0b1120;--panel2:#0e1628;
+  --border:rgba(0,212,255,0.12);--border2:rgba(0,212,255,0.22);
+  --cyan:#00d4ff;--cyan2:#0099cc;
+  --green:#00e676;--yellow:#ffca28;--red:#ff5252;--orange:#ff9800;
+  --fg:#e8f4ff;--fg2:rgba(232,244,255,0.55);--fg3:rgba(232,244,255,0.30);
   color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;font-size:13px;overflow:hidden}
 
-/* ── Layout ── */
-.app{display:flex;flex-direction:column;height:100vh;height:100dvh;background:var(--bg)}
-.topbar{
-  display:flex;align-items:center;gap:8px;padding:8px 14px;
-  background:rgba(6,10,20,0.98);
-  border-bottom:1px solid var(--border2);
+/* ── DISPATCH BAR ── */
+#dispatch-bar{
+  display:flex;align-items:center;gap:6px;padding:5px 14px;
+  background:#020509;border-bottom:1px solid rgba(255,255,255,0.06);
   flex-shrink:0;
 }
-.tb-logo{
-  font-family:'Orbitron',sans-serif;font-size:11px;font-weight:600;
-  letter-spacing:2px;color:var(--cyan);
-  display:flex;align-items:center;gap:6px;
+.db-label{font-size:8px;color:var(--fg3);letter-spacing:1.5px;text-transform:uppercase;margin-right:4px;flex-shrink:0}
+.sc-btn{
+  padding:3px 8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  border-radius:2px;color:var(--fg2);cursor:pointer;font-size:9px;font-weight:600;
+  font-family:inherit;transition:all .15s;
 }
+.sc-btn:hover,.sc-btn.active{background:rgba(0,212,255,0.09);border-color:rgba(0,212,255,0.25);color:var(--cyan)}
+.sc-btn.active{box-shadow:0 0 0 1px rgba(0,212,255,0.12) inset}
+
+/* ── APP LAYOUT ── */
+.app{display:flex;flex-direction:column;height:calc(100vh - 26px);background:var(--bg)}
+.topbar{
+  display:flex;align-items:center;gap:8px;padding:8px 14px;
+  background:rgba(6,10,20,0.98);border-bottom:1px solid var(--border2);flex-shrink:0;
+}
+.tb-logo{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;color:var(--cyan);display:flex;align-items:center;gap:6px}
 .tb-logo svg{width:16px;height:16px}
 .tb-sep{width:1px;height:16px;background:var(--border2);margin:0 6px}
 .tb-station{font-size:10px;color:var(--fg2);letter-spacing:1px}
 .tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-.tb-badge{
-  padding:3px 10px;border-radius:3px;font-size:9px;font-weight:700;
-  letter-spacing:1px;text-transform:uppercase;
-  background:rgba(0,212,255,0.10);border:1px solid rgba(0,212,255,0.22);color:var(--cyan);
-}
-.tb-btn{
-  padding:4px 10px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.18);
-  border-radius:3px;color:var(--cyan);font-size:9px;font-weight:700;font-family:inherit;
-  letter-spacing:1px;cursor:pointer;transition:all .15s;text-transform:uppercase;
-}
+.tb-badge{padding:3px 10px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(0,212,255,0.10);border:1px solid rgba(0,212,255,0.22);color:var(--cyan)}
+.tb-btn{padding:4px 10px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.18);border-radius:3px;color:var(--cyan);font-size:9px;font-weight:700;font-family:inherit;letter-spacing:1px;cursor:pointer;transition:all .15s;text-transform:uppercase}
 .tb-btn:hover{background:rgba(0,212,255,0.16);border-color:rgba(0,212,255,0.35)}
 .tb-btn.close{color:var(--red);border-color:rgba(255,82,82,0.25);background:rgba(255,82,82,0.06)}
 .tb-btn.close:hover{background:rgba(255,82,82,0.14)}
 
 /* ── 3-column grid ── */
-.main{display:flex;flex:1;gap:0;overflow:hidden}
+.main{display:flex;flex:1;overflow:hidden}
 .col{display:flex;flex-direction:column;overflow:hidden}
-.col-left{width:230px;flex-shrink:0;border-right:1px solid var(--border)}
+.col-left{width:220px;flex-shrink:0;border-right:1px solid var(--border)}
 .col-center{flex:1;position:relative}
 .col-right{width:260px;flex-shrink:0;border-left:1px solid var(--border)}
 
 /* ── Section headers ── */
-.sec-head{
-  display:flex;align-items:center;gap:6px;
-  padding:8px 12px;
-  border-bottom:1px solid var(--border);
-  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--cyan);background:rgba(0,212,255,0.03);flex-shrink:0;
-}
+.sec-head{display:flex;align-items:center;gap:6px;padding:7px 12px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);background:rgba(0,212,255,0.03);flex-shrink:0}
 .sec-head .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 6px var(--cyan);animation:blink 2s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 .sec-head .badge-right{margin-left:auto;font-size:8px;padding:1px 6px;border-radius:2px;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.25);color:var(--green)}
 
-/* ── VITALS ── */
-.vitals-body{flex:1;overflow-y:auto;padding:10px}
+/* ── LEFT: ECG + Exams ── */
+.left-scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column}
 
-/* BPM circle */
-.bpm-wrap{display:flex;justify-content:center;margin-bottom:10px}
-.bpm-circle{position:relative;width:80px;height:80px}
-.bpm-circle svg{width:100%;height:100%}
-.bpm-inner{
-  position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-}
-.bpm-val{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;color:var(--fg);line-height:1}
-.bpm-label{font-size:8px;font-weight:600;letter-spacing:1px;color:var(--fg2);margin-top:2px}
-
-/* ECG strip */
-.ecg-wrap{
-  margin-bottom:10px;
-  background:rgba(0,0,0,0.30);
-  border:1px solid var(--border);
-  border-radius:4px;
-  padding:4px 6px;
-  position:relative;overflow:hidden;
-}
+.ecg-wrap{margin:8px 10px;background:rgba(0,0,0,0.30);border:1px solid var(--border);border-radius:4px;padding:5px 7px;flex-shrink:0}
 .ecg-label{font-size:8px;color:var(--fg3);margin-bottom:2px;letter-spacing:0.5px}
 #ecgCanvas{display:block;width:100%;height:36px}
 
-/* Vital rows */
-.vrow{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:6px 0;border-bottom:1px solid rgba(0,212,255,0.06);
-}
-.vrow:last-child{border-bottom:none}
-.vrow-lbl{font-size:9px;color:var(--fg2);text-transform:uppercase;letter-spacing:0.5px}
-.vrow-val{font-size:12px;font-weight:700;font-family:'Orbitron',sans-serif}
-.vrow-val.ok{color:var(--fg)}
-.vrow-val.good{color:var(--green)}
-.vrow-val.warn{color:var(--yellow)}
-.vrow-val.danger{color:var(--red);animation:pulse .8s ease-in-out infinite}
+/* BPM circle */
+.bpm-wrap{display:flex;justify-content:center;margin:4px 0 8px;flex-shrink:0}
+.bpm-circle{position:relative;width:70px;height:70px}
+.bpm-circle svg{width:100%;height:100%}
+.bpm-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.bpm-val{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;color:var(--fg);line-height:1}
+.bpm-label{font-size:8px;font-weight:600;letter-spacing:1px;color:var(--fg2);margin-top:2px}
+
+/* Exam action rows */
+.exam-section{padding:6px 10px;display:flex;flex-direction:column;gap:4px}
+.exam-row{display:flex;align-items:center;gap:6px;padding:5px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:3px;cursor:pointer;transition:all .15s}
+.exam-row:hover:not(.done){background:rgba(0,212,255,0.07);border-color:rgba(0,212,255,0.22)}
+.exam-row.done{background:rgba(0,230,118,0.05);border-color:rgba(0,230,118,0.18);cursor:default}
+.exam-row.loading{opacity:0.7;cursor:wait}
+.exam-icon{font-size:12px;width:16px;text-align:center;flex-shrink:0}
+.exam-lbl{flex:1;font-size:10px;font-weight:600;color:var(--fg2);font-family:'Rajdhani',sans-serif;letter-spacing:0.3px}
+.exam-row.done .exam-lbl{color:var(--fg)}
+.exam-val{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--fg3);white-space:nowrap}
+.exam-val.ok{color:var(--green)}
+.exam-val.warn{color:var(--yellow)}
+.exam-val.danger{color:var(--red);animation:pulse .8s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-.vrow-unit{font-size:8px;color:var(--fg3);margin-left:2px;font-family:'Inter',sans-serif;font-weight:400}
-.conscious-badge{
-  padding:2px 8px;border-radius:2px;font-size:9px;font-weight:700;letter-spacing:0.5px;
-}
-.conscious-badge.yes{background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.28);color:var(--green)}
-.conscious-badge.no{background:rgba(255,82,82,0.12);border:1px solid rgba(255,82,82,0.28);color:var(--red)}
+.exam-spin{width:10px;height:10px;border:1.5px solid rgba(0,212,255,0.2);border-top-color:var(--cyan);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* Scenario picker */
-.scenario-wrap{padding:8px 12px;border-top:1px solid var(--border);flex-shrink:0}
-.sc-label{font-size:8px;color:var(--fg3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
-.sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.sc-btn{
-  padding:5px 4px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
-  border-radius:3px;color:var(--fg2);cursor:pointer;font-size:9px;font-weight:600;
-  font-family:inherit;text-align:center;transition:all .15s;
+/* Critical stabilisation button */
+.crit-section{padding:8px 10px;border-top:1px solid rgba(255,82,82,0.15);flex-shrink:0}
+.crit-btn{
+  width:100%;padding:9px;background:rgba(255,82,82,0.10);border:1px solid rgba(255,82,82,0.35);
+  border-radius:3px;color:var(--red);font-family:'Rajdhani',sans-serif;font-weight:700;
+  font-size:12px;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;
+  transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;
 }
-.sc-btn:hover,.sc-btn.active{
-  background:rgba(0,212,255,0.09);border-color:rgba(0,212,255,0.25);color:var(--cyan);
-}
-.sc-btn.active{box-shadow:0 0 0 1px rgba(0,212,255,0.15) inset}
+.crit-btn:hover{background:rgba(255,82,82,0.18);border-color:rgba(255,82,82,0.55)}
+.crit-btn-pulse{width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse .8s ease-in-out infinite}
 
-/* ── CENTER : Body scan ── */
-.scan-outer{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:10px}
+/* ── CENTER: Body or Game ── */
+.center-view{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .25s;pointer-events:none;opacity:0}
+.center-view.active{opacity:1;pointer-events:all}
 
-/* Scan beam animation */
-.scan-frame{
-  position:relative;
-  width:min(200px, 40vw);
-  flex-shrink:0;
-}
+/* Body scan */
+.scan-outer{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:10px;width:100%}
+.scan-frame{position:relative;width:min(180px,35vw);flex-shrink:0}
 .scan-body-svg{width:100%;height:auto;display:block}
-
-/* Scan beam */
-.scan-beam{
-  position:absolute;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,transparent,rgba(0,212,255,0.9),transparent);
-  box-shadow:0 0 16px 4px rgba(0,212,255,0.5),0 0 40px 8px rgba(0,212,255,0.2);
-  animation:scanBeam 3s ease-in-out infinite;
-  pointer-events:none;
-  border-radius:2px;
-}
-@keyframes scanBeam{
-  0%{top:5%;opacity:0}
-  10%{opacity:1}
-  90%{opacity:1}
-  100%{top:95%;opacity:0}
-}
-
-/* Injury markers on body */
-.marker{
-  position:absolute;
-  width:14px;height:14px;
-  border-radius:50%;
-  background:rgba(255,82,82,0.25);
-  border:2px solid var(--red);
-  transform:translate(-50%,-50%);
-  cursor:pointer;
-  transition:all .15s;
-  animation:markerPulse 2s ease-in-out infinite;
-}
-.marker::after{
-  content:'';position:absolute;inset:-4px;border-radius:50%;
-  border:1px solid rgba(255,82,82,0.35);
-  animation:markerRing 2s ease-in-out infinite;
-}
+.marker{position:absolute;width:14px;height:14px;border-radius:50%;background:rgba(255,82,82,0.25);border:2px solid var(--red);transform:translate(-50%,-50%);cursor:pointer;transition:all .15s;animation:markerPulse 2s ease-in-out infinite}
+.marker::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(255,82,82,0.35);animation:markerRing 2s ease-in-out infinite}
 @keyframes markerPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,82,82,0.4)}50%{box-shadow:0 0 0 6px rgba(255,82,82,0)}}
 @keyframes markerRing{0%,100%{transform:scale(1);opacity:0.7}50%{transform:scale(1.4);opacity:0}}
 .marker:hover{background:rgba(255,82,82,0.45);transform:translate(-50%,-50%) scale(1.2)}
 .marker.minor{border-color:var(--yellow);background:rgba(255,202,40,0.20);animation-name:markerYellow}
 @keyframes markerYellow{0%,100%{box-shadow:0 0 0 0 rgba(255,202,40,0.4)}50%{box-shadow:0 0 0 6px rgba(255,202,40,0)}}
 .marker.minor::after{border-color:rgba(255,202,40,0.35)}
-
-/* Scan stats bar */
-.scan-stats{
-  display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;
-  width:100%;max-width:340px;
-  border:1px solid var(--border);border-radius:4px;
-  overflow:hidden;margin-top:10px;
-  background:rgba(0,0,0,0.25);
-  flex-shrink:0;
-}
-.stat-cell{
-  padding:8px 6px;text-align:center;
-  border-right:1px solid var(--border);
-}
+.scan-stats{display:grid;grid-template-columns:1fr 1fr 1fr;width:100%;max-width:320px;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-top:10px;background:rgba(0,0,0,0.25);flex-shrink:0}
+.stat-cell{padding:7px 6px;text-align:center;border-right:1px solid var(--border)}
 .stat-cell:last-child{border-right:none}
 .stat-cell-label{font-size:8px;color:var(--fg3);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:3px}
 .stat-cell-val{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--fg)}
-.stat-cell-val.danger{color:var(--red)}
-.stat-cell-val.warn{color:var(--yellow)}
+.stat-cell-val.danger{color:var(--red)}.stat-cell-val.warn{color:var(--yellow)}
 .stat-cell-assess{font-size:10px;font-weight:700;letter-spacing:0.5px;padding:2px 8px;border-radius:2px;display:inline-block}
 .assess-stable{background:rgba(0,230,118,0.10);border:1px solid rgba(0,230,118,0.25);color:var(--green)}
 .assess-critical{background:rgba(255,82,82,0.10);border:1px solid rgba(255,82,82,0.25);color:var(--red)}
+.assess-critical-stable{background:rgba(255,152,0,0.10);border:1px solid rgba(255,152,0,0.25);color:var(--orange)}
 .assess-serious{background:rgba(255,152,0,0.10);border:1px solid rgba(255,152,0,0.25);color:var(--orange)}
 
-/* Scan progress bar */
-.scan-bar-wrap{width:100%;max-width:340px;margin-top:8px;flex-shrink:0}
-.scan-bar-label{display:flex;justify-content:space-between;font-size:8px;color:var(--fg3);margin-bottom:3px}
-.scan-bar{height:2px;background:rgba(255,255,255,0.08);border-radius:1px;overflow:hidden}
-.scan-bar-fill{height:100%;background:linear-gradient(90deg,var(--cyan2),var(--cyan));border-radius:1px;transition:width 3s ease}
+/* ── GAME OVERLAY ── */
+#view-game{background:var(--bg);padding:20px}
+.game-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--red);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;text-align:center}
+.game-subtitle{font-size:9px;color:var(--fg3);letter-spacing:1px;text-align:center;margin-bottom:16px}
+.game-visual{position:relative;width:240px;height:100px;margin:0 auto 20px;background:rgba(255,82,82,0.04);border:1px solid rgba(255,82,82,0.18);border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.blood-drip{position:absolute;width:4px;border-radius:2px;background:linear-gradient(to bottom,rgba(180,0,0,0.9),transparent);animation:drip linear infinite}
+@keyframes drip{0%{top:-20px;opacity:1}100%{top:120%;opacity:0.3}}
+.wound-icon{font-size:36px;z-index:2;position:relative}
+.game-steps{display:flex;flex-direction:column;gap:8px;width:100%;max-width:340px;margin:0 auto}
+.game-step{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:4px;cursor:pointer;user-select:none;transition:all .15s;position:relative;overflow:hidden}
+.game-step.active-step{border-color:rgba(255,152,0,0.4);background:rgba(255,152,0,0.06);cursor:pointer}
+.game-step.step-done{border-color:rgba(0,230,118,0.3);background:rgba(0,230,118,0.06);cursor:default}
+.game-step.inactive-step{opacity:0.35;cursor:not-allowed}
+.game-step-fill{position:absolute;left:0;top:0;bottom:0;background:rgba(255,152,0,0.12);transition:width .05s linear}
+.game-step.step-done .game-step-fill{background:rgba(0,230,118,0.10);width:100%!important}
+.game-step-num{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-family:'Orbitron',sans-serif;flex-shrink:0;z-index:1}
+.game-step.active-step .game-step-num{border-color:var(--orange);color:var(--orange)}
+.game-step.step-done .game-step-num{border-color:var(--green);color:var(--green);background:rgba(0,230,118,0.1)}
+.game-step-txt{flex:1;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;z-index:1}
+.game-step-hint{font-size:9px;color:var(--fg3);z-index:1}
+.game-step.active-step .game-step-hint{color:var(--orange)}
+.game-step.step-done .game-step-hint{color:var(--green)}
+.game-progress{width:100%;max-width:340px;margin:12px auto 0}
+.game-progress-bar{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden}
+.game-progress-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--orange));border-radius:2px;transition:width .3s ease}
+.game-success{text-align:center;padding:20px;display:none}
+.game-success-icon{font-size:40px;margin-bottom:10px}
+.game-success-title{font-family:'Orbitron',sans-serif;font-size:14px;color:var(--green);margin-bottom:6px}
+.game-success-sub{font-size:10px;color:var(--fg2)}
+.game-success-btn{margin-top:16px;padding:8px 20px;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);border-radius:3px;color:var(--green);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:0.5px}
 
-/* ── RIGHT : Injury details ── */
-.right-body{flex:1;overflow-y:auto}
-.patient-row{
-  padding:8px 12px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:6px;flex-shrink:0;
-}
-.patient-icon{
-  width:30px;height:30px;border-radius:50%;
-  background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.20);
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;flex-shrink:0;
-}
-.patient-name{font-size:11px;font-weight:700;color:var(--fg)}
-.patient-dist{font-size:9px;color:var(--fg3)}
-.patient-chevron{margin-left:auto;color:var(--fg3);font-size:12px}
-
-/* Injury list */
+/* ── RIGHT: Injuries + Notes ── */
+.right-body{flex:1;overflow-y:auto;display:flex;flex-direction:column}
 .inj-section{padding:6px 12px}
 .inj-section-title{font-size:8px;color:var(--fg3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;padding-top:4px}
-.inj-item{
-  padding:8px 10px;
-  background:rgba(0,0,0,0.25);
-  border:1px solid rgba(255,255,255,0.06);
-  border-radius:4px;
-  margin-bottom:5px;
-  cursor:pointer;
-  transition:all .15s;
-}
+.inj-item{padding:8px 10px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.06);border-radius:4px;margin-bottom:5px;cursor:pointer;transition:all .15s}
 .inj-item:hover{border-color:rgba(0,212,255,0.20);background:rgba(0,212,255,0.04)}
 .inj-item.selected{border-color:rgba(0,212,255,0.35);background:rgba(0,212,255,0.06)}
 .inj-item-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
@@ -254,51 +179,57 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .sev-serious{background:rgba(255,152,0,0.12);border:1px solid rgba(255,152,0,0.28);color:var(--orange)}
 .sev-minor{background:rgba(255,202,40,0.10);border:1px solid rgba(255,202,40,0.25);color:var(--yellow)}
 .inj-item-desc{font-size:9px;color:var(--fg2);line-height:1.5}
-
-/* Detail panel (when zone selected) */
-.detail-panel{
-  margin:0 12px 10px;
-  background:rgba(0,212,255,0.04);
-  border:1px solid rgba(0,212,255,0.18);
-  border-radius:4px;
-  overflow:hidden;
-}
-.detail-zone{
-  padding:8px 10px;
-  background:rgba(0,212,255,0.06);
-  border-bottom:1px solid rgba(0,212,255,0.12);
-  font-size:11px;font-weight:700;color:var(--fg);
-  display:flex;align-items:center;gap:6px;
-}
+.detail-panel{margin:0 12px 10px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.18);border-radius:4px;overflow:hidden}
+.detail-panel.hidden{display:none}
+.detail-zone{padding:8px 10px;background:rgba(0,212,255,0.06);border-bottom:1px solid rgba(0,212,255,0.12);font-size:11px;font-weight:700;color:var(--fg);display:flex;align-items:center;gap:6px}
 .detail-zone-accent{font-size:9px;color:var(--red);font-weight:600}
 .detail-body{padding:8px 10px;font-size:9px;color:var(--fg2);line-height:1.7}
 .detail-body strong{color:var(--fg);font-weight:600}
 .detail-actions{padding:8px 10px;border-top:1px solid rgba(0,212,255,0.10);display:flex;flex-direction:column;gap:4px}
-.act-btn{
-  padding:7px 10px;border-radius:3px;font-size:10px;font-weight:700;font-family:inherit;
-  cursor:pointer;border:1px solid;text-align:center;transition:all .15s;letter-spacing:0.3px;
-}
+.act-btn{padding:7px 10px;border-radius:3px;font-size:10px;font-weight:700;font-family:inherit;cursor:pointer;border:1px solid;text-align:center;transition:all .15s;letter-spacing:0.3px}
 .act-primary{background:rgba(0,212,255,0.12);border-color:rgba(0,212,255,0.35);color:var(--cyan)}
-.act-primary:hover{background:rgba(0,212,255,0.22);border-color:rgba(0,212,255,0.55)}
+.act-primary:hover{background:rgba(0,212,255,0.22)}
 .act-danger{background:rgba(255,82,82,0.10);border-color:rgba(255,82,82,0.30);color:var(--red)}
 .act-danger:hover{background:rgba(255,82,82,0.18)}
-
-/* Exam log */
-.log-section{padding:6px 12px;border-top:1px solid var(--border)}
-.log-list{display:flex;flex-direction:column;gap:3px}
-.log-entry{
-  font-size:9px;padding:3px 7px;border-radius:2px;line-height:1.5;
-  border-left:2px solid;
-}
+.log-section{padding:6px 12px;border-top:1px solid var(--border);margin-top:auto}
+.log-list{display:flex;flex-direction:column;gap:3px;max-height:100px;overflow-y:auto}
+.log-entry{font-size:9px;padding:3px 7px;border-radius:2px;line-height:1.5;border-left:2px solid}
 .log-entry.ok{background:rgba(0,230,118,0.06);border-color:rgba(0,230,118,0.35);color:rgba(0,230,118,0.80)}
 .log-entry.warn{background:rgba(255,202,40,0.06);border-color:rgba(255,202,40,0.35);color:rgba(255,202,40,0.80)}
 .log-entry.err{background:rgba(255,82,82,0.06);border-color:rgba(255,82,82,0.35);color:rgba(255,82,82,0.80)}
 .log-entry.info{background:rgba(0,212,255,0.05);border-color:rgba(0,212,255,0.25);color:rgba(0,212,255,0.70)}
+
+/* Notes textarea */
+.notes-wrap{padding:8px 12px;flex-shrink:0;border-top:1px solid var(--border)}
+#medNotes{
+  width:100%;height:80px;background:rgba(0,0,0,0.30);
+  border:1px solid rgba(255,255,255,0.08);border-radius:3px;
+  color:var(--fg);font-family:'Inter',sans-serif;font-size:10px;
+  padding:7px 9px;resize:none;line-height:1.6;
+  outline:none;transition:border-color .15s;
+}
+#medNotes:focus{border-color:rgba(0,212,255,0.30)}
+#medNotes::placeholder{color:var(--fg3)}
+
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
 </style>
 </head>
 <body>
-<div class="app">
 
+<!-- DISPATCH BAR (outside medical interface) -->
+<div id="dispatch-bar">
+  <span class="db-label">DISPATCH</span>
+  <button class="sc-btn active" onclick="loadScenario('gunshot',this)">🔫 Fusillade</button>
+  <button class="sc-btn" onclick="loadScenario('accident',this)">🚗 Accident</button>
+  <button class="sc-btn" onclick="loadScenario('stab',this)">🔪 Couteau</button>
+  <button class="sc-btn" onclick="loadScenario('fall',this)">🏗 Chute</button>
+  <button class="sc-btn" onclick="loadScenario('fire',this)">🔥 Brûlures</button>
+  <button class="sc-btn" onclick="loadScenario('minor',this)">🩹 Mineur</button>
+</div>
+
+<div class="app">
   <!-- Topbar -->
   <div class="topbar">
     <div class="tb-logo">
@@ -306,88 +237,101 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
       NOVA MEDICAL
     </div>
     <div class="tb-sep"></div>
-    <span class="tb-station">SYSTÈME DE DIAGNOSTIC EMS</span>
+    <span class="tb-station">DIAGNOSTIC EMS</span>
     <div class="tb-right">
-      <span class="tb-badge">EMS</span>
-      <button class="tb-btn" onclick="toggleScan()">SCAN</button>
-      <button class="tb-btn close" onclick="window.location.href='../'">✕ FERMER</button>
+      <span class="tb-badge" id="assessBadge">—</span>
+      <button class="tb-btn close" onclick="window.parent.postMessage('closePanel','*');window.location.href='../'">✕ FERMER</button>
     </div>
   </div>
 
   <div class="main">
 
-    <!-- ── LEFT : Vitaux ── -->
+    <!-- ── LEFT: ECG + Exams ── -->
     <div class="col col-left">
-      <div class="sec-head"><div class="dot"></div> CONSTANTES VITALES <span class="badge-right" id="scanStatus">ACTIF</span></div>
-      <div class="vitals-body" id="vitalsBody">
+      <div class="sec-head"><div class="dot"></div> EXAMENS</div>
+      <div class="left-scroll">
 
-        <!-- BPM circle -->
-        <div class="bpm-wrap">
+        <!-- ECG strip -->
+        <div class="ecg-wrap">
+          <div class="ecg-label">ECG — <span id="ecgRhythm">En attente...</span></div>
+          <canvas id="ecgCanvas" width="200" height="36"></canvas>
+        </div>
+
+        <!-- BPM circle (hidden until BPM measured) -->
+        <div class="bpm-wrap" id="bpmWrap" style="display:none">
           <div class="bpm-circle">
             <svg viewBox="0 0 80 80" fill="none">
-              <!-- Track -->
               <circle cx="40" cy="40" r="32" stroke="rgba(0,212,255,0.10)" stroke-width="5"/>
-              <!-- Progress -->
-              <circle cx="40" cy="40" r="32" stroke="url(#cyanGrad)" stroke-width="5"
-                stroke-dasharray="201" stroke-dashoffset="50" stroke-linecap="round"
+              <circle cx="40" cy="40" r="32" stroke="url(#cg)" stroke-width="5"
+                stroke-dasharray="201" stroke-dashoffset="150" stroke-linecap="round"
                 transform="rotate(-90 40 40)" id="bpmArc"/>
-              <defs>
-                <linearGradient id="cyanGrad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stop-color="#0099cc"/>
-                  <stop offset="100%" stop-color="#00d4ff"/>
-                </linearGradient>
-              </defs>
+              <defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#0099cc"/><stop offset="100%" stop-color="#00d4ff"/>
+              </linearGradient></defs>
             </svg>
             <div class="bpm-inner">
-              <div class="bpm-val" id="bpmDisp">80</div>
+              <div class="bpm-val" id="bpmDisp">—</div>
               <div class="bpm-label">BPM</div>
             </div>
           </div>
         </div>
 
-        <!-- ECG -->
-        <div class="ecg-wrap">
-          <div class="ecg-label">ECG · RYTHME SINUSAL</div>
-          <canvas id="ecgCanvas" width="200" height="36"></canvas>
+        <!-- Exam buttons -->
+        <div class="exam-section">
+          <div class="exam-row" id="er-bpm" onclick="doExam('bpm')">
+            <span class="exam-icon">📟</span>
+            <span class="exam-lbl">Mesurer BPM</span>
+            <span class="exam-val" id="ev-bpm">—</span>
+          </div>
+          <div class="exam-row" id="er-bp" onclick="doExam('bp')">
+            <span class="exam-icon">🩸</span>
+            <span class="exam-lbl">Prise de tension</span>
+            <span class="exam-val" id="ev-bp">—</span>
+          </div>
+          <div class="exam-row" id="er-spo2" onclick="doExam('spo2')">
+            <span class="exam-icon">🫁</span>
+            <span class="exam-lbl">Mesurer SpO₂</span>
+            <span class="exam-val" id="ev-spo2">—</span>
+          </div>
+          <div class="exam-row" id="er-temp" onclick="doExam('temp')">
+            <span class="exam-icon">🌡️</span>
+            <span class="exam-lbl">Température</span>
+            <span class="exam-val" id="ev-temp">—</span>
+          </div>
+          <div class="exam-row" id="er-pain" onclick="doExam('pain')">
+            <span class="exam-icon">😣</span>
+            <span class="exam-lbl">Évaluer douleur</span>
+            <span class="exam-val" id="ev-pain">—</span>
+          </div>
+          <div class="exam-row" id="er-cons" onclick="doExam('cons')">
+            <span class="exam-icon">🧠</span>
+            <span class="exam-lbl">État de conscience</span>
+            <span class="exam-val" id="ev-cons">—</span>
+          </div>
+          <div class="exam-row" id="er-blood" onclick="doExam('blood')">
+            <span class="exam-icon">🩻</span>
+            <span class="exam-lbl">Vol. sanguin estimé</span>
+            <span class="exam-val" id="ev-blood">—</span>
+          </div>
         </div>
-
-        <!-- Vital rows -->
-        <div class="vrow"><span class="vrow-lbl">Pression Art.</span><span class="vrow-val ok" id="vBP">—<span class="vrow-unit">mmHg</span></span></div>
-        <div class="vrow"><span class="vrow-lbl">SpO₂</span><span class="vrow-val ok" id="vSPO">—<span class="vrow-unit">%</span></span></div>
-        <div class="vrow"><span class="vrow-lbl">Vol. sanguin</span><span class="vrow-val ok" id="vBLD">—<span class="vrow-unit">L</span></span></div>
-        <div class="vrow"><span class="vrow-lbl">Douleur</span><span class="vrow-val ok" id="vPAIN">—<span class="vrow-unit">/10</span></span></div>
-        <div class="vrow"><span class="vrow-lbl">Température</span><span class="vrow-val ok" id="vTEMP">—<span class="vrow-unit">°C</span></span></div>
-        <div class="vrow"><span class="vrow-lbl">Conscience</span><span class="vrow-val" id="vCONS"><span class="conscious-badge yes" id="consBadge">OUI</span></span></div>
       </div>
 
-      <!-- Scenario selector -->
-      <div class="scenario-wrap">
-        <div class="sc-label">Scénario patient</div>
-        <div class="sc-grid">
-          <button class="sc-btn active" onclick="loadScenario('gunshot',this)">🔫 Fusillade</button>
-          <button class="sc-btn" onclick="loadScenario('accident',this)">🚗 Accident</button>
-          <button class="sc-btn" onclick="loadScenario('stab',this)">🔪 Couteau</button>
-          <button class="sc-btn" onclick="loadScenario('fall',this)">🏗 Chute</button>
-          <button class="sc-btn" onclick="loadScenario('fire',this)">🔥 Brûlures</button>
-          <button class="sc-btn" onclick="loadScenario('minor',this)">🩹 Léger</button>
-        </div>
+      <!-- Critical stabilisation -->
+      <div class="crit-section" id="critSection" style="display:none">
+        <button class="crit-btn" onclick="startGame()">
+          <span class="crit-btn-pulse"></span>
+          STABILISATION D'URGENCE
+        </button>
       </div>
     </div>
 
-    <!-- ── CENTER : Body scan ── -->
-    <div class="col col-center">
-      <div class="sec-head"><div class="dot"></div> SCANNER CORPOREL <span style="margin-left:auto;font-size:8px;color:var(--fg3)" id="scanPct">0%</span></div>
-      <div class="scan-outer">
+    <!-- ── CENTER: Body / Game ── -->
+    <div class="col col-center" style="position:relative">
 
-        <!-- Progress bar -->
-        <div class="scan-bar-wrap">
-          <div class="scan-bar-label"><span>SCAN IRM</span><span id="scanPctLabel">Analyse en cours...</span></div>
-          <div class="scan-bar"><div class="scan-bar-fill" id="scanFill" style="width:0%"></div></div>
-        </div>
-
-        <!-- Body silhouette -->
-        <div class="scan-frame" id="scanFrame" style="margin:14px 0">
-          <!-- SVG body -->
+      <!-- Body view -->
+      <div id="view-body" class="center-view active">
+        <div class="scan-outer">
+          <div class="scan-frame" id="scanFrame">
           <svg id="bodySvg" viewBox="0 0 120 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">
                 <defs>
                   <filter id="holoFilter" x="-22%" y="-5%" width="144%" height="115%" color-interpolation-filters="sRGB">
@@ -412,71 +356,85 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
                   <line x1="60" y1="20" x2="60" y2="186"/>
                 </g>
               </svg>
-
-          <!-- Scan beam overlay -->
-          <div class="scan-beam" id="scanBeam"></div>
-
-          <!-- Injury markers (positioned absolutely over SVG) -->
-          <div id="markersLayer" style="position:absolute;inset:0"></div>
-        </div>
-
-        <!-- Stats bar -->
-        <div class="scan-stats">
-          <div class="stat-cell">
-            <div class="stat-cell-label">Trauma Index</div>
-            <div class="stat-cell-val" id="statTrauma">0</div>
+            <div id="markersLayer" style="position:absolute;inset:0"></div>
           </div>
-          <div class="stat-cell">
-            <div class="stat-cell-label">Régions</div>
-            <div class="stat-cell-val" id="statRegions">0</div>
-          </div>
-          <div class="stat-cell">
-            <div class="stat-cell-label">Évaluation</div>
-            <div style="padding-top:2px"><span class="stat-cell-assess assess-stable" id="statAssess">Stable</span></div>
+          <div class="scan-stats">
+            <div class="stat-cell"><div class="stat-cell-label">Trauma Index</div><div class="stat-cell-val" id="statTrauma">—</div></div>
+            <div class="stat-cell"><div class="stat-cell-label">Régions</div><div class="stat-cell-val" id="statRegions">—</div></div>
+            <div class="stat-cell"><div class="stat-cell-label">Évaluation</div><div style="padding-top:2px"><span class="stat-cell-assess assess-stable" id="statAssess">—</span></div></div>
           </div>
         </div>
-
       </div>
+
+      <!-- Game view -->
+      <div id="view-game" class="center-view">
+        <div class="game-title">⚡ STABILISATION D'URGENCE</div>
+        <div class="game-subtitle">PATIENT EN ÉTAT CRITIQUE — AGISSEZ IMMÉDIATEMENT</div>
+        <div class="game-visual" id="gameVisual">
+          <span class="wound-icon">🩸</span>
+        </div>
+        <div class="game-steps" id="gameSteps">
+          <div class="game-step inactive-step" id="gs-0" onmousedown="holdStep(0)" onmouseup="releaseStep(0)" ontouchstart="holdStep(0)" ontouchend="releaseStep(0)">
+            <div class="game-step-fill" id="gf-0" style="width:0%"></div>
+            <div class="game-step-num">01</div>
+            <div class="game-step-txt">Compression directe</div>
+            <div class="game-step-hint">Maintenez appuyé</div>
+          </div>
+          <div class="game-step inactive-step" id="gs-1" onmousedown="holdStep(1)" onmouseup="releaseStep(1)" ontouchstart="holdStep(1)" ontouchend="releaseStep(1)">
+            <div class="game-step-fill" id="gf-1" style="width:0%"></div>
+            <div class="game-step-num">02</div>
+            <div class="game-step-txt">Application du garrot</div>
+            <div class="game-step-hint">Maintenez appuyé</div>
+          </div>
+          <div class="game-step inactive-step" id="gs-2" onmousedown="holdStep(2)" onmouseup="releaseStep(2)" ontouchstart="holdStep(2)" ontouchend="releaseStep(2)">
+            <div class="game-step-fill" id="gf-2" style="width:0%"></div>
+            <div class="game-step-num">03</div>
+            <div class="game-step-txt">Pansement occlusif</div>
+            <div class="game-step-hint">Maintenez appuyé</div>
+          </div>
+          <div class="game-step inactive-step" id="gs-3" onmousedown="holdStep(3)" onmouseup="releaseStep(3)" ontouchstart="holdStep(3)" ontouchend="releaseStep(3)">
+            <div class="game-step-fill" id="gf-3" style="width:0%"></div>
+            <div class="game-step-num">04</div>
+            <div class="game-step-txt">Monitoring post-acte</div>
+            <div class="game-step-hint">Maintenez appuyé</div>
+          </div>
+        </div>
+        <div class="game-progress">
+          <div class="game-progress-bar"><div class="game-progress-fill" id="gameProg" style="width:0%"></div></div>
+        </div>
+        <div class="game-success" id="gameSuccess">
+          <div class="game-success-icon">✅</div>
+          <div class="game-success-title">PATIENT STABILISÉ</div>
+          <div class="game-success-sub">État critique mais stable — Transport autorisé</div>
+          <button class="game-success-btn" onclick="endGame()">Retour au diagnostic</button>
+        </div>
+      </div>
+
     </div>
 
-    <!-- ── RIGHT : Injury details ── -->
+    <!-- ── RIGHT: Injuries + Notes ── -->
     <div class="col col-right">
-      <div class="sec-head"><div class="dot"></div> DÉTAILS BLESSURES</div>
-
-      <!-- Patient row -->
-      <div class="patient-row">
-        <div class="patient-icon">🧑</div>
-        <div>
-          <div class="patient-name" id="patientName">Patient inconnu</div>
-          <div class="patient-dist">ID: NMD-2024</div>
-        </div>
-        <div class="patient-chevron">›</div>
-      </div>
-
+      <div class="sec-head"><div class="dot" style="background:#ff5252;box-shadow:0 0 6px #ff5252"></div> BLESSURES</div>
       <div class="right-body">
-        <!-- Injury list -->
         <div class="inj-section">
-          <div class="inj-section-title">Zones blessées détectées</div>
+          <div class="inj-section-title">Zones détectées</div>
           <div id="injuryList"><div style="color:var(--fg3);font-size:9px;padding:8px 0">Aucune blessure détectée</div></div>
         </div>
-
-        <!-- Detail panel -->
         <div class="detail-panel hidden" id="detailPanel">
-          <div class="detail-zone">
-            <span id="detailZone">—</span>
-            <span class="detail-zone-accent" id="detailSev">—</span>
-          </div>
+          <div class="detail-zone"><span id="detailZone">—</span><span class="detail-zone-accent" id="detailSev">—</span></div>
           <div class="detail-body" id="detailBody">—</div>
           <div class="detail-actions" id="detailActions"></div>
         </div>
-
-        <!-- Exam log -->
         <div class="log-section">
           <div class="inj-section-title">Journal opératoire</div>
           <div class="log-list" id="logList">
             <div class="log-entry info">Système démarré — En attente de patient</div>
           </div>
         </div>
+      </div>
+      <div class="sec-head" style="flex-shrink:0;border-top:1px solid var(--border)"><div class="dot" style="background:var(--fg3);box-shadow:none;animation:none"></div> NOTES MÉDICALES</div>
+      <div class="notes-wrap">
+        <textarea id="medNotes" placeholder="Observations du soignant…&#10;(transmises en imagerie et chirurgie)"></textarea>
       </div>
     </div>
 
@@ -485,10 +443,11 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 
 <script>
 'use strict';
-// ── Scénarios ─────────────────────────────────────────────────
+
+// ── Scenarios ──────────────────────────────────────────────────
 const SCENARIOS = {
   gunshot: {
-    name:'John Doe',bpm:132,bp:'74/48',spo2:88,blood:3.2,pain:9,temp:36.2,conscious:true,
+    bpm:132,bp:'74/48',spo2:88,blood:3.2,pain:9,temp:36.2,conscious:true,
     assessment:'critical',trauma:8,
     injuries:[
       {zone:'Torse gauche',severity:'critical',
@@ -506,7 +465,7 @@ const SCENARIOS = {
     ]
   },
   accident: {
-    name:'Marie Dupont',bpm:108,bp:'90/60',spo2:94,blood:4.5,pain:7,temp:36.8,conscious:true,
+    bpm:108,bp:'90/60',spo2:94,blood:4.5,pain:7,temp:36.8,conscious:true,
     assessment:'serious',trauma:5,
     injuries:[
       {zone:'Crâne',severity:'serious',
@@ -514,8 +473,8 @@ const SCENARIOS = {
        actions:['Bilan neurologique','Scanner cérébral'],
        pct:{x:50,y:8},type:'err'},
       {zone:'Jambe droite',severity:'serious',
-       desc:'<strong>Fracture fermée</strong> — tibia/péroné. Déformation visible. Pouls distal conservé.',
-       actions:['Attelle d\'immobilisation','Antidouleur IV'],
+       desc:"<strong>Fracture fermée</strong> — tibia/péroné. Déformation visible. Pouls distal conservé.",
+       actions:["Attelle d'immobilisation",'Antidouleur IV'],
        pct:{x:78,y:78},type:'err'},
       {zone:'Épaule droite',severity:'minor',
        desc:'<strong>Contusion musculaire</strong> — luxation possible. Mobilité réduite.',
@@ -524,89 +483,107 @@ const SCENARIOS = {
     ]
   },
   stab: {
-    name:'Alex Martin',bpm:118,bp:'82/54',spo2:91,blood:3.8,pain:8,temp:36.5,conscious:true,
+    bpm:118,bp:'82/54',spo2:91,blood:3.8,pain:8,temp:36.5,conscious:true,
     assessment:'critical',trauma:7,
     injuries:[
       {zone:'Abdomen supérieur',severity:'critical',
-       desc:'<strong>Plaie par arme blanche</strong> — pénétration épigastrique. Risque de perforation viscérale. Blessure profonde.',
-       actions:['Laparotomie d\'urgence','NE PAS retirer le couteau'],
-       pct:{x:55,y:52},type:'err'},
-      {zone:'Torse',severity:'serious',
-       desc:'<strong>Plaie pénétrante</strong> — espace intercostal droit. Saignement actif modéré.',
-       actions:['Pansement 3 côtés','Drainage'],
-       pct:{x:65,y:44},type:'err'},
+       desc:"<strong>Plaie par arme blanche</strong> — pénétration abdominale profonde. Lésion hépatique suspectée.",
+       actions:['Compression abdominale','Perfusion IV','Évacuation urgente'],
+       pct:{x:50,y:50},type:'err'},
+      {zone:'Thorax droit',severity:'serious',
+       desc:'<strong>Contusion thoracique</strong> — côtes 5-6 fracturées. Pneumothorax partiel.',
+       actions:['Drainage thoracique','Oxygénothérapie'],
+       pct:{x:65,y:42},type:'err'},
     ]
   },
   fall: {
-    name:'Thomas Bernard',bpm:95,bp:'102/70',spo2:97,blood:5.0,pain:6,temp:37.0,conscious:true,
+    bpm:95,bp:'102/70',spo2:97,blood:5.0,pain:6,temp:37.0,conscious:true,
     assessment:'serious',trauma:4,
     injuries:[
-      {zone:'Colonne vertébrale',severity:'serious',
-       desc:'<strong>Trauma rachidien</strong> — fracture vertébrale L2 suspectée. Immobilisation stricte requise.',
-       actions:['Collier cervical','Brancard rigide'],
-       pct:{x:60,y:60},type:'err'},
-      {zone:'Bras droit',severity:'minor',
-       desc:'<strong>Fracture radius/ulna</strong> — déformation typique. Pouls radial conservé.',
-       actions:['Attelle radio-ulnaire'],
-       pct:{x:85,y:48},type:'warn'},
+      {zone:'Rachis lombaire',severity:'serious',
+       desc:'<strong>Traumatisme dorso-lombaire</strong> — suspicion de fracture L2. Douleur irradiante.',
+       actions:['Immobilisation rachidienne','Antidouleur'],
+       pct:{x:50,y:60},type:'err'},
+      {zone:'Poignet droit',severity:'minor',
+       desc:'<strong>Fracture du radius</strong> — déplacement modéré. Pouls radial conservé.',
+       actions:["Attelle plâtrée",'Radiographie'],
+       pct:{x:92,y:55},type:'warn'},
     ]
   },
   fire: {
-    name:'Sophie Lambert',bpm:122,bp:'86/56',spo2:90,blood:4.8,pain:8,temp:38.2,conscious:false,
-    assessment:'critical',trauma:9,
+    bpm:122,bp:'86/56',spo2:90,blood:4.8,pain:8,temp:38.2,conscious:false,
+    assessment:'critical',trauma:8,
     injuries:[
-      {zone:'Torse / dos',severity:'critical',
-       desc:'<strong>Brûlures 2ème/3ème degré</strong> — surface corporelle atteinte ~30%. Détresse respiratoire.',
-       actions:['Oxygénothérapie 100%','Voie veineuse centrale'],
-       pct:{x:50,y:48},type:'err'},
-      {zone:'Voies respiratoires',severity:'critical',
-       desc:'<strong>Brûlure inhalatoire</strong> — stridor. Intubation oro-trachéale urgente.',
-       actions:['Intubation d\'urgence'],
-       pct:{x:58,y:18},type:'err'},
-      {zone:'Bras gauche',severity:'serious',
-       desc:'<strong>Brûlures 2ème degré</strong> — face antérieure, 60% de la surface brachiale.',
-       actions:['Pansement gras stérile'],
+      {zone:'Thorax / Voies aériennes',severity:'critical',
+       desc:'<strong>Brûlures 2° / 3°</strong> — inhalation de fumée suspectée. Stridor laryngé présent.',
+       actions:['Intubation précoce','Oxygénothérapie 100%'],
+       pct:{x:50,y:35},type:'err'},
+      {zone:'Membres supérieurs',severity:'serious',
+       desc:'<strong>Brûlures étendues</strong> — 15% surface corporelle. Remplissage vasculaire.',
+       actions:['Perfusion Ringer Lactate','Pansement humide'],
        pct:{x:20,y:45},type:'err'},
     ]
   },
   minor: {
-    name:'Lucas Petit',bpm:72,bp:'118/76',spo2:99,blood:5.8,pain:2,temp:36.9,conscious:true,
+    bpm:72,bp:'118/76',spo2:99,blood:5.8,pain:2,temp:36.9,conscious:true,
     assessment:'stable',trauma:1,
     injuries:[
-      {zone:'Main gauche',severity:'minor',
+      {zone:'Avant-bras gauche',severity:'minor',
        desc:'<strong>Lacération superficielle</strong> — plaie nette, 3cm. Saignement minime. Pas de lésion tendineuse.',
-       actions:['Nettoyage et suture'],
-       pct:{x:11,y:52},type:'warn'},
+       actions:['Nettoyage antiseptique','Suture superficielle'],
+       pct:{x:20,y:52},type:'warn'},
     ]
   },
 };
 
-// ── État ──────────────────────────────────────────────────────
-let currentScenario = SCENARIOS.gunshot;
-let scanInterval = null;
-let ecgCtx, ecgW, ecgH, ecgPhase = 0, ecgBpm = 80;
-let vitalsInterval = null;
+let currentScenario = null;
+let currentScenarioKey = 'gunshot';
+let ecgCtx, ecgW, ecgH, ecgPhase = 0, ecgBpm = 72;
+
+// Exam state
+const examDone = {};
+let critStabilized = false;
+
+// Game state
+let gameCurrentStep = -1;
+let holdTimer = null;
+let holdProgress = 0;
+const HOLD_MS = 2500;
 
 // ── Init ──────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   initEcg();
+  loadNotes();
   loadScenario('gunshot', document.querySelector('.sc-btn.active'));
+  document.getElementById('medNotes').addEventListener('input', saveNotes);
 });
+
+// ── Notes localStorage ────────────────────────────────────────
+function saveNotes() {
+  try {
+    localStorage.setItem('nova_notes', document.getElementById('medNotes').value);
+    localStorage.setItem('nova_scenario', currentScenarioKey);
+  } catch(e) {}
+}
+function loadNotes() {
+  try {
+    const n = localStorage.getItem('nova_notes');
+    if (n) document.getElementById('medNotes').value = n;
+  } catch(e) {}
+}
 
 // ── ECG ──────────────────────────────────────────────────────
 function initEcg() {
   const canvas = document.getElementById('ecgCanvas');
   const dpr = window.devicePixelRatio || 1;
-  ecgW = canvas.offsetWidth || 200;
+  ecgW = canvas.offsetWidth || 190;
   ecgH = canvas.offsetHeight || 36;
   canvas.width  = ecgW * dpr;
   canvas.height = ecgH * dpr;
   ecgCtx = canvas.getContext('2d');
   ecgCtx.scale(dpr, dpr);
-  ecgPhase = 0;
   drawEcg();
 }
-
 function ecgShape(x) {
   const t = ((x % 1) + 1) % 1;
   if (t < 0.08) return Math.sin(t / 0.08 * Math.PI) * 0.06;
@@ -619,19 +596,12 @@ function ecgShape(x) {
   if (t < 0.44) return Math.sin((t-0.36)/0.08 * Math.PI) * 0.18;
   return 0;
 }
-
 function drawEcg() {
   if (!ecgCtx) return;
   ecgCtx.clearRect(0, 0, ecgW, ecgH);
-  ecgCtx.fillStyle = 'transparent';
-
   const speed = ecgBpm / 60 * 0.4;
   ecgPhase = (ecgPhase + speed * 0.016) % 1;
-
-  const midY = ecgH * 0.5;
-  const amp  = ecgH * 0.40;
-  const pts  = ecgW * 1.2;
-
+  const midY = ecgH * 0.5, amp = ecgH * 0.40;
   ecgCtx.beginPath();
   for (let px = 0; px < ecgW; px++) {
     const phase = ecgPhase + px / ecgW;
@@ -644,113 +614,268 @@ function drawEcg() {
   ecgCtx.shadowColor = 'rgba(0,212,255,0.60)';
   ecgCtx.stroke();
   ecgCtx.shadowBlur = 0;
-
   requestAnimationFrame(drawEcg);
 }
-
-// ── BPM arc ───────────────────────────────────────────────────
 function updateBpmArc(bpm) {
   const arc = document.getElementById('bpmArc');
-  const circ = 201;
   const pct = Math.min(bpm, 200) / 200;
-  const offset = circ - pct * circ;
-  arc.setAttribute('stroke-dashoffset', offset);
-  arc.setAttribute('stroke', bpm > 120 ? '#ff5252' : bpm < 50 ? '#ffca28' : 'url(#cyanGrad)');
+  arc.setAttribute('stroke-dashoffset', 201 - pct * 201);
+  arc.setAttribute('stroke', bpm > 120 ? '#ff5252' : bpm < 50 ? '#ffca28' : 'url(#cg)');
 }
 
 // ── Load scenario ─────────────────────────────────────────────
 function loadScenario(key, btn) {
   document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
+  currentScenarioKey = key;
   currentScenario = SCENARIOS[key];
-  applyScenario();
-}
-
-function applyScenario() {
-  const s = currentScenario;
-  ecgBpm = s.bpm;
-
-  // Vitals
-  updateVitalEl('bpmDisp', s.bpm, '');
-  updateVitalEl('vBP', s.bp, '', s.bp.split('/')[0] < 80 ? 'danger' : s.bp.split('/')[0] < 100 ? 'warn' : 'ok');
-  updateVitalEl('vSPO', s.spo2, '%', s.spo2 < 90 ? 'danger' : s.spo2 < 95 ? 'warn' : 'ok');
-  updateVitalEl('vBLD', s.blood.toFixed(1), ' L', s.blood < 3.5 ? 'danger' : s.blood < 4.5 ? 'warn' : 'ok');
-  updateVitalEl('vPAIN', s.pain, '', s.pain >= 8 ? 'danger' : s.pain >= 5 ? 'warn' : 'ok');
-  updateVitalEl('vTEMP', s.temp.toFixed(1), ' °C', s.temp > 38.5 ? 'warn' : 'ok');
-
-  const cb = document.getElementById('consBadge');
-  cb.textContent = s.conscious ? 'OUI' : 'NON';
-  cb.className = 'conscious-badge ' + (s.conscious ? 'yes' : 'no');
-
-  updateBpmArc(s.bpm);
-
-  // Patient name
-  document.getElementById('patientName').textContent = s.name;
-
+  // Reset exams
+  Object.keys(examDone).forEach(k => delete examDone[k]);
+  document.querySelectorAll('.exam-row').forEach(r => {
+    r.classList.remove('done','loading');
+    r.style.pointerEvents = '';
+  });
+  document.querySelectorAll('.exam-val').forEach(v => { v.textContent = '—'; v.className = 'exam-val'; });
+  document.getElementById('bpmWrap').style.display = 'none';
+  document.getElementById('bpmDisp').textContent = '—';
+  document.getElementById('critSection').style.display = 'none';
+  critStabilized = false;
+  ecgBpm = currentScenario.bpm;
+  document.getElementById('ecgRhythm').textContent = 'En attente...';
   // Stats
-  document.getElementById('statTrauma').textContent  = s.trauma;
-  document.getElementById('statRegions').textContent = s.injuries.length;
-  document.getElementById('statTrauma').className    = 'stat-cell-val ' + (s.trauma >= 7 ? 'danger' : s.trauma >= 4 ? 'warn' : '');
-
-  const assessEl = document.getElementById('statAssess');
-  assessEl.textContent = s.assessment === 'critical' ? 'Critique' : s.assessment === 'serious' ? 'Sérieux' : 'Stable';
-  assessEl.className   = 'stat-cell-assess ' + (s.assessment === 'critical' ? 'assess-critical' : s.assessment === 'serious' ? 'assess-serious' : 'assess-stable');
-
-  // Injury list
-  renderInjuryList(s.injuries);
-  renderMarkers(s.injuries);
-
-  // Log
-  addLog(`Patient chargé : ${s.name} — Trauma index ${s.trauma}`, s.trauma >= 7 ? 'err' : s.trauma >= 4 ? 'warn' : 'ok');
-  if (!s.conscious) addLog('⚠ Patient inconscient — Airway management requis', 'err');
-  if (s.spo2 < 90)  addLog(`SpO₂ critique : ${s.spo2}% — Oxygénothérapie urgente`, 'err');
-
-  // Hide detail panel
+  document.getElementById('statTrauma').textContent = '—';
+  document.getElementById('statRegions').textContent = '—';
+  const sa = document.getElementById('statAssess');
+  sa.textContent = '—'; sa.className = 'stat-cell-assess assess-stable';
+  const ab = document.getElementById('assessBadge');
+  ab.textContent = '—'; ab.style.background = ''; ab.style.borderColor = ''; ab.style.color = '';
+  // Injuries + markers
+  renderInjuryList(currentScenario.injuries);
+  renderMarkers(currentScenario.injuries);
   document.getElementById('detailPanel').classList.add('hidden');
-
-  // Run scan anim
-  startScan();
+  // Log
+  document.getElementById('logList').innerHTML = '';
+  addLog(`Nouveau patient chargé — Scénario : ${btn ? btn.textContent.trim() : key}`, 'info');
+  if (!currentScenario.conscious) addLog('⚠ Patient inconscient — airway management requis', 'err');
+  saveNotes();
+  // Back to body view
+  showBodyView();
 }
 
-function updateVitalEl(id, val, unit, cls='ok') {
-  const el = document.getElementById(id);
-  el.innerHTML = val + (unit ? `<span class="vrow-unit">${unit}</span>` : '');
-  if (el.classList.contains('vrow-val')) {
-    el.className = 'vrow-val ' + cls;
+// ── Exam actions ──────────────────────────────────────────────
+const EXAM_DELAY = 1400;
+function doExam(type) {
+  if (examDone[type]) return;
+  const row = document.getElementById('er-' + type);
+  const val = document.getElementById('ev-' + type);
+  if (!row || !val) return;
+  row.classList.add('loading');
+  row.style.pointerEvents = 'none';
+  val.className = 'exam-val';
+  val.innerHTML = '<div class="exam-spin"></div>';
+  const s = currentScenario;
+  setTimeout(() => {
+    row.classList.remove('loading');
+    row.classList.add('done');
+    examDone[type] = true;
+    let txt = '', cls = 'ok', msg = '';
+    switch(type) {
+      case 'bpm':
+        txt = s.bpm + ' bpm';
+        cls = s.bpm > 120 ? 'danger' : s.bpm < 50 ? 'warn' : 'ok';
+        msg = `BPM : ${s.bpm} bpm${cls==='danger'?' — TACHYCARDIE':''}`;
+        ecgBpm = s.bpm;
+        document.getElementById('bpmDisp').textContent = s.bpm;
+        document.getElementById('bpmWrap').style.display = 'flex';
+        updateBpmArc(s.bpm);
+        document.getElementById('ecgRhythm').textContent = `NSR ${s.bpm} bpm`;
+        break;
+      case 'bp':
+        txt = s.bp + ' mmHg';
+        const sys = parseInt(s.bp.split('/')[0]);
+        cls = sys < 80 ? 'danger' : sys < 100 ? 'warn' : 'ok';
+        msg = `Tension : ${s.bp} mmHg${cls==='danger'?' — HYPOTENSION SÉVÈRE':''}`;
+        break;
+      case 'spo2':
+        txt = s.spo2 + '%';
+        cls = s.spo2 < 90 ? 'danger' : s.spo2 < 95 ? 'warn' : 'ok';
+        msg = `SpO₂ : ${s.spo2}%${cls==='danger'?' — HYPOXIE CRITIQUE':''}`;
+        break;
+      case 'temp':
+        txt = s.temp.toFixed(1) + '°C';
+        cls = s.temp > 38.5 ? 'warn' : 'ok';
+        msg = `Température : ${s.temp.toFixed(1)}°C`;
+        break;
+      case 'pain':
+        txt = s.pain + '/10';
+        cls = s.pain >= 8 ? 'danger' : s.pain >= 5 ? 'warn' : 'ok';
+        msg = `Douleur : ${s.pain}/10`;
+        break;
+      case 'cons':
+        txt = s.conscious ? 'OUI' : 'NON';
+        cls = s.conscious ? 'ok' : 'danger';
+        msg = `Conscience : ${s.conscious ? 'Patient conscient' : 'Patient inconscient — GCS < 8'}`;
+        break;
+      case 'blood':
+        txt = s.blood.toFixed(1) + ' L';
+        cls = s.blood < 3.5 ? 'danger' : s.blood < 4.5 ? 'warn' : 'ok';
+        msg = `Vol. sanguin estimé : ${s.blood.toFixed(1)} L${cls==='danger'?' — HÉMORRAGIE MASSIVE':''}`;
+        break;
+    }
+    val.textContent = txt;
+    val.className = 'exam-val ' + cls;
+    addLog(msg, cls === 'danger' ? 'err' : cls === 'warn' ? 'warn' : 'ok');
+    checkAllExams();
+  }, EXAM_DELAY);
+}
+
+function checkAllExams() {
+  const count = Object.keys(examDone).length;
+  if (count < 3) return;
+  const s = currentScenario;
+  // Update stats
+  document.getElementById('statTrauma').textContent = s.trauma;
+  document.getElementById('statRegions').textContent = s.injuries.length;
+  const statTC = document.getElementById('statTrauma');
+  statTC.className = 'stat-cell-val ' + (s.trauma >= 7 ? 'danger' : s.trauma >= 4 ? 'warn' : '');
+  const sa = document.getElementById('statAssess');
+  const ab = document.getElementById('assessBadge');
+  if (critStabilized) {
+    sa.textContent = 'Critique Stable'; sa.className = 'stat-cell-assess assess-critical-stable';
+    ab.textContent = 'CRITIQUE STABLE'; ab.style.color = 'var(--orange)'; ab.style.borderColor = 'rgba(255,152,0,0.4)'; ab.style.background = 'rgba(255,152,0,0.08)';
+  } else if (s.assessment === 'critical') {
+    sa.textContent = 'Critique'; sa.className = 'stat-cell-assess assess-critical';
+    ab.textContent = 'CRITIQUE'; ab.style.color = 'var(--red)'; ab.style.borderColor = 'rgba(255,82,82,0.35)'; ab.style.background = 'rgba(255,82,82,0.08)';
+    document.getElementById('critSection').style.display = 'block';
+    addLog('⚠ État critique — Stabilisation d'urgence requise avant transport', 'err');
+  } else if (s.assessment === 'serious') {
+    sa.textContent = 'Sérieux'; sa.className = 'stat-cell-assess assess-serious';
+    ab.textContent = 'SÉRIEUX'; ab.style.color = 'var(--orange)'; ab.style.borderColor = 'rgba(255,152,0,0.35)'; ab.style.background = 'rgba(255,152,0,0.08)';
+  } else {
+    sa.textContent = 'Stable'; sa.className = 'stat-cell-assess assess-stable';
+    ab.textContent = 'STABLE'; ab.style.color = 'var(--green)'; ab.style.borderColor = 'rgba(0,230,118,0.35)'; ab.style.background = 'rgba(0,230,118,0.08)';
+    addLog('✓ Patient stable — Transport autorisé', 'ok');
   }
 }
 
-// ── Scan animation ────────────────────────────────────────────
-function startScan() {
-  document.getElementById('scanFill').style.width = '0%';
-  document.getElementById('scanPct').textContent = '0%';
-  document.getElementById('scanPctLabel').textContent = 'Analyse en cours...';
-  document.getElementById('scanStatus').textContent = 'SCAN';
-
-  clearInterval(scanInterval);
-  let pct = 0;
-  scanInterval = setInterval(() => {
-    pct = Math.min(100, pct + 2 + Math.random() * 3);
-    document.getElementById('scanFill').style.width = pct + '%';
-    document.getElementById('scanPct').textContent  = Math.round(pct) + '%';
-    if (pct >= 100) {
-      clearInterval(scanInterval);
-      document.getElementById('scanPctLabel').textContent = 'Analyse complète';
-      document.getElementById('scanStatus').textContent   = 'ACTIF';
-      addLog('Scanner : analyse corporelle complète', 'info');
-    }
-  }, 100);
+// ── Views ─────────────────────────────────────────────────────
+function showBodyView() {
+  document.getElementById('view-body').classList.add('active');
+  document.getElementById('view-game').classList.remove('active');
+}
+function showGameView() {
+  document.getElementById('view-body').classList.remove('active');
+  document.getElementById('view-game').classList.add('active');
 }
 
-function toggleScan() { startScan(); }
+// ── Mini-game ─────────────────────────────────────────────────
+function startGame() {
+  resetGame();
+  showGameView();
+  generateBloodDrips();
+  gameCurrentStep = 0;
+  activateStep(0);
+  addLog('Stabilisation d'urgence initiée', 'warn');
+}
 
-// ── Injury list ───────────────────────────────────────────────
+function generateBloodDrips() {
+  const v = document.getElementById('gameVisual');
+  // remove old drips
+  v.querySelectorAll('.blood-drip').forEach(d => d.remove());
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('div');
+    d.className = 'blood-drip';
+    d.style.left = (10 + Math.random() * 80) + '%';
+    d.style.width = (2 + Math.random() * 3) + 'px';
+    d.style.height = (20 + Math.random() * 40) + 'px';
+    d.style.animationDuration = (0.8 + Math.random() * 1.2) + 's';
+    d.style.animationDelay = (-Math.random() * 2) + 's';
+    v.appendChild(d);
+  }
+}
+
+function resetGame() {
+  gameCurrentStep = -1;
+  holdProgress = 0;
+  clearInterval(holdTimer);
+  holdTimer = null;
+  document.getElementById('gameProg').style.width = '0%';
+  document.getElementById('gameSuccess').style.display = 'none';
+  document.getElementById('gameSteps').style.display = '';
+  for (let i = 0; i < 4; i++) {
+    const s = document.getElementById('gs-' + i);
+    s.className = 'game-step inactive-step';
+    document.getElementById('gf-' + i).style.width = '0%';
+  }
+}
+
+function activateStep(idx) {
+  for (let i = 0; i < 4; i++) {
+    const s = document.getElementById('gs-' + i);
+    if (i < idx) { s.className = 'game-step step-done'; document.getElementById('gf-'+i).style.width = '100%'; }
+    else if (i === idx) s.className = 'game-step active-step';
+    else s.className = 'game-step inactive-step';
+  }
+  document.getElementById('gameProg').style.width = (idx / 4 * 100) + '%';
+}
+
+function holdStep(idx) {
+  if (idx !== gameCurrentStep) return;
+  holdProgress = 0;
+  const fill = document.getElementById('gf-' + idx);
+  clearInterval(holdTimer);
+  holdTimer = setInterval(() => {
+    holdProgress += 50;
+    fill.style.width = Math.min(100, holdProgress / HOLD_MS * 100) + '%';
+    if (holdProgress >= HOLD_MS) {
+      clearInterval(holdTimer);
+      holdTimer = null;
+      completeStep(idx);
+    }
+  }, 50);
+}
+
+function releaseStep(idx) {
+  if (idx !== gameCurrentStep) return;
+  clearInterval(holdTimer);
+  holdTimer = null;
+  holdProgress = 0;
+  const fill = document.getElementById('gf-' + idx);
+  fill.style.width = '0%';
+}
+
+function completeStep(idx) {
+  const s = document.getElementById('gs-' + idx);
+  s.className = 'game-step step-done';
+  document.getElementById('gf-' + idx).style.width = '100%';
+  gameCurrentStep = idx + 1;
+  // Reduce blood drips
+  const drips = document.querySelectorAll('.blood-drip');
+  drips.forEach((d,i) => { if (i < (idx+1) * 1.5) d.style.opacity = '0.3'; });
+  if (gameCurrentStep >= 4) {
+    gameComplete();
+  } else {
+    activateStep(gameCurrentStep);
+  }
+}
+
+function gameComplete() {
+  document.getElementById('gameProg').style.width = '100%';
+  document.getElementById('gameSteps').style.display = 'none';
+  document.getElementById('gameSuccess').style.display = 'block';
+  critStabilized = true;
+  addLog('✓ Stabilisation réussie — Patient critique mais stable', 'ok');
+}
+
+function endGame() {
+  showBodyView();
+  checkAllExams();
+}
+
+// ── Injury list & markers ─────────────────────────────────────
 function renderInjuryList(injuries) {
   const list = document.getElementById('injuryList');
-  if (!injuries.length) {
-    list.innerHTML = '<div style="color:var(--fg3);font-size:9px;padding:8px 0">Aucune blessure détectée</div>';
-    return;
-  }
+  if (!injuries.length) { list.innerHTML = '<div style="color:var(--fg3);font-size:9px;padding:8px 0">Aucune blessure détectée</div>'; return; }
   list.innerHTML = injuries.map((inj, i) => `
     <div class="inj-item" onclick="selectInjury(${i})">
       <div class="inj-item-head">
@@ -766,23 +891,18 @@ function selectInjury(idx) {
   document.querySelectorAll('.inj-item').forEach((el,i) => el.classList.toggle('selected', i===idx));
   const panel = document.getElementById('detailPanel');
   document.getElementById('detailZone').textContent = inj.zone;
-  document.getElementById('detailSev').textContent  = inj.severity === 'critical' ? '— CRITIQUE' : inj.severity === 'serious' ? '— SÉRIEUX' : '— MINEUR';
-  document.getElementById('detailBody').innerHTML   = inj.desc;
+  document.getElementById('detailSev').textContent = inj.severity === 'critical' ? '— CRITIQUE' : inj.severity === 'serious' ? '— SÉRIEUX' : '— MINEUR';
+  document.getElementById('detailBody').innerHTML = inj.desc;
   document.getElementById('detailActions').innerHTML = inj.actions.map(a =>
     `<button class="act-btn ${inj.severity==='critical'?'act-danger':'act-primary'}" onclick="doAction('${a}')">${a}</button>`
   ).join('');
   panel.classList.remove('hidden');
-  addLog(`Zone sélectionnée : ${inj.zone}`, 'info');
 }
 
-function doAction(action) {
-  addLog(`✓ ${action} — effectué`, 'ok');
-}
+function doAction(action) { addLog(`✓ ${action} — effectué`, 'ok'); }
 
-// ── Markers on body ───────────────────────────────────────────
 function renderMarkers(injuries) {
-  const layer  = document.getElementById('markersLayer');
-  const frame  = document.getElementById('scanFrame');
+  const layer = document.getElementById('markersLayer');
   layer.innerHTML = '';
   injuries.forEach((inj, i) => {
     const dot = document.createElement('div');
