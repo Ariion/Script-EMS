@@ -871,7 +871,7 @@ function checkAllExams() {
     sa.textContent = 'Critique'; sa.className = 'stat-cell-assess assess-critical';
     ab.textContent = 'CRITIQUE'; ab.style.color = 'var(--red)'; ab.style.borderColor = 'rgba(255,82,82,0.35)'; ab.style.background = 'rgba(255,82,82,0.08)';
     document.getElementById('critSection').style.display = 'block';
-    addLog('⚠ État critique — Stabilisation d'urgence requise avant transport', 'err');
+    addLog("⚠ État critique — Stabilisation d'urgence requise avant transport", 'err');
   } else if (s.assessment === 'serious') {
     sa.textContent = 'Sérieux'; sa.className = 'stat-cell-assess assess-serious';
     ab.textContent = 'SÉRIEUX'; ab.style.color = 'var(--orange)'; ab.style.borderColor = 'rgba(255,152,0,0.35)'; ab.style.background = 'rgba(255,152,0,0.08)';
@@ -899,7 +899,7 @@ function startGame() {
   generateBloodDrips();
   gameCurrentStep = 0;
   activateStep(0);
-  addLog('Stabilisation d'urgence initiée', 'warn');
+  addLog("Stabilisation d'urgence initiée", 'warn');
 }
 
 function generateBloodDrips() {
