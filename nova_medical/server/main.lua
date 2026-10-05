@@ -128,6 +128,16 @@ AddEventHandler('esx:playerDropped', function(src)
         saveToDB(src)
         PlayerMedical[src] = nil
     end
+    -- Si ce joueur était monitoré, stopper le monitoring pour tous les EMS
+    if MonitoredPatients[src] then
+        MonitoredPatients[src] = nil
+        for _, pid in ipairs(ESX.GetPlayers()) do
+            local xEms = ESX.GetPlayerFromId(pid)
+            if xEms and xEms.getJob().name == MedConfig.EmsJob then
+                TriggerClientEvent('nova_medical:monitoringStop', pid, src)
+            end
+        end
+    end
 end)
 
 -- Sauvegarde auto toutes les 5 minutes
@@ -635,4 +645,109 @@ RegisterNetEvent('nova_medical:debugClear', function()
     PlayerMedical[src] = defaultMedical()
     syncToClient(src)
     TriggerClientEvent('nova_medical:notify', src, 'État médical réinitialisé.', 'success')
+end)
+
+-- ═══════════════════════════════════════════════════════════════
+--  MONITORING CONTINU
+--  [targetSrc] = { attachedBySrc, vitals={bpm,spo2,bp_sys,bp_dia}, baseVitals={...} }
+-- ═══════════════════════════════════════════════════════════════
+
+MonitoredPatients = {}
+
+local function broadcastMonitoringToAllEms(targetSrc, vitals)
+    for _, pid in ipairs(ESX.GetPlayers()) do
+        local xEms = ESX.GetPlayerFromId(pid)
+        if xEms and xEms.getJob().name == MedConfig.EmsJob then
+            TriggerClientEvent('nova_medical:monitoringUpdate', pid, targetSrc, vitals)
+        end
+    end
+end
+
+-- ── Attacher monitoring ───────────────────────────────────────────
+
+RegisterNetEvent('nova_medical:attachMonitoring', function(targetSrc, vitals)
+    local src = source
+    local xp  = ESX.GetPlayerFromId(src)
+    if not xp or xp.getJob().name ~= MedConfig.EmsJob then return end
+    if not targetSrc or targetSrc <= 0 then return end
+
+    local v = {
+        bpm    = math.floor(tonumber(vitals.bpm)    or 72),
+        spo2   = math.floor(tonumber(vitals.spo2)   or 98),
+        bp_sys = math.floor(tonumber(vitals.bp_sys) or 120),
+        bp_dia = math.floor(tonumber(vitals.bp_dia) or 80),
+    }
+    MonitoredPatients[targetSrc] = {
+        attachedBySrc = src,
+        vitals        = v,
+        baseVitals    = { bpm = v.bpm, spo2 = v.spo2, bp_sys = v.bp_sys, bp_dia = v.bp_dia },
+    }
+
+    -- Notifier tous les EMS (DrawText3D sur tous les clients EMS)
+    for _, pid in ipairs(ESX.GetPlayers()) do
+        local xEms = ESX.GetPlayerFromId(pid)
+        if xEms and xEms.getJob().name == MedConfig.EmsJob then
+            TriggerClientEvent('nova_medical:monitoringStart', pid, targetSrc, v)
+        end
+    end
+end)
+
+-- ── Déconnecter monitoring ────────────────────────────────────────
+
+RegisterNetEvent('nova_medical:detachMonitoring', function(targetSrc)
+    local src = source
+    local xp  = ESX.GetPlayerFromId(src)
+    if not xp or xp.getJob().name ~= MedConfig.EmsJob then return end
+    if not MonitoredPatients[targetSrc] then return end
+
+    MonitoredPatients[targetSrc] = nil
+    for _, pid in ipairs(ESX.GetPlayers()) do
+        local xEms = ESX.GetPlayerFromId(pid)
+        if xEms and xEms.getJob().name == MedConfig.EmsJob then
+            TriggerClientEvent('nova_medical:monitoringStop', pid, targetSrc)
+        end
+    end
+end)
+
+-- ── Tick drift des constantes (toutes les 5s) ─────────────────────
+
+local function driftVal(val, baseVal, maxDev, step)
+    local d = math.random(-step, step)
+    local newVal = math.floor(val + d)
+    if math.abs(newVal - baseVal) > maxDev then
+        newVal = newVal - (d >= 0 and 1 or -1)
+    end
+    return newVal
+end
+
+CreateThread(function()
+    while true do
+        Wait(5000)
+        for targetSrc, session in pairs(MonitoredPatients) do
+            local v    = session.vitals
+            local base = session.baseVitals
+            local med  = PlayerMedical[targetSrc]
+
+            -- Micro-variations autour de la ligne de base
+            v.bpm    = math.max(20,  math.min(220, driftVal(v.bpm,    base.bpm,    12, 3)))
+            v.spo2   = math.max(50,  math.min(100, driftVal(v.spo2,   base.spo2,   4,  1)))
+            v.bp_sys = math.max(40,  math.min(220, driftVal(v.bp_sys, base.bp_sys, 12, 4)))
+            v.bp_dia = math.max(20,  math.min(140, driftVal(v.bp_dia, base.bp_dia, 8,  2)))
+
+            -- Dégradation si état critique
+            if med and med.state == 'laststand' then
+                v.bpm    = math.min(220, v.bpm    + math.random(2, 6))
+                v.spo2   = math.max(50,  v.spo2   - math.random(1, 3))
+                v.bp_sys = math.max(40,  v.bp_sys - math.random(2, 6))
+                v.bp_dia = math.max(20,  v.bp_dia - math.random(1, 3))
+            -- Stabilisation si état conscient et soins effectués
+            elseif med and med.state == 'conscious' then
+                v.bpm    = math.floor(v.bpm    * 0.95 + base.bpm    * 0.05 + math.random(-1, 1))
+                v.spo2   = math.min(100, v.spo2 + (v.spo2 < base.spo2 and 1 or 0))
+                v.bp_sys = math.floor(v.bp_sys * 0.96 + base.bp_sys * 0.04)
+            end
+
+            broadcastMonitoringToAllEms(targetSrc, v)
+        end
+    end
 end)

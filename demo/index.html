@@ -258,6 +258,26 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+
+/* ── MONITORING SECTION ── */
+.monitor-section{padding:8px 10px;border-top:1px solid rgba(0,212,255,0.12);flex-shrink:0}
+.monitor-attach-btn{
+  width:100%;padding:8px;background:rgba(0,212,255,0.06);
+  border:1px solid rgba(0,212,255,0.20);border-radius:3px;
+  color:var(--cyan);font-family:'Rajdhani',sans-serif;font-weight:700;
+  font-size:11px;letter-spacing:0.5px;text-transform:uppercase;
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.monitor-attach-btn:hover{background:rgba(0,212,255,0.13);border-color:rgba(0,212,255,0.38)}
+.monitor-active{display:flex;flex-direction:column;gap:5px}
+.monitor-live{display:flex;align-items:center;gap:5px;font-size:8px;font-weight:700;letter-spacing:1.5px;color:var(--green);text-transform:uppercase}
+.monitor-live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse .8s ease-in-out infinite;flex-shrink:0}
+.monitor-vitals{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:5px 7px;background:rgba(0,0,0,0.25);border:1px solid rgba(0,212,255,0.12);border-radius:3px}
+.mv-item{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--fg)}
+.mv-item.ok{color:var(--green)}.mv-item.warn{color:var(--yellow)}.mv-item.danger{color:var(--red)}
+.mv-sep{color:var(--fg3);font-size:9px}
+.monitor-detach-btn{padding:5px 8px;background:rgba(255,82,82,0.07);border:1px solid rgba(255,82,82,0.22);border-radius:3px;color:var(--red);font-size:9px;font-weight:700;font-family:inherit;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;transition:all .15s;align-self:flex-start}
+.monitor-detach-btn:hover{background:rgba(255,82,82,0.15)}
 </style>
 </head>
 <body>
@@ -381,6 +401,16 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
           <span class="crit-btn-pulse"></span>
           STABILISATION D'URGENCE
         </button>
+      </div>
+
+      <!-- Monitoring continu -->
+      <div class="monitor-section" id="monitorSection" style="display:none">
+        <button class="monitor-attach-btn" id="monitorAttachBtn" onclick="attachMonitoring()">📡 Attacher monitoring</button>
+        <div class="monitor-active" id="monitorActive" style="display:none">
+          <div class="monitor-live"><span class="monitor-live-dot"></span>MONITORING ACTIF</div>
+          <div class="monitor-vitals" id="monitorVitals"></div>
+          <button class="monitor-detach-btn" onclick="detachMonitoring()">✕ Déconnecter constantes</button>
+        </div>
       </div>
     </div>
 
@@ -720,6 +750,7 @@ function loadScenario(key, btn) {
   document.getElementById('bpmDisp').textContent = '—';
   document.getElementById('critSection').style.display = 'none';
   critStabilized = false;
+  resetMonitoring();
   ecgBpm = currentScenario.bpm;
   document.getElementById('ecgRhythm').textContent = 'En attente...';
   // Stats
@@ -825,8 +856,78 @@ function revealExam(type) {
   val.textContent = txt;
   val.className = 'exam-val ' + cls;
   addLog(msg, cls === 'danger' ? 'err' : cls === 'warn' ? 'warn' : 'ok');
+  // Afficher bouton monitoring dès que BPM est connu
+  if (type === 'bpm') document.getElementById('monitorSection').style.display = 'block';
   checkAllExams();
 }
+
+// ── Monitoring continu ────────────────────────────────────────
+let monitoringActive = false;
+
+function resetMonitoring() {
+  monitoringActive = false;
+  document.getElementById('monitorSection').style.display = 'none';
+  document.getElementById('monitorAttachBtn').style.display = 'block';
+  document.getElementById('monitorActive').style.display = 'none';
+}
+
+function attachMonitoring() {
+  const s = currentScenario;
+  const bpParts = (s.bp || '120/80').split('/');
+  const vitals = {
+    bpm:    s.bpm,
+    spo2:   s.spo2,
+    bp_sys: parseInt(bpParts[0]) || 120,
+    bp_dia: parseInt(bpParts[1]) || 80,
+  };
+  fetch('https://nova_medical/attachMonitoring', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(vitals),
+  }).catch(() => {});
+  monitoringActive = true;
+  document.getElementById('monitorAttachBtn').style.display = 'none';
+  document.getElementById('monitorActive').style.display = 'flex';
+  updateMonitorVitals(vitals);
+  addLog('Monitoring attaché — constantes visibles in-game', 'ok');
+}
+
+function detachMonitoring() {
+  fetch('https://nova_medical/detachMonitoring', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  }).catch(() => {});
+  monitoringActive = false;
+  document.getElementById('monitorAttachBtn').style.display = 'block';
+  document.getElementById('monitorActive').style.display = 'none';
+  addLog('Monitoring déconnecté', 'info');
+}
+
+function updateMonitorVitals(v) {
+  const el = document.getElementById('monitorVitals');
+  if (!el) return;
+  const bCls  = (v.bpm  > 120 || v.bpm  < 50) ? 'danger' : '';
+  const sCls  = v.spo2 < 90 ? 'danger' : v.spo2 < 95 ? 'warn' : '';
+  const bpCls = v.bp_sys < 90 ? 'danger' : v.bp_sys > 140 ? 'warn' : '';
+  el.innerHTML = `<span class="mv-item ${bCls}">♥ ${v.bpm}</span>`
+    + `<span class="mv-sep">|</span>`
+    + `<span class="mv-item ${sCls}">O₂ ${v.spo2}%</span>`
+    + `<span class="mv-sep">|</span>`
+    + `<span class="mv-item ${bpCls}">TA ${v.bp_sys}/${v.bp_dia}</span>`;
+}
+
+// Mises à jour reçues depuis Lua via SendNUIMessage
+window.addEventListener('message', function(e) {
+  const d = e.data;
+  if (!d || !d.action) return;
+  if (d.action === 'monitoringUpdate' && monitoringActive) {
+    updateMonitorVitals(d.vitals);
+  }
+  if (d.action === 'monitoringDetached') {
+    resetMonitoring();
+  }
+});
 
 // ── Body scan ─────────────────────────────────────────────────
 function launchScan() {

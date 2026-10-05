@@ -23,6 +23,7 @@ client_scripts {
     'client/stretcher.lua',
     'client/bag.lua',
     'client/hud.lua',
+    'client/monitoring.lua',
 }
 
 ui_page 'ui/index.html'
