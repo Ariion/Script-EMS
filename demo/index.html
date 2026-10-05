@@ -750,6 +750,7 @@ function loadScenario(key, btn) {
   document.getElementById('bpmDisp').textContent = '—';
   document.getElementById('critSection').style.display = 'none';
   critStabilized = false;
+  stopVitalsDrift();
   resetMonitoring();
   ecgBpm = currentScenario.bpm;
   document.getElementById('ecgRhythm').textContent = 'En attente...';
@@ -858,7 +859,75 @@ function revealExam(type) {
   addLog(msg, cls === 'danger' ? 'err' : cls === 'warn' ? 'warn' : 'ok');
   // Afficher bouton monitoring dès que BPM est connu
   if (type === 'bpm') document.getElementById('monitorSection').style.display = 'block';
+  // Démarrer le drift dès que BPM est mesuré (SpO₂ s'affichera en dérivé si révélé plus tard)
+  if (type === 'bpm' && !driftInterval) startVitalsDrift();
   checkAllExams();
+}
+
+// ── Drift réaliste des constantes ────────────────────────────
+// BPM et SpO₂ bougent légèrement en temps réel (HRV + fluctuation O₂).
+// BP, temp, douleur, conscience : stables sur la durée d'un examen.
+
+let driftInterval = null;
+let driftBpm  = 0; // valeur courante animée
+let driftSpo2 = 0;
+
+function startVitalsDrift() {
+  if (driftInterval) clearInterval(driftInterval);
+  driftBpm  = currentScenario.bpm;
+  driftSpo2 = currentScenario.spo2;
+
+  driftInterval = setInterval(() => {
+    // BPM : variabilité cardiaque (HRV), ±3 max, moyenne revenue vers base
+    const bBase = currentScenario.bpm;
+    const bDev  = driftBpm - bBase;
+    const bStep = (Math.random() * 4 - 2) - bDev * 0.15; // ramène vers base
+    driftBpm = Math.max(bBase - 8, Math.min(bBase + 8, driftBpm + bStep));
+    const bpmRound = Math.round(driftBpm);
+
+    // SpO₂ : fluctuation de ±1%, jamais au-dessus du max
+    const sBase = currentScenario.spo2;
+    const sDev  = driftSpo2 - sBase;
+    const sStep = (Math.random() * 2 - 1) - sDev * 0.25;
+    driftSpo2 = Math.max(sBase - 2, Math.min(Math.min(100, sBase + 2), driftSpo2 + sStep));
+    const spo2Round = Math.round(driftSpo2);
+
+    // Mettre à jour uniquement les éléments déjà révélés
+    if (examDone.bpm) {
+      ecgBpm = bpmRound;
+      document.getElementById('bpmDisp').textContent = bpmRound;
+      updateBpmArc(bpmRound);
+      const evBpm = document.getElementById('ev-bpm');
+      if (evBpm) {
+        const cls = bpmRound > 120 ? 'danger' : bpmRound < 50 ? 'warn' : 'ok';
+        evBpm.textContent = bpmRound + ' bpm';
+        evBpm.className = 'exam-val ' + cls;
+      }
+    }
+    if (examDone.spo2) {
+      const evSpo2 = document.getElementById('ev-spo2');
+      if (evSpo2) {
+        const cls = spo2Round < 90 ? 'danger' : spo2Round < 95 ? 'warn' : 'ok';
+        evSpo2.textContent = spo2Round + '%';
+        evSpo2.className = 'exam-val ' + cls;
+      }
+    }
+
+    // Sync monitoring in-game si actif
+    if (monitoringActive) {
+      const bpParts = (currentScenario.bp || '120/80').split('/');
+      updateMonitorVitals({
+        bpm:    bpmRound,
+        spo2:   spo2Round,
+        bp_sys: parseInt(bpParts[0]) || 120,
+        bp_dia: parseInt(bpParts[1]) || 80,
+      });
+    }
+  }, 1800); // toutes les 1.8s
+}
+
+function stopVitalsDrift() {
+  if (driftInterval) { clearInterval(driftInterval); driftInterval = null; }
 }
 
 // ── Monitoring continu ────────────────────────────────────────
