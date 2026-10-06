@@ -386,6 +386,14 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 
 </div>
 <!-- end main -->
+
+<!-- Summary overlay -->
+<div id="summaryOverlay" style="position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.88);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center">
+  <div style="font-family:'Orbitron',sans-serif;font-size:20px;color:#e8f4ff;letter-spacing:3px" id="sumTitle">OPÉRATIONS TERMINÉES</div>
+  <div style="font-size:12px;color:rgba(232,244,255,0.6)" id="sumStats">—</div>
+  <div id="sumStars" style="font-size:24px;letter-spacing:4px"></div>
+  <button onclick="document.getElementById('summaryOverlay').style.display='none'" style="margin-top:8px;padding:8px 24px;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);border-radius:4px;color:#00d4ff;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer">RETOUR AU BLOC</button>
+</div>
 </div>
 <!-- end app -->
 
@@ -399,6 +407,8 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
   <button class="sc-btn" onclick="applyScenario('fall',this)">🪂 Chute</button>
   <button class="sc-btn" onclick="applyScenario('fire',this)">🔥 Incendie</button>
   <button class="sc-btn" onclick="applyScenario('minor',this)">🩹 Traumatisme mineur</button>
+  <button class="sc-btn" onclick="applyScenario('cardiac',this)">💔 Cardio</button>
+  <button class="sc-btn" onclick="applyScenario('overdose',this)">💊 Overdose</button>
   <div class="db-title" style="margin-top:8px">Navigation</div>
   <button class="sc-btn nav" onclick="window.location.href='../imagerie/'">📡 → Imagerie</button>
   <button class="sc-btn nav" onclick="window.location.href='../demo/'">🔬 → Diagnostic</button>
@@ -499,6 +509,36 @@ const SCENARIOS={
        fail:'Aggravation — grade III nécessitant chirurgie reconstructive de Weaver-Dunn.'},
     ]
   }
+  ,cardiac:{
+    age:62,genre:'M',state:'Critique',vitals:{bpm:42,spo2:85,pa:'60/30',t:36.2},
+    ops:[
+      {id:'op1',label:'Fibrillation ventriculaire',region:'Cœur — ventricule G',x:'48%',y:'46%',sev:'danger',icon:'💔',
+       games:[{type:'defib',label:'Défibrillation d\'urgence'},{type:'defib',label:'Cardioversion synchronisée'}],
+       risk:75,
+       success:'Rythme sinusal rétabli — débit cardiaque restauré. Patient stabilisé.',
+       fail:'Fibrillation réfractaire — assistance circulatoire nécessaire. RCP continue.'},
+      {id:'op2',label:'Pontage coronarien',region:'Artère coronaire G',x:'45%',y:'52%',sev:'danger',icon:'❤️',
+       games:[{type:'scalpel',label:'Sternotomie médiane'},{type:'suture',label:'Pontage saphène'},{type:'cauterize',label:'Hémostase coronarienne'}],
+       risk:60,
+       success:'Pontage perméable — ischémie corrigée. FE améliorée.',
+       fail:'Thrombose précoce du pontage — occlusion. Angioplastie urgente.'},
+    ]
+  }
+  ,overdose:{
+    age:29,genre:'F',state:'Grave',vitals:{bpm:38,spo2:78,pa:'55/30',t:35.2},
+    ops:[
+      {id:'op1',label:'Sécurisation des voies aériennes',region:'Voies aériennes',x:'52%',y:'18%',sev:'danger',icon:'🫁',
+       games:[{type:'intubation',label:'Intubation séquence rapide'},{type:'cauterize',label:'Stabilisation hémodynamique'}],
+       risk:65,
+       success:'Airway sécurisé — SpO2 remonte. Naloxone efficace. Patient réactif.',
+       fail:'Intubation difficile — hypoxie aggravée. Cricothyrotomie urgente.'},
+      {id:'op2',label:'Lavage gastrique',region:'Estomac',x:'52%',y:'56%',sev:'warning',icon:'💊',
+       games:[{type:'extract',items:['Comprimés non absorbés','Contenu gastrique','Bilirubine']},{type:'suture',label:'Fermeture sonde gastrique'}],
+       risk:30,
+       success:'Lavage gastrique efficace — absorption limitée. Taux sérique en baisse.',
+       fail:'Absorption déjà complète — lavage inefficace. Dialyse hépatique envisagée.'},
+    ]
+  }
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -530,6 +570,30 @@ function refreshSharedLog(){
     list.innerHTML=entries.map(e=>`<div class="shr-entry ${e.type||''}"><span class="shr-src">[${e.src}]</span><span class="shr-ts">${e.ts}</span><span>${e.text}</span></div>`).join('');
   }catch(e){}
 }
+
+// ── Audio System ──────────────────────────────────────────────────
+const SND=(()=>{
+  let ctx=null;
+  function ac(){if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}return ctx;}
+  function tone(f,d,t='sine',v=0.2,delay=0){
+    const c=ac();if(!c)return;
+    const osc=c.createOscillator(),g=c.createGain();
+    osc.connect(g);g.connect(c.destination);
+    osc.type=t;osc.frequency.value=f;
+    const st=c.currentTime+delay;
+    g.gain.setValueAtTime(0.001,st);g.gain.linearRampToValueAtTime(v,st+0.012);
+    g.gain.exponentialRampToValueAtTime(0.001,st+d);
+    osc.start(st);osc.stop(st+d+0.05);
+  }
+  return{
+    beep(){tone(880,0.055,'sine',0.12);},
+    alert(){tone(880,0.10,'square',0.16);tone(880,0.10,'square',0.16,0.18);tone(880,0.22,'square',0.16,0.38);},
+    success(){tone(523,0.09,'sine',0.18);tone(659,0.09,'sine',0.18,0.10);tone(784,0.28,'sine',0.18,0.20);},
+    fail(){tone(220,0.28,'sawtooth',0.11);tone(180,0.38,'sawtooth',0.11,0.28);},
+    click(){tone(1100,0.04,'sine',0.10);},
+    defib(){tone(200,0.07,'square',0.22);tone(100,0.14,'square',0.18,0.08);}
+  };
+})();
 
 // ─── Canvas Game Engine ───────────────────────────────────────────
 const GW=400, GH=260;
@@ -1226,6 +1290,139 @@ function makeCauterizeGame(label, onDone){
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// GAME: INTUBATION (timing — click when cords are open)
+// ═══════════════════════════════════════════════════════════════════
+function makeIntubationGame(label,onDone){
+  let phase=0,speed=0.020,successes=0,errors=0,doneCalled=false;
+  const NEED=3,MAX_ERR=3;
+  let flashMsg='',flashColor='',flashT=0;
+  function getOpen(){return(Math.sin(phase)+1)/2;}
+  return{
+    label:label||'Intubation des voies aériennes',
+    render(ctx){
+      phase+=speed+successes*0.005;
+      const op=getOpen();
+      const YC=GH*0.50,gap=op*68;
+      ctx.fillStyle='#060408';ctx.fillRect(0,0,GW,GH);
+      // Grid
+      ctx.strokeStyle='rgba(0,212,255,0.04)';ctx.lineWidth=1;
+      for(let x=40;x<GW;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,GH);ctx.stroke();}
+      for(let y=40;y<GH;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(GW,y);ctx.stroke();}
+      // Trachea tunnel
+      ctx.fillStyle='rgba(70,25,25,0.55)';ctx.fillRect(GW/2-52,0,104,GH);
+      ctx.strokeStyle='rgba(160,70,70,0.25)';ctx.lineWidth=1;ctx.strokeRect(GW/2-52,0,104,GH);
+      // Zone glow
+      ctx.fillStyle=op>0.65?'rgba(0,230,118,0.18)':op>0.30?'rgba(255,200,0,0.10)':'rgba(255,82,82,0.08)';
+      ctx.fillRect(GW/2-52,YC-32,104,64);
+      // Vocal cords
+      const cc=op>0.65?'rgba(0,230,118,0.80)':op>0.30?'rgba(255,200,0,0.80)':'rgba(255,82,82,0.80)';
+      ctx.fillStyle=cc;
+      ctx.beginPath();ctx.ellipse(GW/2-gap/2-16,YC,22,11,Math.PI/7,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(GW/2+gap/2+16,YC,22,11,-Math.PI/7,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle=cc;ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(GW/2-gap/2,YC);ctx.lineTo(GW/2+gap/2,YC);ctx.stroke();
+      // Endotracheal tube
+      ctx.fillStyle='rgba(200,220,255,0.92)';ctx.strokeStyle='rgba(0,212,255,0.85)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.roundRect(GW/2-7,28,14,42,[6,6,2,2]);ctx.fill();ctx.stroke();
+      ctx.fillStyle='rgba(0,212,255,0.7)';
+      ctx.beginPath();ctx.moveTo(GW/2,76);ctx.lineTo(GW/2-8,68);ctx.lineTo(GW/2+8,68);ctx.fill();
+      // Status text
+      const stxt=op>0.65?'▶ CLIQUEZ — CORDES OUVERTES !':op>0.30?'⚠ Préparez-vous...':'✗ Cordes fermées';
+      const scol=op>0.65?'#00e676':op>0.30?'#ffca28':'#ff5252';
+      ctx.font='bold 11px Inter,sans-serif';ctx.textAlign='center';ctx.fillStyle=scol;ctx.fillText(stxt,GW/2,22);
+      // Flash
+      if(flashMsg&&Date.now()<flashT){ctx.fillStyle=flashColor;ctx.font='bold 13px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(flashMsg,GW/2,GH-32);}
+      // Success dots
+      for(let i=0;i<NEED;i++){
+        ctx.beginPath();ctx.arc(GW/2-(NEED-1)*14+i*28,GH-15,7,0,Math.PI*2);
+        ctx.fillStyle=i<successes?'rgba(0,230,118,0.9)':'rgba(255,255,255,0.10)';ctx.fill();
+        ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.stroke();
+      }
+      // Error marks
+      for(let i=0;i<MAX_ERR;i++){ctx.font='10px Inter';ctx.fillStyle=i<errors?'rgba(255,82,82,0.85)':'rgba(255,82,82,0.12)';ctx.textAlign='center';ctx.fillText('✗',22+i*18,GH-12);}
+      ctx.textAlign='left';
+    },
+    input(type,pos){
+      if(doneCalled||type!=='down')return;
+      const op=getOpen();
+      if(op>0.65){successes++;SND.click();flashMsg='✓ Intubation réussie !';flashColor='rgba(0,230,118,0.95)';flashT=Date.now()+550;if(successes>=NEED){doneCalled=true;SND.success();setTimeout(()=>onDone(true),700);}}
+      else{errors++;SND.fail();flashMsg=op>0.30?'⚠ Trop tôt !':'✗ Cordes fermées !';flashColor=op>0.30?'rgba(255,200,0,0.95)':'rgba(255,82,82,0.95)';flashT=Date.now()+650;if(errors>=MAX_ERR){doneCalled=true;setTimeout(()=>onDone(false),700);}}
+    }
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// GAME: DÉFIBRILLATION (click in sync window when charged)
+// ═══════════════════════════════════════════════════════════════════
+function makeDefibGame(label,onDone){
+  let syncPhase=0,chargeStart=Date.now(),shocks=0,errors=0,doneCalled=false;
+  let shockFlash=0,shockOk=false,ecgPhase=0;
+  const NEED=3,MAX_ERR=3,CHARGE_DUR=3200;
+  function getCharge(){return Math.min(1,(Date.now()-chargeStart)/CHARGE_DUR);}
+  function getSyncOpen(){return(Math.sin(syncPhase)+1)/2;}
+  function inZone(){return getCharge()>0.88&&getSyncOpen()>0.68;}
+  function drawECGLine(ctx,x,y,w,h,ph,chaotic){
+    ctx.strokeStyle=chaotic?'rgba(0,230,118,0.75)':'rgba(0,230,118,0.9)';ctx.lineWidth=1.5;ctx.beginPath();
+    for(let i=0;i<w;i++){
+      const t=(i/w)+ph;
+      let v=chaotic?Math.sin(t*31)*0.38+Math.sin(t*47)*0.28+Math.sin(t*23)*0.28:0;
+      if(!chaotic){const m=t%1;if(m<0.30)v=(m/0.30)*1.0;else if(m<0.40)v=1-(m-0.30)/0.10*1.5;else if(m<0.46)v=-0.5+(m-0.40)/0.06*0.5;else v=0;}
+      const px=x+i,py=y+h/2-v*h/2*0.85;
+      i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }ctx.stroke();
+  }
+  return{
+    label:label||'Défibrillation cardiaque',
+    render(ctx){
+      syncPhase+=0.022;ecgPhase+=0.015;
+      const ch=getCharge(),inGreen=inZone(),sinus=Date.now()-shockFlash<1100&&shockOk;
+      ctx.fillStyle='#05080f';ctx.fillRect(0,0,GW,GH);
+      // ECG panel
+      ctx.fillStyle='rgba(0,12,5,0.85)';ctx.fillRect(8,44,GW-16,78);
+      ctx.strokeStyle='rgba(0,230,118,0.18)';ctx.lineWidth=1;ctx.strokeRect(8,44,GW-16,78);
+      // ECG grid
+      ctx.strokeStyle='rgba(0,230,118,0.06)';ctx.lineWidth=0.5;
+      for(let x=8;x<GW-16;x+=20){ctx.beginPath();ctx.moveTo(x+8,44);ctx.lineTo(x+8,122);ctx.stroke();}
+      for(let y=44;y<122;y+=20){ctx.beginPath();ctx.moveTo(8,y);ctx.lineTo(GW-8,y);ctx.stroke();}
+      drawECGLine(ctx,8,44,GW-16,78,ecgPhase,!sinus);
+      // Shock flash
+      if(Date.now()-shockFlash<130){const a=0.55*(1-(Date.now()-shockFlash)/130);ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.fillRect(0,0,GW,GH);}
+      // Rhythm label
+      ctx.font='bold 10px Inter,sans-serif';ctx.textAlign='left';
+      ctx.fillStyle=sinus?'rgba(0,230,118,0.9)':'rgba(255,82,82,0.9)';
+      ctx.fillText(sinus?'✓ RYTHME SINUSAL':'⚡ FIBRILLATION VENTRICULAIRE',12,16);
+      ctx.fillStyle='rgba(255,255,255,0.28)';ctx.font='8px Inter';ctx.fillText('DÉR. II — 25mm/s',12,30);
+      // Charge bar
+      const CX=8,CY=132,CW=GW-16,CH=20;
+      ctx.fillStyle='rgba(0,0,0,0.40)';ctx.fillRect(CX,CY,CW,CH);
+      ctx.fillStyle=ch<0.88?'#ffca28':'rgba(0,230,118,0.9)';ctx.fillRect(CX,CY,ch*CW,CH);
+      ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=1;ctx.strokeRect(CX,CY,CW,CH);
+      ctx.font='bold 9px Inter';ctx.textAlign='center';ctx.fillStyle='#000';
+      ctx.fillText(ch<1?'CHARGE: '+Math.round(ch*100)+'%':'⚡ CHARGÉ — CLIQUEZ !',GW/2,CY+14);
+      // Sync window
+      const SY=162,SH=18,sv=getSyncOpen(),sx=CX+sv*(CW-52);
+      ctx.fillStyle='rgba(0,0,0,0.30)';ctx.fillRect(CX,SY,CW,SH);
+      ctx.fillStyle='rgba(0,230,118,0.22)';ctx.fillRect(CX+0.68*(CW-52),SY,(CW-52)*(1-0.68)+52,SH);
+      ctx.fillStyle=inGreen?'rgba(0,230,118,0.85)':'rgba(255,82,82,0.60)';ctx.fillRect(sx,SY,52,SH);
+      ctx.font='8px Inter';ctx.fillStyle='rgba(255,255,255,0.45)';ctx.textAlign='left';ctx.fillText('FENÊTRE SYNC →',12,SY+13);
+      // Instruction
+      ctx.font='bold 11px Inter,sans-serif';ctx.textAlign='center';
+      ctx.fillStyle=inGreen?'rgba(0,230,118,0.95)':ch<1?'rgba(255,200,0,0.7)':'rgba(255,200,0,0.85)';
+      ctx.fillText(inGreen?'⚡ CLIQUEZ — FENÊTRE VERTE !':ch<1?'Charge en cours...':'Attendre fenêtre verte...',GW/2,208);
+      // Shock dots
+      for(let i=0;i<NEED;i++){ctx.beginPath();ctx.arc(GW/2-(NEED-1)*14+i*28,GH-15,7,0,Math.PI*2);ctx.fillStyle=i<shocks?'rgba(0,230,118,0.9)':'rgba(255,255,255,0.10)';ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.stroke();}
+      for(let i=0;i<MAX_ERR;i++){ctx.font='10px Inter';ctx.fillStyle=i<errors?'rgba(255,82,82,0.85)':'rgba(255,82,82,0.12)';ctx.textAlign='center';ctx.fillText('✗',22+i*18,GH-12);}
+      ctx.textAlign='left';
+    },
+    input(type,pos){
+      if(doneCalled||type!=='down')return;
+      if(inZone()){shocks++;shockFlash=Date.now();shockOk=true;SND.defib();chargeStart=Date.now();if(shocks>=NEED){doneCalled=true;SND.success();setTimeout(()=>onDone(true),1300);}}
+      else{errors++;shockFlash=Date.now();shockOk=false;SND.fail();if(errors>=MAX_ERR){doneCalled=true;setTimeout(()=>onDone(false),800);}}
+    }
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // GAME SEQUENCER
 // ═══════════════════════════════════════════════════════════════════
 function startCurrentGame(){
@@ -1270,6 +1467,12 @@ function startCurrentGame(){
   } else if(def.type==='cauterize'){
     GS=makeCauterizeGame(def.label,onDone);
     setHint('Maintenez le curseur sur chaque point rouge jusqu\'à complétion');
+  } else if(def.type==='intubation'){
+    GS=makeIntubationGame(def.label,onDone);
+    setHint('Cliquez quand les cordes vocales sont OUVERTES (zone verte)');
+  } else if(def.type==='defib'){
+    GS=makeDefibGame(def.label,onDone);
+    setHint('Attendez la charge complète ⚡ puis cliquez dans la fenêtre verte');
   }
 
   startRAF();
@@ -1322,11 +1525,36 @@ function resolveOp(success){
   }
   if(monitorOn) updateMonitorUI();
   const logTxt=(success?'✓ ':'✗ ')+activeOp.label+': '+(success?'succès':'complication');
+  if(success)SND.success();else SND.alert();
   const logType=success?'ok':'err';
   addLog(logTxt,logType);
   pushSharedLog('CHIR',logTxt,logType);
   renderOpsLeft();
   renderMarkers();
+  checkAllOpsDone();
+}
+
+function checkAllOpsDone(){
+  if(!scenario)return;
+  const ops=scenario.ops;
+  const done=ops.filter(op=>opResults[op.id]==='success'||opResults[op.id]==='fail').length;
+  if(done>=ops.length) setTimeout(showSummary,1200);
+}
+function showSummary(){
+  if(!scenario)return;
+  const ops=scenario.ops;
+  const successCount=ops.filter(op=>opResults[op.id]==='success').length;
+  const total=ops.length;
+  const stars=successCount===total?'★★★':successCount>=total*0.6?'★★☆':'★☆☆';
+  const color=successCount===total?'#00e676':successCount>=total*0.6?'#ffca28':'#ff5252';
+  const title=successCount===total?'OPÉRATIONS RÉUSSIES':'OPÉRATIONS TERMINÉES';
+  document.getElementById('sumTitle').textContent=title;
+  document.getElementById('sumTitle').style.color=color;
+  document.getElementById('sumStats').textContent=successCount+'/'+total+' opérations réussies';
+  document.getElementById('sumStars').textContent=stars;
+  document.getElementById('sumStars').style.color=color;
+  const el=document.getElementById('summaryOverlay');
+  if(el){el.style.display='flex';SND.success();}
 }
 
 function dismissOutcome(){
@@ -1429,6 +1657,7 @@ function updateMonitorUI(){
 
 const ECG_WAVE=[0,0,0.1,0.15,0.1,0,-0.15,-0.1,0,0,0,0.05,1.2,1.0,-0.3,-0.1,0,0.1,0.15,0.1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 let ecgOffset=0;
+let ecgPrevIdx0=-1;
 function drawECG(){
   const cv=document.getElementById('ecgCanvas');
   if(!cv) return;
@@ -1448,6 +1677,9 @@ function drawECG(){
   }
   ctx.stroke();
   ecgOffset=(ecgOffset+2)%w;
+  const idxAt0=Math.floor((ecgOffset*pts*2/w))%pts;
+  if(idxAt0===12&&ecgPrevIdx0!==12){SND.beep();}
+  ecgPrevIdx0=idxAt0;
 }
 
 // ═══════════════════════════════════════════════════════════════════

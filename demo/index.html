@@ -165,6 +165,12 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .marker:hover{background:rgba(255,82,82,0.45);transform:translate(-50%,-50%) scale(1.2)}
 .marker.minor{border-color:var(--yellow);background:rgba(255,202,40,0.20);animation-name:markerYellow}
 @keyframes markerYellow{0%,100%{box-shadow:0 0 0 0 rgba(255,202,40,0.4)}50%{box-shadow:0 0 0 6px rgba(255,202,40,0)}}
+@keyframes critFlash{0%,100%{opacity:0}40%,60%{opacity:1}}
+#criticalAlert{position:fixed;inset:0;z-index:100;pointer-events:none;display:none;align-items:center;justify-content:center}
+#criticalAlert.active{display:flex;animation:critFlash 0.6s ease-in-out 2}
+.crit-inner{text-align:center;padding:20px 32px;background:rgba(255,82,82,0.14);border:1px solid rgba(255,82,82,0.35);border-radius:6px;backdrop-filter:blur(4px)}
+.crit-title{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:#ff5252;text-shadow:0 0 18px rgba(255,82,82,0.6);letter-spacing:3px}
+.crit-msg{font-size:10px;color:rgba(255,120,120,0.8);margin-top:5px;letter-spacing:1px}
 .marker.minor::after{border-color:rgba(255,202,40,0.35)}
 .scan-stats{display:grid;grid-template-columns:1fr 1fr 1fr;width:100%;max-width:320px;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-top:10px;background:rgba(0,0,0,0.25);flex-shrink:0}
 .stat-cell{padding:7px 6px;text-align:center;border-right:1px solid var(--border)}
@@ -305,6 +311,8 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
   <button class="sc-btn" onclick="loadScenario('fall',this);document.getElementById('debug-panel').classList.remove('open')">🏗 Chute</button>
   <button class="sc-btn" onclick="loadScenario('fire',this);document.getElementById('debug-panel').classList.remove('open')">🔥 Brûlures</button>
   <button class="sc-btn" onclick="loadScenario('minor',this);document.getElementById('debug-panel').classList.remove('open')">🩹 Mineur</button>
+  <button class="sc-btn" onclick="loadScenario('cardiac',this);document.getElementById('debug-panel').classList.remove('open')">💔 Cardiaque</button>
+  <button class="sc-btn" onclick="loadScenario('overdose',this);document.getElementById('debug-panel').classList.remove('open')">💊 Overdose</button>
   <div style="height:1px;background:rgba(255,255,255,0.06);margin:6px 0"></div>
   <button class="sc-btn" style="color:var(--purple);border-color:rgba(167,139,250,0.20)" onclick="window.location.href='../imagerie/'">📡 → Imagerie</button>
 </div>
@@ -554,9 +562,31 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 
   </div>
 </div>
+<div id="criticalAlert"><div class="crit-inner"><div class="crit-title">⚠ ALERTE CRITIQUE</div><div class="crit-msg" id="critAlertMsg"></div></div></div>
 
 <script>
 'use strict';
+
+// ── Audio ──────────────────────────────────────────────────────
+const SND = (() => {
+  let ctx = null;
+  function ac() { if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} } return ctx; }
+  function beep(freq,dur,vol,type) {
+    try { const c=ac(); if(!c) return;
+      const o=c.createOscillator(), g=c.createGain();
+      o.type=type||'sine'; o.frequency.value=freq||880;
+      g.gain.setValueAtTime(vol||0.12,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+(dur||0.06));
+      o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+(dur||0.06));
+    } catch(e) {}
+  }
+  return {
+    ecg:   () => beep(1200, 0.05, 0.08),
+    alert: () => { beep(660,0.14,0.3,'square'); setTimeout(()=>beep(880,0.14,0.3,'square'),200); },
+    ok:    () => beep(1046, 0.18, 0.13),
+    warn:  () => beep(440, 0.22, 0.18, 'square'),
+  };
+})();
 
 // ── Scenarios ──────────────────────────────────────────────────
 const SCENARIOS = {
@@ -648,6 +678,34 @@ const SCENARIOS = {
        pct:{x:20,y:52},type:'warn'},
     ]
   },
+  cardiac: {
+    bpm:42,bp:'60/30',spo2:85,blood:4.2,pain:2,temp:36.2,conscious:false,
+    assessment:'critical',trauma:9,
+    injuries:[
+      {zone:'Cœur',severity:'critical',
+       desc:'<strong>Fibrillation ventriculaire</strong> — arrêt cardiaque confirmé. Pas de pouls palpable. Rythme ECG chaotique. Choc électrique requis.',
+       actions:['Défibrillation immédiate 200J','RCP 30:2','Adrénaline 1mg IV'],
+       pct:{x:52,y:45},type:'err'},
+      {zone:'Coronaires',severity:'critical',
+       desc:'<strong>STEMI inférieur</strong> — sus-décalage ST ≥ 4mm en D2/D3/aVF. Occlusion artère coronaire droite. Ischémie myocardique active.',
+       actions:['Pontage coronarien d\'urgence','Aspirine + Héparine IV'],
+       pct:{x:52,y:48},type:'err'},
+    ]
+  },
+  overdose: {
+    bpm:38,bp:'55/30',spo2:78,blood:5.1,pain:1,temp:35.2,conscious:false,
+    assessment:'critical',trauma:9,
+    injuries:[
+      {zone:'Voies aériennes',severity:'critical',
+       desc:'<strong>Dépression respiratoire sévère</strong> — bradypnée 4/min. Pauses respiratoires > 30s. Cyanose centrale. Intubation urgente.',
+       actions:['Intubation oro-trachéale','Ventilation BVM 15L/min','Naloxone 0.4mg IV'],
+       pct:{x:52,y:30},type:'err'},
+      {zone:'Abdomen',severity:'serious',
+       desc:'<strong>Aspiration gastrique</strong> — régurgitation avec contenu dans arbre bronchique. Pneumonie d\'inhalation imminente.',
+       actions:['Aspiration trachéale','Lavage gastrique','ATB large spectre'],
+       pct:{x:52,y:55},type:'err'},
+    ]
+  },
 };
 
 let currentScenario = null;
@@ -700,6 +758,19 @@ function refreshSharedLog(){
   }catch(e){}
 }
 
+let critAlertTimer = null;
+function showCritAlert(msg) {
+  const el = document.getElementById('criticalAlert');
+  if (!el) return;
+  document.getElementById('critAlertMsg').textContent = msg;
+  el.classList.remove('active');
+  void el.offsetWidth;
+  el.classList.add('active');
+  SND.alert();
+  clearTimeout(critAlertTimer);
+  critAlertTimer = setTimeout(() => el.classList.remove('active'), 2800);
+}
+
 // ── Notes localStorage ────────────────────────────────────────
 function saveNotes() {
   try {
@@ -746,7 +817,9 @@ function drawEcg() {
   if (!ecgCtx) return;
   ecgCtx.clearRect(0, 0, ecgW, ecgH);
   const speed = ecgBpm / 60 * 0.4;
+  const prevPhase = ecgPhase;
   ecgPhase = (ecgPhase + speed * 0.016) % 1;
+  if (examDone.bpm && ecgPhase < prevPhase) SND.ecg();
   const midY = ecgH * 0.5, amp = ecgH * 0.40;
   ecgCtx.beginPath();
   for (let px = 0; px < ecgW; px++) {
@@ -817,6 +890,10 @@ function loadScenario(key, btn) {
   addLog(`Nouveau patient chargé — Scénario : ${btn ? btn.textContent.trim() : key}`, 'info');
   pushSharedLog('DIAG', `Nouveau patient — Scénario : ${btn ? btn.textContent.trim() : key}`, 'info');
   if (!currentScenario.conscious) { addLog('⚠ Patient inconscient — airway management requis', 'err'); pushSharedLog('DIAG','⚠ Patient inconscient','err'); }
+  if (currentScenario.bpm < 45 || currentScenario.spo2 < 85) {
+    const critMsg = currentScenario.bpm < 45 ? `BRADYCARDIE SÉVÈRE — ${currentScenario.bpm} bpm` : `SpO₂ CRITIQUE — ${currentScenario.spo2}%`;
+    setTimeout(() => showCritAlert(critMsg), 900);
+  }
   saveNotes();
   // Back to body view
   showBodyView();
@@ -961,6 +1038,12 @@ function startVitalsDrift() {
         evSpo2.textContent = spo2Round + '%';
         evSpo2.className = 'exam-val ' + cls;
       }
+    }
+
+    // Critical alert on extreme values
+    if ((examDone.bpm && bpmRound < 40) || (examDone.spo2 && spo2Round < 82)) {
+      const msg = bpmRound < 40 ? `ASYSTOLIE — ${bpmRound} bpm` : `HYPOXIE SÉVÈRE — SpO₂ ${spo2Round}%`;
+      showCritAlert(msg);
     }
 
     // Sync monitoring in-game si actif

@@ -326,6 +326,8 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
   <button class="sc-btn" id="sc-fall" onclick="applyScenario('fall',this)">🏗 Chute</button>
   <button class="sc-btn" id="sc-fire" onclick="applyScenario('fire',this)">🔥 Brûlures</button>
   <button class="sc-btn" id="sc-minor" onclick="applyScenario('minor',this)">🩹 Mineur</button>
+  <button class="sc-btn" id="sc-cardiac" onclick="applyScenario('cardiac',this)">💔 Cardiaque</button>
+  <button class="sc-btn" id="sc-overdose" onclick="applyScenario('overdose',this)">💊 Overdose</button>
   <div style="height:1px;background:rgba(255,255,255,0.06);margin:5px 0"></div>
   <button class="sc-btn nav" onclick="window.location.href='../demo/'">← Diag</button>
   <button class="sc-btn nav" onclick="window.location.href='../chirurgie/'">✚ → Chirurgie</button>
@@ -482,7 +484,10 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
           <div class="shared-list" id="sharedLog"><div class="shr-empty">Aucune activité partagée</div></div>
         </div>
         <div class="notes-wrap">
-          <div style="font-size:8px;color:var(--fg3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">RAPPORT D'IMAGERIE</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+            <div style="font-size:8px;color:var(--fg3);letter-spacing:1px;text-transform:uppercase">RAPPORT D'IMAGERIE</div>
+            <button onclick="autoGenerateReport()" style="font-size:8px;font-family:inherit;padding:2px 7px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.22);border-radius:2px;color:var(--cyan);cursor:pointer;letter-spacing:0.5px;transition:all .15s" title="Générer rapport automatique">⚡ AUTO</button>
+          </div>
           <textarea id="imgNotes" placeholder="Résultats, interprétation, recommandations..."></textarea>
         </div>
       </div>
@@ -582,8 +587,57 @@ const SCENARIOS={
       {sev:'normal',region:'Abdomen',title:'Examen normal',desc:'Pas d\'épanchement intra-péritonéal. Organes pleins sans lésion visible. FAST négatif.',note:'Pas d\'indication chirurgicale',x:'52%',y:'55%'},
       {sev:'normal',region:'Genou D',title:'Épanchement intra-articulaire',desc:'Petit épanchement articulaire genouillère droite. Ligaments croisés d\'aspect normal.',note:'Ponction si volumineuse — glace — repos',x:'65%',y:'82%'}
     ]
+  },
+  cardiac:{
+    age:62,genre:'M',state:'Inconscient',
+    xray:[
+      {sev:'danger',region:'Cœur',title:'Cardiomégalie sévère',desc:'Index cardiothoracique > 0.65. Silhouette cardiaque globalement augmentée. Dilatation VG et OG.',note:'Bilan cardiologique urgent — scope ECG',x:'50%',y:'48%'},
+      {sev:'warning',region:'Poumons',title:'Œdème pulmonaire',desc:'Lignes B de Kerley bilatérales. Redistribution vasculaire vers les apex. Congestion veineuse.',note:'Diurétiques IV — oxygène haut débit',x:'50%',y:'44%'}
+    ],
+    ct:[
+      {sev:'danger',region:'Coronaires',title:'Occlusion coronaire D',desc:'Occlusion subtotale de l\'artère coronaire droite segment proximal. Absence de flux TIMI 0. STEMI inférieur.',note:'Angioplastie primaire urgente — USIC',x:'52%',y:'50%'},
+      {sev:'danger',region:'Myocarde',title:'Ischémie étendue',desc:'Zone d\'hypokinésie inférieure et postérieure. Épaississement pariétal réduit < 5mm. Nécrose débutante.',note:'Revascularisation en < 90 min',x:'52%',y:'48%'}
+    ],
+    echo:[
+      {sev:'danger',region:'VG',title:'Dysfonction systolique sévère',desc:'Fraction d\'éjection VG 20%. Dilatation cavitaire. Hypokinésie globale avec akinésie inférieure.',note:'Dobutamine IV — contre-pulsion intra-aortique',x:'45%',y:'50%'},
+      {sev:'danger',region:'Valves',title:'Insuffisance mitrale aiguë',desc:'Régurgitation mitrale sévère sur dysfonction pilier postérieur. Jet excentrique, PISA élargi.',note:'Remplacement valvulaire en urgence différée',x:'50%',y:'52%'}
+    ]
+  },
+  overdose:{
+    age:29,genre:'F',state:'Inconscient',
+    xray:[
+      {sev:'danger',region:'Poumons',title:'Pneumonie d\'inhalation',desc:'Condensation alvéolaire bibasale prédominant à droite. Aspiration de contenu gastrique. Bronchogramme aérique.',note:'ATB large spectre IV — aspiration bronchique',x:'52%',y:'52%'},
+      {sev:'warning',region:'Médiastin',title:'Élargissement médiastinal',desc:'Discret élargissement médiastinal supérieur sur flou vasculaire. Artères pulmonaires dilatées.',note:'Contrôle scanner si instabilité — bilan biologique',x:'52%',y:'38%'}
+    ],
+    ct:[
+      {sev:'danger',region:'Cerveau',title:'Œdème cérébral diffus',desc:'Effacement des sillons corticaux, réduction différentiation substance blanche/grise. Anoxie cérébrale avancée.',note:'Réanimation neurologique — EEG continu',x:'52%',y:'10%'},
+      {sev:'warning',region:'Foie',title:'Cytolyse hépatique',desc:'Hypertrophie hépatique diffuse, parenchyme hétérogène. Stéatose aiguë probable sur overdose polysubstance.',note:'Bilan hépatique complet — NAC si paracétamol',x:'55%',y:'58%'}
+    ],
+    echo:[
+      {sev:'danger',region:'VD',title:'Cœur pulmonaire aigu',desc:'Dilatation sévère des cavités droites. Déviation septale gauche (signe D). HTAP aiguë sur hypoxie profonde.',note:'Ventilation protectrice — NO inhalé si disponible',x:'58%',y:'48%'},
+      {sev:'warning',region:'VCI',title:'Collapsus venosum',desc:'Veine cave inférieure quasi-collabée en inspiration, < 12mm. Hypovolémie relative marquée.',note:'Remplissage prudent 250mL — réévaluation toutes 15min',x:'52%',y:'65%'}
+    ]
   }
 };
+
+// ── Audio ──────────────────────────────────────────────────────
+const SND_IMG = (() => {
+  let ctx = null;
+  function ac() { if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} } return ctx; }
+  function beep(freq,dur,vol,type) {
+    try { const c=ac(); if(!c) return;
+      const o=c.createOscillator(), g=c.createGain();
+      o.type=type||'sine'; o.frequency.value=freq||880;
+      g.gain.setValueAtTime(vol||0.12,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+(dur||0.08));
+      o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+(dur||0.08));
+    } catch(e) {}
+  }
+  return {
+    scan: () => { beep(660,0.12,0.12); setTimeout(()=>beep(880,0.12,0.12),140); setTimeout(()=>beep(1100,0.18,0.12),280); },
+    ecg:  () => beep(1200, 0.05, 0.08),
+  };
+})();
 
 const MODES={
   xray:{ name:'Radiographie', icon:'🦴', filter:'xrayFilter', beam:'mode-xray', label:'MAINTENIR — ACQUISITION RADIO', step1:'Positionner le patient', step2:'Régler exposition (kV/mAs)' },
@@ -699,6 +753,7 @@ function scanComplete(){
   document.getElementById('statusBadge').className='exam-val ok';
   document.getElementById('statusBadge').textContent='TERMINÉ';
   document.getElementById('scanBtn').disabled=true;
+  SND_IMG.scan();
   addLog('✓ Acquisition '+MODES[currentMode].name+' complète','ok');
   pushSharedLog('IMAG','✓ '+MODES[currentMode].name+' complète','ok');
   // Push individual findings to shared log
@@ -747,6 +802,32 @@ function renderMarkers(){
     dot.title=f.region+': '+f.title;
     frame.appendChild(dot);
   });
+}
+
+function autoGenerateReport() {
+  if (!scenario || !scanDone) {
+    addLog('⚠ Effectuez un scan avant de générer le rapport','warn');
+    return;
+  }
+  const findings = scenario[currentMode] || [];
+  const modeName = MODES[currentMode].name;
+  const t = new Date();
+  const ts = t.getHours().toString().padStart(2,'0') + ':' + t.getMinutes().toString().padStart(2,'0');
+  const sevLabel = {danger:'CRITIQUE',warning:'ANORMAL',normal:'NORMAL'};
+  const lines = [
+    `=== RAPPORT D'IMAGERIE — ${modeName.toUpperCase()} ===`,
+    `Patient : ${scenario.age} ans — ${scenario.genre === 'M' ? 'Masculin' : 'Féminin'} — ${scenario.state}`,
+    `Heure d'acquisition : ${ts}`,
+    ``,
+    `CONCLUSIONS :`,
+    ...findings.map((f,i) => `${i+1}. [${sevLabel[f.sev]||f.sev.toUpperCase()}] ${f.region} — ${f.title}\n   ${f.desc}\n   ▸ ${f.note}`),
+    ``,
+    findings.some(f=>f.sev==='danger') ? '⚠ RÉSULTATS CRITIQUES — Prise en charge immédiate requise' : findings.some(f=>f.sev==='warning') ? '⚡ Résultats anormaux — Surveillance rapprochée conseillée' : '✓ Pas de lésion critique détectée',
+  ];
+  document.getElementById('imgNotes').value = lines.join('\n');
+  const rec = getSharedRecord(); rec.imgNotes = lines.join('\n'); setSharedRecord(rec);
+  addLog('✓ Rapport auto-généré','ok');
+  SND_IMG.scan();
 }
 
 function addLog(msg,type){
