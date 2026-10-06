@@ -192,7 +192,7 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 
 /* ── Right column ── */
 .journal-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.log-wrap{height:130px;flex-shrink:0;overflow-y:auto;padding:6px 10px;border-bottom:1px solid var(--border)}
+.log-wrap{height:110px;flex-shrink:0;overflow-y:auto;padding:6px 10px;border-bottom:1px solid var(--border)}
 .log-wrap::-webkit-scrollbar{width:2px}
 .log-wrap::-webkit-scrollbar-thumb{background:var(--border2)}
 .log-line{font-size:9px;color:var(--fg3);padding:1px 0;line-height:1.4}
@@ -201,6 +201,19 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .rapport-lbl{font-size:8px;color:var(--fg3);letter-spacing:1px;text-transform:uppercase}
 #rapportTA{flex:1;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:3px;color:var(--fg);font-family:'Inter',sans-serif;font-size:10px;padding:8px;resize:none;outline:none;min-height:0}
 #rapportTA:focus{border-color:var(--border2)}
+
+/* ── Shared dossier ── */
+.shared-section{padding:5px 10px 6px;border-top:1px solid var(--border);flex-shrink:0}
+.shared-head{font-size:8px;color:rgba(167,139,250,0.6);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.shared-head::before{content:'';width:5px;height:5px;border-radius:50%;background:rgba(167,139,250,0.6);flex-shrink:0;box-shadow:0 0 5px rgba(167,139,250,0.5)}
+.shared-list{display:flex;flex-direction:column;gap:2px;max-height:72px;overflow-y:auto}
+.shr-entry{font-size:8px;padding:2px 5px;border-radius:2px;line-height:1.4;display:flex;gap:4px;border-left:2px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.04);color:rgba(232,244,255,0.45)}
+.shr-entry.ok{border-left-color:rgba(0,230,118,0.4);background:rgba(0,230,118,0.04);color:rgba(0,230,118,0.6)}
+.shr-entry.err{border-left-color:rgba(255,82,82,0.4);background:rgba(255,82,82,0.04);color:rgba(255,82,82,0.6)}
+.shr-entry.info{border-left-color:rgba(0,212,255,0.35);background:rgba(0,212,255,0.04);color:rgba(0,212,255,0.6)}
+.shr-src{font-size:7px;font-weight:700;letter-spacing:0.5px;flex-shrink:0;opacity:0.8}
+.shr-ts{color:rgba(232,244,255,0.22);flex-shrink:0;font-size:7px}
+.shr-empty{font-size:8px;color:var(--fg3);font-style:italic}
 </style>
 </head>
 <body>
@@ -359,6 +372,10 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
     <div class="sec-head purple"><span class="dot"></span>JOURNAL OPÉRATOIRE</div>
     <div class="journal-wrap">
       <div class="log-wrap" id="logWrap"></div>
+      <div class="shared-section">
+        <div class="shared-head">DOSSIER PARTAGÉ</div>
+        <div class="shared-list" id="sharedLog"><div class="shr-empty">Aucune activité partagée</div></div>
+      </div>
       <div class="rapport-wrap">
         <div class="rapport-lbl">Compte-rendu opératoire</div>
         <textarea id="rapportTA" placeholder="Rédiger le compte-rendu...&#10;Patient: Identité inconnue&#10;Date: ...&#10;&#10;Interventions réalisées:&#10;- ..."></textarea>
@@ -490,6 +507,29 @@ const SCENARIOS={
 let scenario=null, activeOp=null, opGameIdx=0;
 let monInterval=null, monitorOn=false;
 let vitals={bpm:72,spo2:99,pa:'120/80',t:36.9}, opResults={};
+
+// ── Shared Patient Record ─────────────────────────────────────────
+function getSharedRecord(){try{return JSON.parse(localStorage.getItem('ariion_patient_record')||'{}');}catch(e){return{};}}
+function setSharedRecord(rec){try{localStorage.setItem('ariion_patient_record',JSON.stringify(rec));}catch(e){}}
+function pushSharedLog(src,text,type){
+  const rec=getSharedRecord();
+  if(!rec.log)rec.log=[];
+  const t=new Date();
+  const ts=t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0')+':'+t.getSeconds().toString().padStart(2,'0');
+  rec.log.unshift({ts,src,text,type});
+  if(rec.log.length>60)rec.log.length=60;
+  setSharedRecord(rec);
+}
+function refreshSharedLog(){
+  const list=document.getElementById('sharedLog');
+  if(!list)return;
+  try{
+    const rec=getSharedRecord();
+    const entries=(rec.log||[]).slice(0,7);
+    if(!entries.length){list.innerHTML='<div class="shr-empty">Aucune activité partagée</div>';return;}
+    list.innerHTML=entries.map(e=>`<div class="shr-entry ${e.type||''}"><span class="shr-src">[${e.src}]</span><span class="shr-ts">${e.ts}</span><span>${e.text}</span></div>`).join('');
+  }catch(e){}
+}
 
 // ─── Canvas Game Engine ───────────────────────────────────────────
 const GW=400, GH=260;
@@ -1281,7 +1321,10 @@ function resolveOp(success){
     vitals.spo2=Math.max(70,vitals.spo2-6);
   }
   if(monitorOn) updateMonitorUI();
-  addLog((success?'✓ ':'✗ ')+activeOp.label+': '+(success?'succès':'complication'),success?'ok':'err');
+  const logTxt=(success?'✓ ':'✗ ')+activeOp.label+': '+(success?'succès':'complication');
+  const logType=success?'ok':'err';
+  addLog(logTxt,logType);
+  pushSharedLog('CHIR',logTxt,logType);
   renderOpsLeft();
   renderMarkers();
 }
@@ -1439,6 +1482,14 @@ window.addEventListener('DOMContentLoaded',()=>{
   });
 
   addLog('Interface chirurgie initialisée','info');
+  // Restore rapportTA from shared record
+  try{const rec=getSharedRecord();if(rec.rapportTA)document.getElementById('rapportTA').value=rec.rapportTA;}catch(e){}
+  // Save rapportTA to shared record on input
+  document.getElementById('rapportTA').addEventListener('input',function(){
+    try{const rec=getSharedRecord();rec.rapportTA=this.value;setSharedRecord(rec);}catch(e){}
+  });
+  refreshSharedLog();
+  setInterval(refreshSharedLog,3000);
 });
 </script>
 </body>

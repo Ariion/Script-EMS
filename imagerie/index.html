@@ -269,6 +269,19 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .notes-wrap textarea:focus{border-color:rgba(0,212,255,0.30)}
 .notes-wrap textarea::placeholder{color:var(--fg3)}
 
+/* ── Shared dossier ── */
+.shared-section{padding:5px 10px 6px;border-top:1px solid var(--border);flex-shrink:0}
+.shared-head{font-size:8px;color:rgba(167,139,250,0.6);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.shared-head::before{content:'';width:5px;height:5px;border-radius:50%;background:rgba(167,139,250,0.6);flex-shrink:0;box-shadow:0 0 5px rgba(167,139,250,0.5)}
+.shared-list{display:flex;flex-direction:column;gap:2px;max-height:72px;overflow-y:auto}
+.shr-entry{font-size:8px;padding:2px 5px;border-radius:2px;line-height:1.4;display:flex;gap:4px;border-left:2px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.04);color:rgba(232,244,255,0.45)}
+.shr-entry.ok{border-left-color:rgba(0,230,118,0.4);background:rgba(0,230,118,0.04);color:rgba(0,230,118,0.6)}
+.shr-entry.err{border-left-color:rgba(255,82,82,0.4);background:rgba(255,82,82,0.04);color:rgba(255,82,82,0.6)}
+.shr-entry.info{border-left-color:rgba(0,212,255,0.35);background:rgba(0,212,255,0.04);color:rgba(0,212,255,0.6)}
+.shr-src{font-size:7px;font-weight:700;letter-spacing:0.5px;flex-shrink:0;opacity:0.8}
+.shr-ts{color:rgba(232,244,255,0.22);flex-shrink:0;font-size:7px}
+.shr-empty{font-size:8px;color:var(--fg3);font-style:italic}
+
 /* Monitoring */
 .monitor-section{padding:8px 10px;border-top:1px solid rgba(0,212,255,0.12);flex-shrink:0}
 .monitor-attach-btn{
@@ -464,6 +477,10 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
           <div class="sec-head" style="margin:0 -12px 5px;padding:5px 12px;font-size:8px"><div class="dot" style="background:var(--fg3);box-shadow:none;animation:none"></div> JOURNAL</div>
           <div class="log-list" id="logList"></div>
         </div>
+        <div class="shared-section">
+          <div class="shared-head">DOSSIER PARTAGÉ</div>
+          <div class="shared-list" id="sharedLog"><div class="shr-empty">Aucune activité partagée</div></div>
+        </div>
         <div class="notes-wrap">
           <div style="font-size:8px;color:var(--fg3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">RAPPORT D'IMAGERIE</div>
           <textarea id="imgNotes" placeholder="Résultats, interprétation, recommandations..."></textarea>
@@ -576,6 +593,29 @@ const MODES={
 
 let currentMode='xray', scanning=false, scanDone=false, scenario=null;
 
+// ── Shared Patient Record ─────────────────────────────────────
+function getSharedRecord(){try{return JSON.parse(localStorage.getItem('ariion_patient_record')||'{}');}catch(e){return{};}}
+function setSharedRecord(rec){try{localStorage.setItem('ariion_patient_record',JSON.stringify(rec));}catch(e){}}
+function pushSharedLog(src,text,type){
+  const rec=getSharedRecord();
+  if(!rec.log)rec.log=[];
+  const t=new Date();
+  const ts=t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0')+':'+t.getSeconds().toString().padStart(2,'0');
+  rec.log.unshift({ts,src,text,type});
+  if(rec.log.length>60)rec.log.length=60;
+  setSharedRecord(rec);
+}
+function refreshSharedLog(){
+  const list=document.getElementById('sharedLog');
+  if(!list)return;
+  try{
+    const rec=getSharedRecord();
+    const entries=(rec.log||[]).slice(0,7);
+    if(!entries.length){list.innerHTML='<div class="shr-empty">Aucune activité partagée</div>';return;}
+    list.innerHTML=entries.map(e=>`<div class="shr-entry ${e.type||''}"><span class="shr-src">[${e.src}]</span><span class="shr-ts">${e.ts}</span><span>${e.text}</span></div>`).join('');
+  }catch(e){}
+}
+
 function applyScenario(key,btn){
   document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
@@ -660,6 +700,13 @@ function scanComplete(){
   document.getElementById('statusBadge').textContent='TERMINÉ';
   document.getElementById('scanBtn').disabled=true;
   addLog('✓ Acquisition '+MODES[currentMode].name+' complète','ok');
+  pushSharedLog('IMAG','✓ '+MODES[currentMode].name+' complète','ok');
+  // Push individual findings to shared log
+  const findings=scenario?scenario[currentMode]||[]:[];
+  findings.forEach(f=>{
+    const type=f.sev==='danger'?'err':f.sev==='warning'?'warn':'info';
+    pushSharedLog('IMAG',f.zone+(f.finding?' : '+f.finding:''),type);
+  });
   showResults();
   renderMarkers();
 }
@@ -718,6 +765,14 @@ window.addEventListener('load',()=>{
     applyScenario(k||'gunshot',btn);
   }catch(e){applyScenario('gunshot',document.getElementById('sc-gunshot'));}
   selectMode('xray');
+  // Restore imgNotes from shared record
+  try{const rec=getSharedRecord();if(rec.imgNotes)document.getElementById('imgNotes').value=rec.imgNotes;}catch(e){}
+  // Save imgNotes to shared record on input
+  document.getElementById('imgNotes').addEventListener('input',function(){
+    try{const rec=getSharedRecord();rec.imgNotes=this.value;setSharedRecord(rec);}catch(e){}
+  });
+  refreshSharedLog();
+  setInterval(refreshSharedLog,3000);
 });
 window.addEventListener('message',e=>{
   if(e.data&&e.data.type==='scenario') applyScenario(e.data.key,null);

@@ -255,6 +255,19 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 #medNotes:focus{border-color:rgba(0,212,255,0.30)}
 #medNotes::placeholder{color:var(--fg3)}
 
+/* ── Shared dossier ── */
+.shared-section{padding:5px 10px 6px;border-top:1px solid var(--border);flex-shrink:0}
+.shared-head{font-size:8px;color:rgba(167,139,250,0.6);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.shared-head::before{content:'';width:5px;height:5px;border-radius:50%;background:rgba(167,139,250,0.6);flex-shrink:0;box-shadow:0 0 5px rgba(167,139,250,0.5)}
+.shared-list{display:flex;flex-direction:column;gap:2px;max-height:72px;overflow-y:auto}
+.shr-entry{font-size:8px;padding:2px 5px;border-radius:2px;line-height:1.4;display:flex;gap:4px;border-left:2px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.04);color:rgba(232,244,255,0.45)}
+.shr-entry.ok{border-left-color:rgba(0,230,118,0.4);background:rgba(0,230,118,0.04);color:rgba(0,230,118,0.6)}
+.shr-entry.err{border-left-color:rgba(255,82,82,0.4);background:rgba(255,82,82,0.04);color:rgba(255,82,82,0.6)}
+.shr-entry.info{border-left-color:rgba(0,212,255,0.35);background:rgba(0,212,255,0.04);color:rgba(0,212,255,0.6)}
+.shr-src{font-size:7px;font-weight:700;letter-spacing:0.5px;flex-shrink:0;opacity:0.8}
+.shr-ts{color:rgba(232,244,255,0.22);flex-shrink:0;font-size:7px}
+.shr-empty{font-size:8px;color:var(--fg3);font-style:italic}
+
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
@@ -528,6 +541,10 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
             <div class="log-entry info">Système démarré — En attente de patient</div>
           </div>
         </div>
+        <div class="shared-section">
+          <div class="shared-head">DOSSIER PARTAGÉ</div>
+          <div class="shared-list" id="sharedLog"><div class="shr-empty">Aucune activité partagée</div></div>
+        </div>
       </div>
       <div class="sec-head" style="flex-shrink:0;border-top:1px solid var(--border)"><div class="dot" style="background:var(--fg3);box-shadow:none;animation:none"></div> NOTES MÉDICALES</div>
       <div class="notes-wrap">
@@ -656,13 +673,42 @@ window.addEventListener('DOMContentLoaded', () => {
   loadNotes();
   loadScenario('gunshot', document.querySelector('.sc-btn.active'));
   document.getElementById('medNotes').addEventListener('input', saveNotes);
+  refreshSharedLog();
+  setInterval(refreshSharedLog, 3000);
 });
+
+// ── Shared Patient Record ─────────────────────────────────────
+function getSharedRecord(){try{return JSON.parse(localStorage.getItem('ariion_patient_record')||'{}');}catch(e){return{};}}
+function setSharedRecord(rec){try{localStorage.setItem('ariion_patient_record',JSON.stringify(rec));}catch(e){}}
+function pushSharedLog(src,text,type){
+  const rec=getSharedRecord();
+  if(!rec.log)rec.log=[];
+  const t=new Date();
+  const ts=t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0')+':'+t.getSeconds().toString().padStart(2,'0');
+  rec.log.unshift({ts,src,text,type});
+  if(rec.log.length>60)rec.log.length=60;
+  setSharedRecord(rec);
+}
+function refreshSharedLog(){
+  const list=document.getElementById('sharedLog');
+  if(!list)return;
+  try{
+    const rec=getSharedRecord();
+    const entries=(rec.log||[]).slice(0,7);
+    if(!entries.length){list.innerHTML='<div class="shr-empty">Aucune activité partagée</div>';return;}
+    list.innerHTML=entries.map(e=>`<div class="shr-entry ${e.type||''}"><span class="shr-src">[${e.src}]</span><span class="shr-ts">${e.ts}</span><span>${e.text}</span></div>`).join('');
+  }catch(e){}
+}
 
 // ── Notes localStorage ────────────────────────────────────────
 function saveNotes() {
   try {
-    localStorage.setItem('nova_notes', document.getElementById('medNotes').value);
+    const val = document.getElementById('medNotes').value;
+    localStorage.setItem('nova_notes', val);
     localStorage.setItem('nova_scenario', currentScenarioKey);
+    const rec = getSharedRecord();
+    rec.notes = val;
+    setSharedRecord(rec);
   } catch(e) {}
 }
 function loadNotes() {
@@ -769,7 +815,8 @@ function loadScenario(key, btn) {
   // Log
   document.getElementById('logList').innerHTML = '';
   addLog(`Nouveau patient chargé — Scénario : ${btn ? btn.textContent.trim() : key}`, 'info');
-  if (!currentScenario.conscious) addLog('⚠ Patient inconscient — airway management requis', 'err');
+  pushSharedLog('DIAG', `Nouveau patient — Scénario : ${btn ? btn.textContent.trim() : key}`, 'info');
+  if (!currentScenario.conscious) { addLog('⚠ Patient inconscient — airway management requis', 'err'); pushSharedLog('DIAG','⚠ Patient inconscient','err'); }
   saveNotes();
   // Back to body view
   showBodyView();
@@ -857,7 +904,9 @@ function revealExam(type) {
   }
   val.textContent = txt;
   val.className = 'exam-val ' + cls;
-  addLog(msg, cls === 'danger' ? 'err' : cls === 'warn' ? 'warn' : 'ok');
+  const logType = cls === 'danger' ? 'err' : cls === 'warn' ? 'warn' : 'ok';
+  addLog(msg, logType);
+  pushSharedLog('DIAG', msg, logType);
   // Afficher bouton monitoring dès que BPM est connu
   if (type === 'bpm') document.getElementById('monitorSection').style.display = 'block';
   // Démarrer le drift dès que BPM est mesuré (SpO₂ s'affichera en dérivé si révélé plus tard)
