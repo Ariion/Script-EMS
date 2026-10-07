@@ -336,6 +336,30 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .rcp-back-btn{padding:7px 18px;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);border-radius:3px;color:var(--green);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:0.5px}
 
 
+/* ── PREMIERS SOINS VIEW ── */
+#view-soins{background:var(--bg);padding:16px;overflow-y:auto}
+.soins-title{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--green);letter-spacing:2px;text-align:center;margin-bottom:2px}
+.soins-sub{font-size:9px;color:var(--fg3);letter-spacing:1px;text-align:center;margin-bottom:14px}
+.soins-list{display:flex;flex-direction:column;gap:8px;max-width:300px;margin:0 auto}
+.soins-step{display:flex;align-items:center;gap:10px;padding:11px 12px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:4px;cursor:pointer;user-select:none;transition:all .15s;position:relative;overflow:hidden}
+.soins-step.active-step{border-color:rgba(0,230,118,0.35);background:rgba(0,230,118,0.04);cursor:grab}
+.soins-step.step-done{border-color:rgba(0,230,118,0.30);background:rgba(0,230,118,0.07);cursor:default}
+.soins-step.inactive-step{opacity:0.35;cursor:not-allowed}
+.soins-fill{position:absolute;left:0;top:0;bottom:0;background:rgba(0,230,118,0.12);transition:width .04s linear;pointer-events:none}
+.soins-step.step-done .soins-fill{width:100%!important}
+.soins-sev{font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;flex-shrink:0;z-index:1}
+.soins-zone{flex:1;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;z-index:1}
+.soins-hint{font-size:9px;color:var(--fg3);z-index:1}
+.soins-step.active-step .soins-hint{color:var(--green)}
+.soins-step.step-done .soins-hint{color:var(--green)}
+.soins-check{font-size:14px;z-index:1;opacity:0}
+.soins-step.step-done .soins-check{opacity:1}
+.soins-success{text-align:center;padding:16px;display:none}
+.soins-success-icon{font-size:38px;margin-bottom:8px}
+.soins-success-title{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--green);margin-bottom:5px}
+.soins-success-sub{font-size:10px;color:var(--fg2);margin-bottom:12px}
+.soins-back-btn{padding:8px 20px;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);border-radius:3px;color:var(--green);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:0.5px}
+
 /* ── FLOATING HUD ── */
 #floatingHud{position:fixed;top:12px;right:12px;z-index:500;background:rgba(4,8,18,0.95);border:1px solid rgba(0,212,255,0.32);border-radius:6px;min-width:162px;box-shadow:0 4px 24px rgba(0,0,0,0.6),0 0 0 1px rgba(0,212,255,0.05);display:none;backdrop-filter:blur(12px)}
 #floatingHud.visible{display:block}
@@ -489,6 +513,13 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
             💓 RCP — STABILISER
           </button>
         </div>
+        <!-- Conscient + scan → Premiers soins -->
+        <div class="crit-section" id="actionSoins" style="display:none;border-top-color:rgba(0,230,118,0.18)">
+          <button class="crit-btn" style="color:var(--green);border-color:rgba(0,230,118,0.40);background:rgba(0,230,118,0.08)" onclick="startSoins()">
+            <span class="crit-btn-pulse" style="background:var(--green)"></span>
+            🩹 PREMIERS SOINS
+          </button>
+        </div>
       </div>
 
       <!-- Monitoring continu -->
@@ -554,25 +585,36 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
       <div id="view-rcp" class="center-view">
         <div id="rcpInner">
           <div class="rcp-title">💓 RCP — RÉANIMATION</div>
-          <div class="rcp-sub">PATIENT INCONSCIENT — 2 CYCLES DE RCP</div>
+          <div class="rcp-sub">PATIENT INCONSCIENT — APPUYEZ AU RYTHME</div>
           <div class="rcp-counter">
             <div class="rcp-num" id="rcpCount">0</div>
-            <div class="rcp-num-label" id="rcpCountLabel">COMPRESSIONS / 15</div>
+            <div class="rcp-num-label">COMPRESSIONS / 10</div>
           </div>
-          <div class="rcp-phase-label" id="rcpPhaseLabel">PRÊT — APPUYEZ POUR COMMENCER</div>
           <div class="rcp-quality" id="rcpQuality"></div>
           <div class="rcp-rhythm">
             <div class="rcp-beat-zone"></div>
             <div class="rcp-cursor" id="rcpCursor"></div>
           </div>
           <button class="rcp-press-btn" id="rcpPressBtn" onclick="rcpPress()">💓 COMPRIMER</button>
-          <button class="rcp-breath-btn" id="rcpBreathBtn" style="display:none" onclick="rcpBreathe()">💨 SOUFFLER</button>
         </div>
         <div class="rcp-success" id="rcpSuccess">
           <div class="rcp-success-icon">✅</div>
           <div class="rcp-success-title">RYTHME RÉTABLI</div>
-          <div class="rcp-success-sub">Patient stabilisé — Transport possible</div>
-          <button class="rcp-back-btn" onclick="endRCP()">Retour au diagnostic</button>
+          <div class="rcp-success-sub">Patient revient à lui — passer aux premiers soins</div>
+          <button class="rcp-back-btn" onclick="endRCP()">Continuer →</button>
+        </div>
+      </div>
+
+      <!-- Premiers soins view -->
+      <div id="view-soins" class="center-view">
+        <div class="soins-title">🩹 PREMIERS SOINS</div>
+        <div class="soins-sub">TRAITER LES BLESSURES DÉTECTÉES</div>
+        <div class="soins-list" id="soinsList"></div>
+        <div class="soins-success" id="soinsSuccess">
+          <div class="soins-success-icon">✅</div>
+          <div class="soins-success-title">SOINS EFFECTUÉS</div>
+          <div class="soins-success-sub">Patient stabilisé — transport autorisé</div>
+          <button class="soins-back-btn" onclick="endSoins()">Retour au diagnostic</button>
         </div>
       </div>
 
@@ -967,7 +1009,11 @@ function loadScenario(key, btn) {
   document.getElementById('bpmDisp').textContent = '—';
   document.getElementById('actionSection').style.display = 'none';
   document.getElementById('actionRcp').style.display = 'none';
+  document.getElementById('actionSoins').style.display = 'none';
+  ['view-rcp','view-soins'].forEach(id => document.getElementById(id).classList.remove('active'));
   critStabilized = false;
+  rcpCompressions = 0;
+  soinsCurrent = 0;
   if (typeof stopRCPBeat === 'function') stopRCPBeat();
   document.getElementById('floatingHud').classList.remove('visible');
   openTablet();
@@ -1251,7 +1297,7 @@ function launchScan() {
     btn.style.color = 'var(--green)';
     btn.style.borderColor = 'rgba(0,230,118,0.25)';
     btn.style.background = 'rgba(0,230,118,0.06)';
-    addLog(`Scan complet — ${currentScenario.injuries.length} zone(s) détectée(s)`, 'ok');
+    if (currentScenario) showActionSection(currentScenario);
   }, 2200);
 }
 
@@ -1288,11 +1334,11 @@ function checkAllExams() {
 
 // ── Views ─────────────────────────────────────────────────────
 function showBodyView() {
-  ['view-game','view-rcp'].forEach(id => document.getElementById(id).classList.remove('active'));
+  ['view-game','view-rcp','view-soins'].forEach(id => document.getElementById(id).classList.remove('active'));
   document.getElementById('view-body').classList.add('active');
 }
 function showGameView() {
-  ['view-body','view-rcp'].forEach(id => document.getElementById(id).classList.remove('active'));
+  ['view-body','view-rcp','view-soins'].forEach(id => document.getElementById(id).classList.remove('active'));
   document.getElementById('view-game').classList.add('active');
 }
 
@@ -1447,32 +1493,38 @@ function selectZoneChip(zoneId, pct, cause) {}
 
 // ── ACTION SECTION ────────────────────────────────────────────
 function showActionSection(s) {
-  if (!s.conscious) {
+  const nowConscious = s.conscious || critStabilized;
+  if (!nowConscious) {
+    // Inconscient → RCP d'abord
     document.getElementById('actionSection').style.display = 'block';
     document.getElementById('actionRcp').style.display = 'block';
+    document.getElementById('actionSoins').style.display = 'none';
+  } else if (scanDone) {
+    // Conscient + scan effectué → premiers soins
+    document.getElementById('actionSection').style.display = 'block';
+    document.getElementById('actionRcp').style.display = 'none';
+    document.getElementById('actionSoins').style.display = 'block';
   } else {
+    // Conscient mais scan pas encore fait
     document.getElementById('actionSection').style.display = 'none';
   }
 }
 
 // ── RCP GAME ──────────────────────────────────────────────────
-let rcpState = null, rcpBeatTimer = null, rcpCursorPhase = 0, rcpCycleCount = 0;
-const RCP_COMPRESSIONS = 15;
+let rcpCompressions = 0, rcpBeatTimer = null, rcpCursorPhase = 0;
+const RCP_TOTAL = 10;
 
 function startRCP() {
-  rcpState = {compressions:0, breaths:0, phase:'compress'};
-  rcpCycleCount = 0;
-  ['view-body','view-game'].forEach(id => document.getElementById(id).classList.remove('active'));
+  rcpCompressions = 0;
+  rcpCursorPhase = 0;
+  ['view-body','view-game','view-soins'].forEach(id => document.getElementById(id).classList.remove('active'));
   document.getElementById('view-rcp').classList.add('active');
   document.getElementById('rcpInner').style.display = '';
   document.getElementById('rcpSuccess').style.display = 'none';
-  document.getElementById('rcpPressBtn').style.display = 'block';
+  document.getElementById('rcpCount').textContent = '0';
   document.getElementById('rcpPressBtn').disabled = false;
-  document.getElementById('rcpBreathBtn').style.display = 'none';
   document.getElementById('rcpQuality').textContent = '';
-  updateRCPUI();
   startRCPBeat();
-  addLog('🫀 RCP démarrée — 2 cycles de compressions', 'err');
   SND.alert();
 }
 
@@ -1480,7 +1532,7 @@ function startRCPBeat() {
   if (rcpBeatTimer) clearInterval(rcpBeatTimer);
   rcpCursorPhase = 0;
   rcpBeatTimer = setInterval(() => {
-    rcpCursorPhase = (rcpCursorPhase + 0.1) % 1; // 60ms × 10 steps = 600ms/cycle
+    rcpCursorPhase = (rcpCursorPhase + 0.1) % 1;
     const cursor = document.getElementById('rcpCursor');
     if (cursor) cursor.style.left = (rcpCursorPhase * 100) + '%';
     if (rcpCursorPhase >= 0.39 && rcpCursorPhase <= 0.41) SND.ecg();
@@ -1490,65 +1542,109 @@ function startRCPBeat() {
 function stopRCPBeat() { if (rcpBeatTimer) { clearInterval(rcpBeatTimer); rcpBeatTimer = null; } }
 
 function rcpPress() {
-  if (!rcpState || rcpState.phase !== 'compress') return;
-  const good = rcpCursorPhase >= 0.30 && rcpCursorPhase <= 0.70;
+  if (rcpCompressions >= RCP_TOTAL) return;
+  const good = rcpCursorPhase >= 0.28 && rcpCursorPhase <= 0.72;
   const qEl = document.getElementById('rcpQuality');
   qEl.textContent = good ? '✓ RYTHME PARFAIT' : '⚡ HORS RYTHME';
   qEl.className = 'rcp-quality ' + (good ? 'good' : 'ok');
-  rcpState.compressions++;
+  if (good) rcpCompressions++;
   const btn = document.getElementById('rcpPressBtn');
   btn.classList.add('pressed');
   setTimeout(() => btn.classList.remove('pressed'), 80);
-  updateRCPUI();
-  if (rcpState.compressions >= RCP_COMPRESSIONS) {
-    rcpState.phase = 'breath';
-    rcpState.breaths = 0;
-    document.getElementById('rcpPressBtn').style.display = 'none';
-    document.getElementById('rcpBreathBtn').style.display = 'block';
-    document.getElementById('rcpPhaseLabel').textContent = '💨 INSUFFLATIONS — 2 SOUFFLES';
-    document.getElementById('rcpQuality').textContent = '';
-    addLog('✓ ' + RCP_COMPRESSIONS + ' compressions — Soufflez !', 'ok');
-  }
-}
-
-function rcpBreathe() {
-  if (!rcpState || rcpState.phase !== 'breath') return;
-  rcpState.breaths++;
+  document.getElementById('rcpCount').textContent = rcpCompressions;
   SND.ok();
-  const btn = document.getElementById('rcpBreathBtn');
-  btn.style.opacity = '0.55'; setTimeout(() => btn.style.opacity = '', 200);
-  if (rcpState.breaths >= 2) {
-    rcpCycleCount++;
-    if (rcpCycleCount >= 2) {
-      stopRCPBeat();
-      rcpState = null;
+  if (rcpCompressions >= RCP_TOTAL) {
+    stopRCPBeat();
+    document.getElementById('rcpPressBtn').disabled = true;
+    setTimeout(() => {
       document.getElementById('rcpInner').style.display = 'none';
       document.getElementById('rcpSuccess').style.display = 'block';
-      addLog('✅ Rythme rétabli — Transport autorisé', 'ok');
       critStabilized = true;
-    } else {
-      rcpState.compressions = 0;
-      rcpState.phase = 'compress';
-      document.getElementById('rcpBreathBtn').style.display = 'none';
-      document.getElementById('rcpPressBtn').style.display = 'block';
-      addLog('✓ Insufflations OK — Cycle ' + (rcpCycleCount + 1) + '/2', 'ok');
-      updateRCPUI();
-    }
+    }, 600);
   }
-}
-
-function updateRCPUI() {
-  if (!rcpState) return;
-  document.getElementById('rcpCount').textContent = rcpState.compressions;
-  document.getElementById('rcpCountLabel').textContent = rcpState.phase === 'compress' ? 'COMPRESSIONS / ' + RCP_COMPRESSIONS : 'INSUFFLATIONS / 2';
-  document.getElementById('rcpPhaseLabel').textContent = rcpState.phase === 'compress'
-    ? '💓 COMPRESSIONS — CYCLE ' + (rcpCycleCount + 1) + '/2'
-    : '💨 INSUFFLATIONS — 2 SOUFFLES';
 }
 
 function endRCP() {
   stopRCPBeat();
   document.getElementById('view-rcp').classList.remove('active');
+  // Transition vers premiers soins si scan déjà fait, sinon retour diagnostic
+  if (scanDone) {
+    startSoins();
+  } else {
+    document.getElementById('view-body').classList.add('active');
+    checkAllExams();
+  }
+}
+
+// ── PREMIERS SOINS ────────────────────────────────────────────
+let soinsCurrent = 0;
+const soinsHolds = {};
+
+function startSoins() {
+  soinsCurrent = 0;
+  Object.keys(soinsHolds).forEach(k => { clearInterval(soinsHolds[k]); delete soinsHolds[k]; });
+  ['view-body','view-game','view-rcp'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById('view-soins').classList.add('active');
+  document.getElementById('soinsSuccess').style.display = 'none';
+  const injuries = (currentScenario && currentScenario.injuries) || [];
+  const list = document.getElementById('soinsList');
+  if (!injuries.length) {
+    list.innerHTML = '<div style="color:var(--fg3);font-size:10px;text-align:center;padding:12px">Aucune blessure à traiter</div>';
+    setTimeout(() => { document.getElementById('soinsSuccess').style.display = 'block'; }, 800);
+    return;
+  }
+  list.style.display = '';
+  list.innerHTML = injuries.map((inj, i) => {
+    const sc = inj.severity === 'critical' ? 'sev-critical' : inj.severity === 'serious' ? 'sev-serious' : 'sev-minor';
+    const sl = inj.severity === 'critical' ? 'CRITIQUE' : inj.severity === 'serious' ? 'SÉRIEUX' : 'MINEUR';
+    return `<div class="soins-step ${i === 0 ? 'active-step' : 'inactive-step'}" id="ss-${i}"
+      onmousedown="holdSoin(${i})" onmouseup="relSoin(${i})" onmouseleave="relSoin(${i})"
+      ontouchstart="holdSoin(${i})" ontouchend="relSoin(${i})">
+      <div class="soins-fill" id="sf-${i}" style="width:0%"></div>
+      <span class="soins-sev ${sc}">${sl}</span>
+      <span class="soins-zone">${inj.zone}</span>
+      <span class="soins-hint">${i === 0 ? 'Maintenir' : ''}</span>
+      <span class="soins-check">✓</span>
+    </div>`;
+  }).join('');
+}
+
+function holdSoin(idx) {
+  if (idx !== soinsCurrent || soinsHolds[idx]) return;
+  const fill = document.getElementById('sf-' + idx);
+  const dur = 2000;
+  let prog = parseFloat(fill.style.width) || 0;
+  soinsHolds[idx] = setInterval(() => {
+    prog += 100 / (dur / 35);
+    fill.style.width = Math.min(prog, 100) + '%';
+    if (prog >= 100) { relSoin(idx); completeSoin(idx); }
+  }, 35);
+}
+
+function relSoin(idx) { if (soinsHolds[idx]) { clearInterval(soinsHolds[idx]); delete soinsHolds[idx]; } }
+
+function completeSoin(idx) {
+  SND.ok();
+  document.getElementById('ss-' + idx).className = 'soins-step step-done';
+  document.getElementById('sf-' + idx).style.width = '100%';
+  soinsCurrent = idx + 1;
+  const injuries = currentScenario.injuries || [];
+  if (soinsCurrent < injuries.length) {
+    const next = document.getElementById('ss-' + soinsCurrent);
+    next.className = 'soins-step active-step';
+    next.querySelector('.soins-hint').textContent = 'Maintenir';
+  } else {
+    // Tous traités
+    setTimeout(() => {
+      document.getElementById('soinsList').style.display = 'none';
+      document.getElementById('soinsSuccess').style.display = 'block';
+      critStabilized = true;
+    }, 400);
+  }
+}
+
+function endSoins() {
+  document.getElementById('view-soins').classList.remove('active');
   document.getElementById('view-body').classList.add('active');
   checkAllExams();
 }
