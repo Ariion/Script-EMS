@@ -26,7 +26,7 @@ const AgendaApp: React.FC = () => {
     // Écoute le message de fermeture depuis l'iframe agenda
     const handler = (event: MessageEvent) => {
       if (event.data?.type === 'agenda:close') {
-        history.push('/'); // retour à l'écran d'accueil NPWD
+        history.push('/');
       }
     };
     window.addEventListener('message', handler);

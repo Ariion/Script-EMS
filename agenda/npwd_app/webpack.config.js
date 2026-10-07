@@ -30,7 +30,7 @@ module.exports = {
       name: 'agenda',
       filename: 'remoteEntry.js',
       exposes: {
-        './App': './src/App',
+        './config': './src/config',
       },
       shared: {
         react: {
