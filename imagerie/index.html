@@ -313,6 +313,25 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .mode-btn.active-mode .mode-name{color:var(--purple)}
 .status-bar{margin:6px 10px;padding:7px 10px;background:rgba(0,0,0,0.28);border:1px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:space-between}
 .status-lbl{font-size:8px;color:var(--fg3);letter-spacing:0.8px;text-transform:uppercase}
+
+/* ── CONS INDICATOR ── */
+#consIndicator{padding:3px 8px;border-radius:2px;font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-align:center;display:none;flex-shrink:0}
+
+/* ── FLOATING HUD ── */
+#floatingHud{position:fixed;top:12px;right:12px;z-index:500;background:rgba(4,8,18,0.95);border:1px solid rgba(0,212,255,0.32);border-radius:6px;min-width:162px;box-shadow:0 4px 24px rgba(0,0,0,0.6),0 0 0 1px rgba(0,212,255,0.05);display:none;backdrop-filter:blur(12px)}
+#floatingHud.visible{display:block}
+.fhud-head{display:flex;align-items:center;justify-content:space-between;padding:5px 9px;border-bottom:1px solid rgba(0,212,255,0.12);background:rgba(0,212,255,0.04);border-radius:6px 6px 0 0;cursor:grab;user-select:none}
+.fhud-head:active{cursor:grabbing}
+.fhud-title{font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;color:var(--cyan);letter-spacing:2px}
+.fhud-live{display:flex;align-items:center;gap:4px;font-size:7px;color:var(--green);letter-spacing:1px}
+.fhud-live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse .8s ease-in-out infinite}
+.fhud-body{padding:7px 9px;display:flex;flex-direction:column;gap:4px}
+.fhud-row{display:flex;align-items:baseline;justify-content:space-between;gap:4px}
+.fhud-label{font-size:7px;color:var(--fg3);letter-spacing:1px;text-transform:uppercase}
+.fhud-val{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--fg)}
+.fhud-val.ok{color:var(--green)}.fhud-val.warn{color:var(--yellow)}.fhud-val.danger{color:var(--red)}
+.fhud-assess{margin-top:3px;padding-top:4px;border-top:1px solid rgba(255,255,255,0.05)}
+.fhud-assess-badge{font-size:8px;font-weight:700;letter-spacing:0.5px;padding:2px 7px;border-radius:2px;text-align:center;display:block;font-family:'Rajdhani',sans-serif;background:rgba(0,212,255,0.10);border:1px solid rgba(0,212,255,0.20);color:var(--cyan)}
 </style>
 </head>
 <body>
@@ -342,6 +361,7 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
     <div class="tb-sep"></div>
     <span class="tb-station">SERVICE IMAGERIE MÉDICALE</span>
     <div class="tb-right">
+      <span id="consIndicator" style="display:none">—</span>
       <span class="tb-badge" id="topBadge">PRÊT</span>
       <button class="tb-btn" onclick="window.location.href='../demo/'">← Diag</button>
       <button class="tb-btn" onclick="window.location.href='../chirurgie/'">Chir →</button>
@@ -854,11 +874,154 @@ window.addEventListener('load',()=>{
   });
   refreshSharedLog();
   setInterval(refreshSharedLog,3000);
+  initEcgImg();
+  updateFloatingHUD();
+  setInterval(updateFloatingHUD, 2000);
 });
 window.addEventListener('message',e=>{
   if(e.data&&e.data.type==='scenario') applyScenario(e.data.key,null);
 });
 
+// ── ECG ──────────────────────────────────────────────────────────
+let ecgCtxImg = null, ecgWImg = 0, ecgHImg = 0, ecgPhaseImg = 0;
+function initEcgImg() {
+  const canvas = document.getElementById('ecgCanvas');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  ecgWImg = canvas.offsetWidth || 160;
+  ecgHImg = 36;
+  canvas.width  = ecgWImg * dpr;
+  canvas.height = ecgHImg * dpr;
+  ecgCtxImg = canvas.getContext('2d');
+  ecgCtxImg.scale(dpr, dpr);
+  drawEcgImg();
+}
+function ecgShapeImg(x) {
+  const t = ((x % 1) + 1) % 1;
+  if (t < 0.10) return 0;
+  if (t < 0.18) return Math.sin((t-0.10)/0.08 * Math.PI) * 0.12;
+  if (t < 0.26) return 0;
+  if (t < 0.30) return -Math.sin((t-0.26)/0.04 * Math.PI) * 0.55;
+  if (t < 0.34) return Math.sin((t-0.30)/0.04 * Math.PI) * 1.0;
+  if (t < 0.36) return 1.0 - (t-0.34)/0.02;
+  if (t < 0.44) return Math.sin((t-0.36)/0.08 * Math.PI) * 0.18;
+  return 0;
+}
+function drawEcgImg() {
+  if (!ecgCtxImg) return;
+  ecgCtxImg.clearRect(0, 0, ecgWImg, ecgHImg);
+  const midY = ecgHImg * 0.5;
+  const rec = getSharedRecord();
+  const monActive = !!(rec && rec.monitoringActive);
+  if (!monActive) {
+    ecgCtxImg.beginPath();
+    ecgCtxImg.moveTo(0, midY);
+    ecgCtxImg.lineTo(ecgWImg, midY);
+    ecgCtxImg.strokeStyle = 'rgba(0,212,255,0.30)';
+    ecgCtxImg.lineWidth = 1.5;
+    ecgCtxImg.stroke();
+    requestAnimationFrame(drawEcgImg);
+    return;
+  }
+  const bpm = rec.bpm || 72;
+  const speed = bpm / 60 * 0.4;
+  ecgPhaseImg = (ecgPhaseImg + speed * 0.016) % 1;
+  const amp = ecgHImg * 0.40;
+  ecgCtxImg.beginPath();
+  for (let px = 0; px < ecgWImg; px++) {
+    const phase = ecgPhaseImg + px / ecgWImg;
+    const y = midY - ecgShapeImg(phase) * amp;
+    if (px === 0) ecgCtxImg.moveTo(px, y); else ecgCtxImg.lineTo(px, y);
+  }
+  ecgCtxImg.strokeStyle = '#00d4ff';
+  ecgCtxImg.lineWidth = 1.5;
+  ecgCtxImg.shadowBlur = 6;
+  ecgCtxImg.shadowColor = 'rgba(0,212,255,0.60)';
+  ecgCtxImg.stroke();
+  ecgCtxImg.shadowBlur = 0;
+  requestAnimationFrame(drawEcgImg);
+}
+
+// ── FLOATING HUD (reads from shared localStorage) ────────────────
+function updateFloatingHUD() {
+  const rec = getSharedRecord();
+  if (!rec || !rec.monitoringActive) return;
+  const bpm  = rec.bpm  || '—';
+  const spo2 = rec.spo2 || '—';
+  const bp   = rec.bp   || '—';
+  const cons = rec.conscious != null ? (rec.conscious ? 'CONSCIENT' : 'INCONSCIENT') : '—';
+  const consCls = rec.conscious ? 'ok' : 'danger';
+  const bpmCls = (bpm < 50 || bpm > 140) ? 'danger' : (bpm < 60 || bpm > 120) ? 'warn' : 'ok';
+  const spo2Cls = spo2 < 85 ? 'danger' : spo2 < 95 ? 'warn' : 'ok';
+  document.getElementById('fhudBpm').textContent  = bpm;
+  document.getElementById('fhudBpm').className    = 'fhud-val ' + bpmCls;
+  document.getElementById('fhudSpo2').textContent = (spo2 !== '—') ? spo2 + '%' : '—';
+  document.getElementById('fhudSpo2').className   = 'fhud-val ' + spo2Cls;
+  document.getElementById('fhudBp').textContent   = bp;
+  document.getElementById('fhudCons').textContent = cons;
+  document.getElementById('fhudCons').className   = 'fhud-val ' + consCls;
+  document.getElementById('floatingHud').classList.add('visible');
+  // Update consIndicator in topbar
+  const ci = document.getElementById('consIndicator');
+  if (ci && rec.conscious != null) {
+    ci.textContent  = rec.conscious ? 'CONSCIENT' : 'INCONSCIENT';
+    ci.style.cssText = rec.conscious
+      ? 'display:inline-block;background:rgba(0,230,118,0.15);border:1px solid rgba(0,230,118,0.35);color:var(--green)'
+      : 'display:inline-block;background:rgba(255,82,82,0.15);border:1px solid rgba(255,82,82,0.35);color:var(--red)';
+  }
+}
+
+// ── Draggable floatingHud ────────────────────────────────────────
+(function() {
+  const hud = document.getElementById('floatingHud');
+  if (!hud) return;
+  let dragging = false, ox = 0, oy = 0;
+  hud.querySelector('.fhud-head').addEventListener('mousedown', function(e) {
+    dragging = true;
+    const r = hud.getBoundingClientRect();
+    ox = e.clientX - r.left; oy = e.clientY - r.top;
+    hud.style.right = 'auto'; hud.style.bottom = 'auto';
+    hud.style.left = r.left + 'px'; hud.style.top = r.top + 'px';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    hud.style.left = Math.max(0, Math.min(window.innerWidth  - hud.offsetWidth,  e.clientX - ox)) + 'px';
+    hud.style.top  = Math.max(0, Math.min(window.innerHeight - hud.offsetHeight, e.clientY - oy)) + 'px';
+  });
+  document.addEventListener('mouseup', function() { dragging = false; });
+  hud.querySelector('.fhud-head').addEventListener('touchstart', function(e) {
+    dragging = true;
+    const t = e.touches[0], r = hud.getBoundingClientRect();
+    ox = t.clientX - r.left; oy = t.clientY - r.top;
+    hud.style.right = 'auto'; hud.style.left = r.left + 'px'; hud.style.top = r.top + 'px';
+    e.preventDefault();
+  }, {passive:false});
+  document.addEventListener('touchmove', function(e) {
+    if (!dragging) return;
+    const t = e.touches[0];
+    hud.style.left = Math.max(0, Math.min(window.innerWidth  - hud.offsetWidth,  t.clientX - ox)) + 'px';
+    hud.style.top  = Math.max(0, Math.min(window.innerHeight - hud.offsetHeight, t.clientY - oy)) + 'px';
+  }, {passive:false});
+  document.addEventListener('touchend', function() { dragging = false; });
+})();
+
 </script>
+
+<!-- Floating patient HUD -->
+<div id="floatingHud">
+  <div class="fhud-head">
+    <span class="fhud-title">👤 PATIENT</span>
+    <span class="fhud-live"><span class="fhud-live-dot"></span>LIVE</span>
+  </div>
+  <div class="fhud-body">
+    <div class="fhud-row"><span class="fhud-label">BPM</span><span class="fhud-val" id="fhudBpm">—</span></div>
+    <div class="fhud-row"><span class="fhud-label">SpO₂</span><span class="fhud-val" id="fhudSpo2">—</span></div>
+    <div class="fhud-row"><span class="fhud-label">TA</span><span class="fhud-val" id="fhudBp">—</span></div>
+    <div class="fhud-row"><span class="fhud-label">État</span><span class="fhud-val" id="fhudCons">—</span></div>
+    <div class="fhud-assess"><span class="fhud-assess-badge" id="fhudAssess">MONITORING ACTIF</span></div>
+  </div>
+</div>
+
 </body>
 </html>

@@ -477,13 +477,6 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
             <span class="exam-hint">Maintenir</span>
             <span class="exam-val" id="ev-temp"></span>
           </div>
-          <div class="exam-row" id="er-pain" onmousedown="holdExam('pain')" onmouseup="releaseExam('pain')" onmouseleave="releaseExam('pain')" ontouchstart="holdExam('pain')" ontouchend="releaseExam('pain')">
-            <div class="exam-fill" id="ef-pain" style="width:0%"></div>
-            <span class="exam-icon">😣</span>
-            <span class="exam-lbl">Évaluer douleur</span>
-            <span class="exam-hint">Maintenir</span>
-            <span class="exam-val" id="ev-pain"></span>
-          </div>
           <div class="exam-row" id="er-blood" onmousedown="holdExam('blood')" onmouseup="releaseExam('blood')" onmouseleave="releaseExam('blood')" ontouchstart="holdExam('blood')" ontouchend="releaseExam('blood')">
             <div class="exam-fill" id="ef-blood" style="width:0%"></div>
             <span class="exam-icon">🩻</span>
@@ -940,11 +933,23 @@ function ecgShape(x) {
 function drawEcg() {
   if (!ecgCtx) return;
   ecgCtx.clearRect(0, 0, ecgW, ecgH);
+  const midY = ecgH * 0.5;
+  if (!examDone.bpm) {
+    // Flat line until BPM measured
+    ecgCtx.beginPath();
+    ecgCtx.moveTo(0, midY);
+    ecgCtx.lineTo(ecgW, midY);
+    ecgCtx.strokeStyle = 'rgba(0,212,255,0.35)';
+    ecgCtx.lineWidth = 1.5;
+    ecgCtx.stroke();
+    requestAnimationFrame(drawEcg);
+    return;
+  }
   const speed = ecgBpm / 60 * 0.4;
   const prevPhase = ecgPhase;
   ecgPhase = (ecgPhase + speed * 0.016) % 1;
-  if (examDone.bpm && ecgPhase < prevPhase) SND.ecg();
-  const midY = ecgH * 0.5, amp = ecgH * 0.40;
+  if (ecgPhase < prevPhase) SND.ecg();
+  const amp = ecgH * 0.40;
   ecgCtx.beginPath();
   for (let px = 0; px < ecgW; px++) {
     const phase = ecgPhase + px / ecgW;
@@ -1181,6 +1186,13 @@ function startVitalsDrift() {
         bp_sys: parseInt(bpParts[0]) || 120,
         bp_dia: parseInt(bpParts[1]) || 80,
       });
+      const rec = getSharedRecord();
+      rec.monitoringActive = true;
+      rec.bpm  = bpmRound;
+      rec.spo2 = spo2Round;
+      rec.bp   = currentScenario.bp || '—';
+      rec.conscious = currentScenario.conscious;
+      setSharedRecord(rec);
     }
   }, 1800); // toutes les 1.8s
 }
@@ -1218,6 +1230,14 @@ function attachMonitoring() {
   document.getElementById('monitorActive').style.display = 'flex';
   updateMonitorVitals(vitals);
   addLog('Monitoring attaché — constantes visibles in-game', 'ok');
+  // Persist to shared record for cross-page HUD
+  const rec = getSharedRecord();
+  rec.monitoringActive = true;
+  rec.bpm  = vitals.bpm;
+  rec.spo2 = vitals.spo2;
+  rec.bp   = s.bp || '—';
+  rec.conscious = s.conscious;
+  setSharedRecord(rec);
   updateFloatingHUD();
 }
 
@@ -1230,6 +1250,8 @@ function detachMonitoring() {
   monitoringActive = false;
   document.getElementById('monitorAttachBtn').style.display = 'block';
   document.getElementById('monitorActive').style.display = 'none';
+  document.getElementById('floatingHud').classList.remove('visible');
+  const rec = getSharedRecord(); rec.monitoringActive = false; setSharedRecord(rec);
   addLog('Monitoring déconnecté', 'info');
 }
 
