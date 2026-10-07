@@ -156,7 +156,7 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 
 /* Body scan */
 .scan-outer{flex:1;display:flex;flex-direction:column;align-items:center;overflow-y:auto;overflow-x:hidden;padding:8px 10px;width:100%}
-#consIndicator{flex-shrink:0;width:100%;max-width:200px;margin:4px auto 0;padding:5px 10px;border-radius:3px;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-align:center;display:none}
+#consIndicator{padding:3px 8px;border-radius:2px;font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-align:center;display:none;flex-shrink:0}
 .scan-frame{position:relative;width:min(180px,35vw);flex-shrink:0}
 .scan-body-svg{width:100%;height:auto;display:block}
 .marker{position:absolute;width:14px;height:14px;border-radius:50%;background:rgba(255,82,82,0.25);border:2px solid var(--red);transform:translate(-50%,-50%);cursor:pointer;transition:all .15s;animation:markerPulse 2s ease-in-out infinite}
@@ -410,6 +410,7 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
     <div class="tb-sep"></div>
     <span class="tb-station">DIAGNOSTIC EMS</span>
     <div class="tb-right">
+      <span id="consIndicator" style="display:none">—</span>
       <span class="tb-badge" id="assessBadge">—</span>
     </div>
   </div>
@@ -564,7 +565,6 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
             <div class="scan-beam" id="scanBeam"></div>
           </div>
         </div>
-        <div id="consIndicator">—</div>
         <div class="scan-btn-wrap">
           <button class="scan-btn" id="scanBtn" onclick="launchScan()">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="3" x2="11" y2="3" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".5"/><line x1="1" y1="9" x2="11" y2="9" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".5"/></svg>
