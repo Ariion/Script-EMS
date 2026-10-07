@@ -297,6 +297,91 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .mv-sep{color:var(--fg3);font-size:9px}
 .monitor-detach-btn{padding:5px 8px;background:rgba(255,82,82,0.07);border:1px solid rgba(255,82,82,0.22);border-radius:3px;color:var(--red);font-size:9px;font-weight:700;font-family:inherit;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;transition:all .15s;align-self:flex-start}
 .monitor-detach-btn:hover{background:rgba(255,82,82,0.15)}
+
+/* ── ZONE CHIPS ── */
+.zone-chip{position:absolute;transform:translate(-50%,-50%);background:rgba(4,8,18,0.90);border:1px solid rgba(0,212,255,0.20);border-radius:3px;padding:2px 5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:46px;transition:all .15s;backdrop-filter:blur(6px);z-index:5}
+.zone-chip:hover{transform:translate(-50%,-50%) scale(1.08)}
+.zone-chip.z-red{border-color:rgba(255,82,82,0.60);animation:chipPulse 1.2s ease-in-out infinite}
+.zone-chip.z-orange{border-color:rgba(255,152,0,0.55)}
+.zone-chip.z-yellow{border-color:rgba(255,202,40,0.50)}
+.zone-chip.z-green{border-color:rgba(0,230,118,0.35)}
+@keyframes chipPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,82,82,0.4)}50%{box-shadow:0 0 0 4px rgba(255,82,82,0)}}
+.zc-pct{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;line-height:1.1}
+.z-red .zc-pct{color:var(--red)}.z-orange .zc-pct{color:var(--orange)}.z-yellow .zc-pct{color:var(--yellow)}.z-green .zc-pct{color:var(--green)}
+.zc-name{font-size:7px;font-weight:700;letter-spacing:0.5px;color:rgba(232,244,255,0.50);text-transform:uppercase}
+.zc-cause{font-size:9px;line-height:1}
+
+/* ── RCP GAME ── */
+#view-rcp{background:var(--bg);padding:16px;overflow-y:auto}
+.rcp-title{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--red);letter-spacing:2px;text-align:center;margin-bottom:2px}
+.rcp-sub{font-size:9px;color:var(--fg3);letter-spacing:1px;text-align:center;margin-bottom:12px}
+.rcp-counter{text-align:center;margin-bottom:8px}
+.rcp-num{font-family:'Orbitron',sans-serif;font-size:36px;font-weight:700;color:var(--fg);line-height:1}
+.rcp-num-label{font-size:9px;color:var(--fg3);letter-spacing:1px;margin-top:2px}
+.rcp-rhythm{width:100%;max-width:240px;height:36px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:4px;position:relative;overflow:hidden;margin:0 auto 10px}
+.rcp-beat-zone{position:absolute;top:0;bottom:0;width:22%;background:rgba(0,230,118,0.14);border-left:1px solid rgba(0,230,118,0.35);border-right:1px solid rgba(0,230,118,0.35);left:39%}
+.rcp-cursor{position:absolute;top:0;bottom:0;width:3px;background:var(--cyan);border-radius:2px;box-shadow:0 0 8px var(--cyan);left:0%}
+.rcp-phase-label{text-align:center;font-size:11px;color:var(--fg2);font-weight:600;margin-bottom:4px;font-family:'Rajdhani',sans-serif;letter-spacing:1px}
+.rcp-quality{text-align:center;font-size:10px;min-height:14px;margin-bottom:6px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.rcp-quality.good{color:var(--green)}.rcp-quality.ok{color:var(--yellow)}
+.rcp-press-btn{width:100%;max-width:210px;height:68px;display:block;margin:0 auto 8px;background:rgba(255,82,82,0.12);border:2px solid rgba(255,82,82,0.40);border-radius:8px;color:var(--red);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;letter-spacing:1px;cursor:pointer;transition:all .1s}
+.rcp-press-btn:active,.rcp-press-btn.pressed{background:rgba(255,82,82,0.28);border-color:var(--red);transform:scale(0.96)}
+.rcp-press-btn:disabled{opacity:0.4;cursor:not-allowed}
+.rcp-breath-btn{width:100%;max-width:210px;height:52px;display:block;margin:0 auto 8px;background:rgba(0,212,255,0.10);border:2px solid rgba(0,212,255,0.35);border-radius:8px;color:var(--cyan);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;cursor:pointer;transition:all .1s}
+.rcp-breath-btn:active{background:rgba(0,212,255,0.22)}
+.rcp-success{text-align:center;padding:16px;display:none}
+.rcp-success-icon{font-size:36px;margin-bottom:8px}
+.rcp-success-title{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--green);margin-bottom:5px}
+.rcp-success-sub{font-size:10px;color:var(--fg2);margin-bottom:12px}
+.rcp-back-btn{padding:7px 18px;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);border-radius:3px;color:var(--green);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:0.5px}
+
+/* ── BOBOLOGIE FLOW ── */
+#view-bobo{background:var(--bg);padding:16px;overflow-y:auto}
+.bobo-title{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:2px;text-align:center;margin-bottom:2px}
+.bobo-sub{font-size:9px;color:var(--fg3);letter-spacing:1px;text-align:center;margin-bottom:12px}
+.bobo-steps{display:flex;flex-direction:column;gap:7px;max-width:300px;margin:0 auto}
+.bobo-step{display:flex;align-items:center;gap:9px;padding:10px 11px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:4px;cursor:pointer;user-select:none;transition:all .15s;position:relative;overflow:hidden}
+.bobo-step.active-step{border-color:rgba(0,212,255,0.35);background:rgba(0,212,255,0.06)}
+.bobo-step.step-done{border-color:rgba(0,230,118,0.30);background:rgba(0,230,118,0.05);cursor:default}
+.bobo-step.inactive-step{opacity:0.35;cursor:not-allowed}
+.bobo-fill{position:absolute;left:0;top:0;bottom:0;background:rgba(0,212,255,0.10);transition:width .05s linear}
+.bobo-step.step-done .bobo-fill{background:rgba(0,230,118,0.09);width:100%!important}
+.bobo-icon{font-size:16px;flex-shrink:0;z-index:1}
+.bobo-txt{flex:1;z-index:1}
+.bobo-step-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;line-height:1.2}
+.bobo-step-hint{font-size:9px;color:var(--fg3)}
+.bobo-step.active-step .bobo-step-hint{color:var(--cyan)}.bobo-step.step-done .bobo-step-hint{color:var(--green)}
+.bobo-step-num{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:8px;font-family:'Orbitron',sans-serif;flex-shrink:0;z-index:1}
+.bobo-step.active-step .bobo-step-num{border-color:var(--cyan);color:var(--cyan)}
+.bobo-step.step-done .bobo-step-num{border-color:var(--green);color:var(--green);background:rgba(0,230,118,0.1)}
+.bobo-success{text-align:center;padding:16px;display:none}
+.bobo-success-icon{font-size:36px;margin-bottom:8px}
+.bobo-success-title{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--green);margin-bottom:5px}
+.bobo-success-sub{font-size:10px;color:var(--fg2);margin-bottom:12px}
+.bobo-back-btn{padding:7px 18px;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);border-radius:3px;color:var(--green);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:0.5px}
+
+/* ── FLOATING HUD ── */
+#floatingHud{position:fixed;top:12px;right:12px;z-index:500;background:rgba(4,8,18,0.95);border:1px solid rgba(0,212,255,0.32);border-radius:6px;min-width:162px;box-shadow:0 4px 24px rgba(0,0,0,0.6),0 0 0 1px rgba(0,212,255,0.05);display:none;backdrop-filter:blur(12px)}
+#floatingHud.visible{display:block}
+.fhud-head{display:flex;align-items:center;justify-content:space-between;padding:5px 9px;border-bottom:1px solid rgba(0,212,255,0.12);background:rgba(0,212,255,0.04);border-radius:6px 6px 0 0}
+.fhud-title{font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;color:var(--cyan);letter-spacing:2px}
+.fhud-live{display:flex;align-items:center;gap:4px;font-size:7px;color:var(--green);font-family:'Inter',sans-serif;letter-spacing:1px}
+.fhud-live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse .8s ease-in-out infinite}
+.fhud-body{padding:7px 9px;display:flex;flex-direction:column;gap:4px}
+.fhud-row{display:flex;align-items:baseline;justify-content:space-between;gap:4px}
+.fhud-label{font-size:7px;color:var(--fg3);letter-spacing:1px;font-family:'Inter',sans-serif;text-transform:uppercase}
+.fhud-val{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--fg)}
+.fhud-val.ok{color:var(--green)}.fhud-val.warn{color:var(--yellow)}.fhud-val.danger{color:var(--red)}
+.fhud-assess{margin-top:3px;padding-top:4px;border-top:1px solid rgba(255,255,255,0.05)}
+.fhud-assess-badge{font-size:8px;font-weight:700;letter-spacing:0.5px;padding:2px 7px;border-radius:2px;text-align:center;display:block;font-family:'Rajdhani',sans-serif}
+.fhud-reopen{font-size:7px;color:var(--fg3);text-align:center;padding:3px 0 5px;font-family:'Inter',sans-serif;letter-spacing:0.3px;cursor:pointer;display:none}
+.fhud-reopen:hover{color:var(--fg2)}
+
+/* ── TABLET CLOSE (test mode) ── */
+#tabletClosed{position:fixed;inset:0;z-index:400;background:rgba(2,4,12,0.94);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+#tabletClosed.visible{display:flex}
+.tc-label{font-size:10px;color:var(--fg3);letter-spacing:2px;font-family:'Orbitron',sans-serif}
+.tc-open-btn{margin-top:8px;padding:8px 20px;background:rgba(0,212,255,0.10);border:1px solid rgba(0,212,255,0.30);border-radius:3px;color:var(--cyan);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:1px}
 </style>
 </head>
 <body>
@@ -315,6 +400,8 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
   <button class="sc-btn" onclick="loadScenario('overdose',this);document.getElementById('debug-panel').classList.remove('open')">💊 Overdose</button>
   <div style="height:1px;background:rgba(255,255,255,0.06);margin:6px 0"></div>
   <button class="sc-btn" style="color:var(--purple);border-color:rgba(167,139,250,0.20)" onclick="window.location.href='../imagerie/'">📡 → Imagerie</button>
+  <div style="height:1px;background:rgba(255,255,255,0.06);margin:6px 0"></div>
+  <button class="sc-btn" style="color:var(--red)" onclick="closeTablet()">🔒 Fermer tablette</button>
 </div>
 
 <div class="app">
@@ -417,12 +504,19 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
         </div>
       </div>
 
-      <!-- Critical stabilisation -->
-      <div class="crit-section" id="critSection" style="display:none">
-        <button class="crit-btn" onclick="startGame()">
-          <span class="crit-btn-pulse"></span>
-          STABILISATION D'URGENCE
-        </button>
+      <!-- Action section — adapts to consciousness -->
+      <div id="actionSection" style="display:none">
+        <!-- Inconscient → RCP -->
+        <div class="crit-section" id="actionRcp" style="display:none">
+          <button class="crit-btn" onclick="startRCP()">
+            <span class="crit-btn-pulse"></span>
+            💓 RCP — STABILISER
+          </button>
+        </div>
+        <!-- Conscient → Bobologie -->
+        <div style="padding:8px 10px;border-top:1px solid rgba(0,212,255,0.12);display:none" id="actionBobo">
+          <button class="scan-btn" style="color:var(--cyan)" onclick="startBobo()">🩺 PRISE EN CHARGE</button>
+        </div>
       </div>
 
       <!-- Monitoring continu -->
@@ -484,6 +578,70 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
         </div>
       </div>
 
+      <!-- RCP game view -->
+      <div id="view-rcp" class="center-view">
+        <div id="rcpInner">
+          <div class="rcp-title">💓 RCP — RÉANIMATION</div>
+          <div class="rcp-sub">PATIENT INCONSCIENT — 2 CYCLES DE RCP</div>
+          <div class="rcp-counter">
+            <div class="rcp-num" id="rcpCount">0</div>
+            <div class="rcp-num-label" id="rcpCountLabel">COMPRESSIONS / 15</div>
+          </div>
+          <div class="rcp-phase-label" id="rcpPhaseLabel">PRÊT — APPUYEZ POUR COMMENCER</div>
+          <div class="rcp-quality" id="rcpQuality"></div>
+          <div class="rcp-rhythm">
+            <div class="rcp-beat-zone"></div>
+            <div class="rcp-cursor" id="rcpCursor"></div>
+          </div>
+          <button class="rcp-press-btn" id="rcpPressBtn" onclick="rcpPress()">💓 COMPRIMER</button>
+          <button class="rcp-breath-btn" id="rcpBreathBtn" style="display:none" onclick="rcpBreathe()">💨 SOUFFLER</button>
+        </div>
+        <div class="rcp-success" id="rcpSuccess">
+          <div class="rcp-success-icon">✅</div>
+          <div class="rcp-success-title">RYTHME RÉTABLI</div>
+          <div class="rcp-success-sub">Patient stabilisé — Transport possible</div>
+          <button class="rcp-back-btn" onclick="endRCP()">Retour au diagnostic</button>
+        </div>
+      </div>
+
+      <!-- Bobologie flow view -->
+      <div id="view-bobo" class="center-view">
+        <div class="bobo-title">🩺 PRISE EN CHARGE</div>
+        <div class="bobo-sub">PATIENT CONSCIENT — SOINS ET TRANSPORT</div>
+        <div class="bobo-steps" id="boboSteps">
+          <div class="bobo-step inactive-step" id="bbs-0" onmousedown="holdBobo(0)" onmouseup="releaseBobo(0)" onmouseleave="releaseBobo(0)" ontouchstart="holdBobo(0)" ontouchend="releaseBobo(0)">
+            <div class="bobo-fill" id="bbf-0" style="width:0%"></div>
+            <div class="bobo-step-num">01</div>
+            <div class="bobo-icon">💬</div>
+            <div class="bobo-txt"><div class="bobo-step-name">Rassurer le patient</div><div class="bobo-step-hint">Maintenir appuyé</div></div>
+          </div>
+          <div class="bobo-step inactive-step" id="bbs-1" onmousedown="holdBobo(1)" onmouseup="releaseBobo(1)" onmouseleave="releaseBobo(1)" ontouchstart="holdBobo(1)" ontouchend="releaseBobo(1)">
+            <div class="bobo-fill" id="bbf-1" style="width:0%"></div>
+            <div class="bobo-step-num">02</div>
+            <div class="bobo-icon">🩺</div>
+            <div class="bobo-txt"><div class="bobo-step-name">Évaluer les blessures</div><div class="bobo-step-hint">Maintenir appuyé</div></div>
+          </div>
+          <div class="bobo-step inactive-step" id="bbs-2" onmousedown="holdBobo(2)" onmouseup="releaseBobo(2)" onmouseleave="releaseBobo(2)" ontouchstart="holdBobo(2)" ontouchend="releaseBobo(2)">
+            <div class="bobo-fill" id="bbf-2" style="width:0%"></div>
+            <div class="bobo-step-num">03</div>
+            <div class="bobo-icon">🩹</div>
+            <div class="bobo-txt"><div class="bobo-step-name">Soins de base</div><div class="bobo-step-hint">Maintenir appuyé</div></div>
+          </div>
+          <div class="bobo-step inactive-step" id="bbs-3" onmousedown="holdBobo(3)" onmouseup="releaseBobo(3)" onmouseleave="releaseBobo(3)" ontouchstart="holdBobo(3)" ontouchend="releaseBobo(3)">
+            <div class="bobo-fill" id="bbf-3" style="width:0%"></div>
+            <div class="bobo-step-num">04</div>
+            <div class="bobo-icon">🚑</div>
+            <div class="bobo-txt"><div class="bobo-step-name">Appeler l'ambulance</div><div class="bobo-step-hint">Maintenir appuyé</div></div>
+          </div>
+        </div>
+        <div class="bobo-success" id="boboSuccess">
+          <div class="bobo-success-icon">🚑</div>
+          <div class="bobo-success-title">TRANSPORT EN COURS</div>
+          <div class="bobo-success-sub">Patient stabilisé — en route vers l'hôpital</div>
+          <button class="bobo-back-btn" onclick="endBobo()">Retour au diagnostic</button>
+        </div>
+      </div>
+
       <!-- Game view -->
       <div id="view-game" class="center-view">
         <div class="game-title">⚡ STABILISATION D'URGENCE</div>
@@ -541,7 +699,6 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
         <div class="detail-panel hidden" id="detailPanel">
           <div class="detail-zone"><span id="detailZone">—</span><span class="detail-zone-accent" id="detailSev">—</span></div>
           <div class="detail-body" id="detailBody">—</div>
-          <div class="detail-actions" id="detailActions"></div>
         </div>
         <div class="log-section">
           <div class="inj-section-title">Journal opératoire</div>
@@ -563,6 +720,28 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
   </div>
 </div>
 <div id="criticalAlert"><div class="crit-inner"><div class="crit-title">⚠ ALERTE CRITIQUE</div><div class="crit-msg" id="critAlertMsg"></div></div></div>
+
+<!-- Floating patient HUD (persiste après fermeture tablette) -->
+<div id="floatingHud">
+  <div class="fhud-head">
+    <span class="fhud-title">👤 PATIENT</span>
+    <span class="fhud-live"><span class="fhud-live-dot"></span>LIVE</span>
+  </div>
+  <div class="fhud-body">
+    <div class="fhud-row"><span class="fhud-label">BPM</span><span class="fhud-val" id="fhudBpm">—</span></div>
+    <div class="fhud-row"><span class="fhud-label">SpO₂</span><span class="fhud-val" id="fhudSpo2">—</span></div>
+    <div class="fhud-row"><span class="fhud-label">TA</span><span class="fhud-val" id="fhudBp">—</span></div>
+    <div class="fhud-row"><span class="fhud-label">État</span><span class="fhud-val" id="fhudCons">—</span></div>
+    <div class="fhud-assess"><span class="fhud-assess-badge assess-stable" id="fhudAssess">—</span></div>
+    <div class="fhud-reopen" id="fhudReopen" onclick="openTablet()">▲ Rouvrir tablette</div>
+  </div>
+</div>
+
+<!-- Overlay tablette fermée (test) -->
+<div id="tabletClosed">
+  <span class="tc-label">📱 TABLETTE FERMÉE</span>
+  <button class="tc-open-btn" onclick="openTablet()">ROUVRIR LA TABLETTE</button>
+</div>
 
 <script>
 'use strict';
@@ -868,8 +1047,13 @@ function loadScenario(key, btn) {
   beam.style.display = 'none';
   document.getElementById('bpmWrap').style.display = 'none';
   document.getElementById('bpmDisp').textContent = '—';
-  document.getElementById('critSection').style.display = 'none';
+  document.getElementById('actionSection').style.display = 'none';
+  document.getElementById('actionRcp').style.display = 'none';
+  document.getElementById('actionBobo').style.display = 'none';
   critStabilized = false;
+  if (typeof stopRCPBeat === 'function') stopRCPBeat();
+  document.getElementById('floatingHud').classList.remove('visible');
+  openTablet();
   stopVitalsDrift();
   resetMonitoring();
   ecgBpm = currentScenario.bpm;
@@ -1092,6 +1276,7 @@ function attachMonitoring() {
   document.getElementById('monitorActive').style.display = 'flex';
   updateMonitorVitals(vitals);
   addLog('Monitoring attaché — constantes visibles in-game', 'ok');
+  updateFloatingHUD();
 }
 
 function detachMonitoring() {
@@ -1149,6 +1334,7 @@ function launchScan() {
     document.getElementById('markersLayer').style.opacity = '1';
     scanDone = true;
     btn.textContent = '✓ Scan effectué';
+    renderZones(currentScenarioKey);
     btn.style.color = 'var(--green)';
     btn.style.borderColor = 'rgba(0,230,118,0.25)';
     btn.style.background = 'rgba(0,230,118,0.06)';
@@ -1173,13 +1359,15 @@ function checkAllExams() {
   } else if (s.assessment === 'critical') {
     sa.textContent = 'Critique'; sa.className = 'stat-cell-assess assess-critical';
     ab.textContent = 'CRITIQUE'; ab.style.color = 'var(--red)'; ab.style.borderColor = 'rgba(255,82,82,0.35)'; ab.style.background = 'rgba(255,82,82,0.08)';
-    document.getElementById('critSection').style.display = 'block';
-    addLog("⚠ État critique — Stabilisation d'urgence requise avant transport", 'err');
+    showActionSection(s);
+    addLog("⚠ État critique — Prise en charge requise avant transport", 'err');
   } else if (s.assessment === 'serious') {
     sa.textContent = 'Sérieux'; sa.className = 'stat-cell-assess assess-serious';
     ab.textContent = 'SÉRIEUX'; ab.style.color = 'var(--orange)'; ab.style.borderColor = 'rgba(255,152,0,0.35)'; ab.style.background = 'rgba(255,152,0,0.08)';
+    showActionSection(s);
   } else {
     sa.textContent = 'Stable'; sa.className = 'stat-cell-assess assess-stable';
+    showActionSection(s);
     ab.textContent = 'STABLE'; ab.style.color = 'var(--green)'; ab.style.borderColor = 'rgba(0,230,118,0.35)'; ab.style.background = 'rgba(0,230,118,0.08)';
     addLog('✓ Patient stable — Transport autorisé', 'ok');
   }
@@ -1187,11 +1375,11 @@ function checkAllExams() {
 
 // ── Views ─────────────────────────────────────────────────────
 function showBodyView() {
+  ['view-game','view-rcp','view-bobo'].forEach(id => document.getElementById(id).classList.remove('active'));
   document.getElementById('view-body').classList.add('active');
-  document.getElementById('view-game').classList.remove('active');
 }
 function showGameView() {
-  document.getElementById('view-body').classList.remove('active');
+  ['view-body','view-rcp','view-bobo'].forEach(id => document.getElementById(id).classList.remove('active'));
   document.getElementById('view-game').classList.add('active');
 }
 
@@ -1299,6 +1487,274 @@ function endGame() {
   checkAllExams();
 }
 
+// ── ZONE CHIPS DATA ───────────────────────────────────────────
+const ZONE_DATA = {
+  gunshot: {tete:{pct:100,c:''},torse:{pct:24,c:'🔫🔫'},brasg:{pct:82,c:'🔫'},brasd:{pct:100,c:''},jambeg:{pct:100,c:''},jambed:{pct:100,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
+  accident:{tete:{pct:55,c:'🚗'},torse:{pct:100,c:''},brasg:{pct:100,c:''},brasd:{pct:84,c:'🚗'},jambeg:{pct:100,c:''},jambed:{pct:50,c:'🚗'},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
+  stab:    {tete:{pct:100,c:''},torse:{pct:20,c:'🔪🔪'},brasg:{pct:100,c:''},brasd:{pct:100,c:''},jambeg:{pct:100,c:''},jambed:{pct:100,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
+  fall:    {tete:{pct:100,c:''},torse:{pct:60,c:'⬇'},brasg:{pct:100,c:''},brasd:{pct:78,c:'⬇'},jambeg:{pct:100,c:''},jambed:{pct:100,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
+  fire:    {tete:{pct:75,c:'🔥'},torse:{pct:22,c:'🔥🔥'},brasg:{pct:45,c:'🔥'},brasd:{pct:45,c:'🔥'},jambeg:{pct:90,c:''},jambed:{pct:90,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
+  minor:   {tete:{pct:100,c:''},torse:{pct:100,c:''},brasg:{pct:88,c:'🔪'},brasd:{pct:100,c:''},jambeg:{pct:100,c:''},jambed:{pct:100,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
+  cardiac: {tete:{pct:100,c:''},torse:{pct:15,c:'❤️'},brasg:{pct:100,c:''},brasd:{pct:100,c:''},jambeg:{pct:100,c:''},jambed:{pct:100,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
+  overdose:{tete:{pct:72,c:'💊'},torse:{pct:22,c:'💊'},brasg:{pct:100,c:''},brasd:{pct:100,c:''},jambeg:{pct:100,c:''},jambed:{pct:100,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
+};
+const ZONE_POS = {
+  tete:  {x:50,y:9,  name:'TÊTE'},
+  torse: {x:50,y:44, name:'TORSE'},
+  brasg: {x:14,y:42, name:'BRAS G'},
+  brasd: {x:86,y:42, name:'BRAS D'},
+  jambeg:{x:37,y:71, name:'JAMBE G'},
+  jambed:{x:63,y:71, name:'JAMBE D'},
+  piedg: {x:33,y:90, name:'PIED G'},
+  piedd: {x:67,y:90, name:'PIED D'},
+};
+
+function renderZones(key) {
+  const layer = document.getElementById('markersLayer');
+  const zd = ZONE_DATA[key];
+  if (!zd) return;
+  layer.querySelectorAll('.zone-chip').forEach(e => e.remove());
+  layer.querySelectorAll('.marker').forEach(m => m.style.display = 'none');
+  Object.entries(zd).forEach(([zoneId, {pct, c}]) => {
+    if (pct >= 100 && !c) return;
+    const pos = ZONE_POS[zoneId];
+    if (!pos) return;
+    const colorClass = pct <= 24 ? 'z-red' : pct <= 49 ? 'z-orange' : pct <= 74 ? 'z-yellow' : 'z-green';
+    const chip = document.createElement('div');
+    chip.className = 'zone-chip ' + colorClass;
+    chip.style.left = pos.x + '%';
+    chip.style.top  = pos.y + '%';
+    chip.innerHTML = `<span class="zc-pct">${pct}%</span><span class="zc-name">${pos.name}</span>${c ? `<span class="zc-cause">${c}</span>` : ''}`;
+    chip.onclick = () => selectZoneChip(zoneId, pct, c);
+    layer.appendChild(chip);
+  });
+}
+
+function selectZoneChip(zoneId, pct, cause) {
+  const pos = ZONE_POS[zoneId];
+  const panel = document.getElementById('detailPanel');
+  const sevLabel = pct <= 24 ? '— CRITIQUE' : pct <= 49 ? '— SÉVÈRE' : pct <= 74 ? '— TRAUMATISME' : '— LÉGER';
+  document.getElementById('detailZone').textContent = pos ? pos.name : zoneId;
+  document.getElementById('detailSev').textContent = sevLabel;
+  const matchInj = (currentScenario.injuries || []).find(inj => {
+    const z = inj.zone.toLowerCase();
+    if (zoneId === 'tete')   return z.includes('crân') || z.includes('tête') || z.includes('cérébr') || z.includes('skull');
+    if (zoneId === 'torse')  return z.includes('thorax') || z.includes('torse') || z.includes('abdom') || z.includes('cœur') || z.includes('coron') || z.includes('voie') || z.includes('rachis') || z.includes('lomba');
+    if (zoneId === 'brasg')  return (z.includes('bras') || z.includes('memb') || z.includes('avant-bras')) && z.includes('gauche');
+    if (zoneId === 'brasd')  return (z.includes('bras') || z.includes('épaule') || z.includes('poignet')) && (z.includes('droit') || !z.includes('gauche'));
+    if (zoneId === 'jambeg') return z.includes('jambe') && z.includes('gauche');
+    if (zoneId === 'jambed') return z.includes('jambe') && z.includes('droit');
+    if (zoneId === 'piedg')  return z.includes('pied') && z.includes('gauche');
+    if (zoneId === 'piedd')  return z.includes('pied') && z.includes('droit');
+    return false;
+  });
+  document.getElementById('detailBody').innerHTML = matchInj ? matchInj.desc
+    : `<strong>${pct <= 24 ? 'Zone très gravement atteinte' : pct <= 49 ? 'Blessure sévère' : pct <= 74 ? 'Traumatisme modéré' : 'Légèrement atteint'}</strong>${cause ? ` — cause : ${cause}` : ''}`;
+  document.querySelectorAll('.inj-item').forEach(el => el.classList.remove('selected'));
+  panel.classList.remove('hidden');
+}
+
+// ── ACTION SECTION ────────────────────────────────────────────
+function showActionSection(s) {
+  document.getElementById('actionSection').style.display = 'block';
+  if (!s.conscious) {
+    document.getElementById('actionRcp').style.display = 'block';
+    document.getElementById('actionBobo').style.display = 'none';
+  } else {
+    document.getElementById('actionRcp').style.display = 'none';
+    document.getElementById('actionBobo').style.display = 'block';
+  }
+}
+
+// ── RCP GAME ──────────────────────────────────────────────────
+let rcpState = null, rcpBeatTimer = null, rcpCursorPhase = 0, rcpCycleCount = 0;
+const RCP_COMPRESSIONS = 15;
+
+function startRCP() {
+  rcpState = {compressions:0, breaths:0, phase:'compress'};
+  rcpCycleCount = 0;
+  ['view-body','view-game','view-bobo'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById('view-rcp').classList.add('active');
+  document.getElementById('rcpInner').style.display = '';
+  document.getElementById('rcpSuccess').style.display = 'none';
+  document.getElementById('rcpPressBtn').style.display = 'block';
+  document.getElementById('rcpPressBtn').disabled = false;
+  document.getElementById('rcpBreathBtn').style.display = 'none';
+  document.getElementById('rcpQuality').textContent = '';
+  updateRCPUI();
+  startRCPBeat();
+  addLog('🫀 RCP démarrée — 2 cycles de compressions', 'err');
+  SND.alert();
+}
+
+function startRCPBeat() {
+  if (rcpBeatTimer) clearInterval(rcpBeatTimer);
+  rcpCursorPhase = 0;
+  rcpBeatTimer = setInterval(() => {
+    rcpCursorPhase = (rcpCursorPhase + 0.1) % 1; // 60ms × 10 steps = 600ms/cycle
+    const cursor = document.getElementById('rcpCursor');
+    if (cursor) cursor.style.left = (rcpCursorPhase * 100) + '%';
+    if (rcpCursorPhase >= 0.39 && rcpCursorPhase <= 0.41) SND.ecg();
+  }, 60);
+}
+
+function stopRCPBeat() { if (rcpBeatTimer) { clearInterval(rcpBeatTimer); rcpBeatTimer = null; } }
+
+function rcpPress() {
+  if (!rcpState || rcpState.phase !== 'compress') return;
+  const good = rcpCursorPhase >= 0.30 && rcpCursorPhase <= 0.70;
+  const qEl = document.getElementById('rcpQuality');
+  qEl.textContent = good ? '✓ RYTHME PARFAIT' : '⚡ HORS RYTHME';
+  qEl.className = 'rcp-quality ' + (good ? 'good' : 'ok');
+  rcpState.compressions++;
+  const btn = document.getElementById('rcpPressBtn');
+  btn.classList.add('pressed');
+  setTimeout(() => btn.classList.remove('pressed'), 80);
+  updateRCPUI();
+  if (rcpState.compressions >= RCP_COMPRESSIONS) {
+    rcpState.phase = 'breath';
+    rcpState.breaths = 0;
+    document.getElementById('rcpPressBtn').style.display = 'none';
+    document.getElementById('rcpBreathBtn').style.display = 'block';
+    document.getElementById('rcpPhaseLabel').textContent = '💨 INSUFFLATIONS — 2 SOUFFLES';
+    document.getElementById('rcpQuality').textContent = '';
+    addLog('✓ ' + RCP_COMPRESSIONS + ' compressions — Soufflez !', 'ok');
+  }
+}
+
+function rcpBreathe() {
+  if (!rcpState || rcpState.phase !== 'breath') return;
+  rcpState.breaths++;
+  SND.ok();
+  const btn = document.getElementById('rcpBreathBtn');
+  btn.style.opacity = '0.55'; setTimeout(() => btn.style.opacity = '', 200);
+  if (rcpState.breaths >= 2) {
+    rcpCycleCount++;
+    if (rcpCycleCount >= 2) {
+      stopRCPBeat();
+      rcpState = null;
+      document.getElementById('rcpInner').style.display = 'none';
+      document.getElementById('rcpSuccess').style.display = 'block';
+      addLog('✅ Rythme rétabli — Transport autorisé', 'ok');
+      critStabilized = true;
+    } else {
+      rcpState.compressions = 0;
+      rcpState.phase = 'compress';
+      document.getElementById('rcpBreathBtn').style.display = 'none';
+      document.getElementById('rcpPressBtn').style.display = 'block';
+      addLog('✓ Insufflations OK — Cycle ' + (rcpCycleCount + 1) + '/2', 'ok');
+      updateRCPUI();
+    }
+  }
+}
+
+function updateRCPUI() {
+  if (!rcpState) return;
+  document.getElementById('rcpCount').textContent = rcpState.compressions;
+  document.getElementById('rcpCountLabel').textContent = rcpState.phase === 'compress' ? 'COMPRESSIONS / ' + RCP_COMPRESSIONS : 'INSUFFLATIONS / 2';
+  document.getElementById('rcpPhaseLabel').textContent = rcpState.phase === 'compress'
+    ? '💓 COMPRESSIONS — CYCLE ' + (rcpCycleCount + 1) + '/2'
+    : '💨 INSUFFLATIONS — 2 SOUFFLES';
+}
+
+function endRCP() {
+  stopRCPBeat();
+  document.getElementById('view-rcp').classList.remove('active');
+  document.getElementById('view-body').classList.add('active');
+  checkAllExams();
+}
+
+// ── BOBOLOGIE FLOW ────────────────────────────────────────────
+let boboCurrentStep = 0;
+const boboHolds = {};
+const BOBO_DUR = [1800, 2200, 2800, 900];
+
+function startBobo() {
+  boboCurrentStep = 0;
+  ['view-body','view-game','view-rcp'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById('view-bobo').classList.add('active');
+  document.getElementById('boboSteps').style.display = '';
+  document.getElementById('boboSuccess').style.display = 'none';
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('bbs-' + i).className = 'bobo-step ' + (i === 0 ? 'active-step' : 'inactive-step');
+    document.getElementById('bbf-' + i).style.width = '0%';
+  }
+  addLog('🩺 Prise en charge initiée', 'info');
+}
+
+function holdBobo(idx) {
+  if (idx !== boboCurrentStep || boboHolds[idx]) return;
+  const fill = document.getElementById('bbf-' + idx);
+  const dur = BOBO_DUR[idx] || 1800;
+  let prog = 0;
+  boboHolds[idx] = setInterval(() => {
+    prog += 100 / (dur / 30);
+    fill.style.width = Math.min(prog, 100) + '%';
+    if (prog >= 100) { releaseBobo(idx); completeBobo(idx); }
+  }, 30);
+}
+
+function releaseBobo(idx) { if (boboHolds[idx]) { clearInterval(boboHolds[idx]); delete boboHolds[idx]; } }
+
+function completeBobo(idx) {
+  document.getElementById('bbs-' + idx).className = 'bobo-step step-done';
+  document.getElementById('bbf-' + idx).style.width = '100%';
+  boboCurrentStep = idx + 1;
+  const msgs = ['Patient rassuré et questionnaire réalisé','Blessures évaluées et localisées','Soins de base effectués','🚑 Ambulance appelée — transport en cours'];
+  addLog('✓ ' + msgs[idx], 'ok');
+  SND.ok();
+  if (boboCurrentStep < 4) {
+    document.getElementById('bbs-' + boboCurrentStep).className = 'bobo-step active-step';
+  } else {
+    document.getElementById('boboSteps').style.display = 'none';
+    document.getElementById('boboSuccess').style.display = 'block';
+    critStabilized = true;
+  }
+}
+
+function endBobo() {
+  document.getElementById('view-bobo').classList.remove('active');
+  document.getElementById('view-body').classList.add('active');
+  checkAllExams();
+}
+
+// ── FLOATING HUD ──────────────────────────────────────────────
+function updateFloatingHUD() {
+  if (!monitoringActive || !currentScenario) return;
+  const s = currentScenario;
+  const bpmEl = document.getElementById('bpmDisp');
+  const bpm = parseInt(bpmEl.textContent) || s.bpm;
+  const spo2El = document.getElementById('ev-spo2');
+  const spo2 = examDone.spo2 && spo2El ? (parseInt(spo2El.textContent) || s.spo2) : s.spo2;
+  document.getElementById('fhudBpm').textContent = bpm;
+  document.getElementById('fhudBpm').className = 'fhud-val ' + (bpm < 50 || bpm > 140 ? 'danger' : bpm < 60 || bpm > 120 ? 'warn' : 'ok');
+  document.getElementById('fhudSpo2').textContent = spo2 + '%';
+  document.getElementById('fhudSpo2').className = 'fhud-val ' + (spo2 < 85 ? 'danger' : spo2 < 95 ? 'warn' : 'ok');
+  document.getElementById('fhudBp').textContent = s.bp || '—';
+  document.getElementById('fhudBp').className = 'fhud-val';
+  document.getElementById('fhudCons').textContent = s.conscious ? 'CONSCIENT' : 'INCONSCIENT';
+  document.getElementById('fhudCons').className = 'fhud-val ' + (s.conscious ? 'ok' : 'danger');
+  const ab = document.getElementById('assessBadge');
+  const assess = document.getElementById('fhudAssess');
+  assess.textContent = ab.textContent !== '—' ? ab.textContent : (s.assessment || '—').toUpperCase();
+  assess.className = 'fhud-assess-badge ' + (s.assessment === 'critical' ? 'assess-critical' : s.assessment === 'serious' ? 'assess-serious' : 'assess-stable');
+  document.getElementById('floatingHud').classList.add('visible');
+}
+
+// ── TABLET CLOSE (test mode) ──────────────────────────────────
+function closeTablet() {
+  document.getElementById('debug-panel').classList.remove('open');
+  document.querySelector('.app').style.display = 'none';
+  document.getElementById('tabletClosed').classList.add('visible');
+  document.getElementById('fhudReopen').style.display = monitoringActive ? 'block' : 'none';
+}
+
+function openTablet() {
+  document.querySelector('.app').style.display = '';
+  document.getElementById('tabletClosed').classList.remove('visible');
+  document.getElementById('fhudReopen').style.display = 'none';
+}
+
 // ── Injury list & markers ─────────────────────────────────────
 function renderInjuryList(injuries) {
   const list = document.getElementById('injuryList');
@@ -1320,9 +1776,6 @@ function selectInjury(idx) {
   document.getElementById('detailZone').textContent = inj.zone;
   document.getElementById('detailSev').textContent = inj.severity === 'critical' ? '— CRITIQUE' : inj.severity === 'serious' ? '— SÉRIEUX' : '— MINEUR';
   document.getElementById('detailBody').innerHTML = inj.desc;
-  document.getElementById('detailActions').innerHTML = inj.actions.map(a =>
-    `<button class="act-btn ${inj.severity==='critical'?'act-danger':'act-primary'}" onclick="doAction('${a}')">${a}</button>`
-  ).join('');
   panel.classList.remove('hidden');
 }
 
