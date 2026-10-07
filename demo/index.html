@@ -155,7 +155,8 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .center-view.active{opacity:1;pointer-events:all}
 
 /* Body scan */
-.scan-outer{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:10px;width:100%}
+.scan-outer{flex:1;display:flex;flex-direction:column;align-items:center;overflow-y:auto;overflow-x:hidden;padding:8px 10px;width:100%}
+#consIndicator{flex-shrink:0;width:100%;max-width:200px;margin:4px auto 0;padding:5px 10px;border-radius:3px;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-align:center;display:none}
 .scan-frame{position:relative;width:min(180px,35vw);flex-shrink:0}
 .scan-body-svg{width:100%;height:auto;display:block}
 .marker{position:absolute;width:14px;height:14px;border-radius:50%;background:rgba(255,82,82,0.25);border:2px solid var(--red);transform:translate(-50%,-50%);cursor:pointer;transition:all .15s;animation:markerPulse 2s ease-in-out infinite}
@@ -172,14 +173,6 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .crit-title{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:#ff5252;text-shadow:0 0 18px rgba(255,82,82,0.6);letter-spacing:3px}
 .crit-msg{font-size:10px;color:rgba(255,120,120,0.8);margin-top:5px;letter-spacing:1px}
 .marker.minor::after{border-color:rgba(255,202,40,0.35)}
-.scan-stats{display:grid;grid-template-columns:1fr 1fr 1fr;width:100%;max-width:320px;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-top:10px;background:rgba(0,0,0,0.25);flex-shrink:0}
-.stat-cell{padding:7px 6px;text-align:center;border-right:1px solid var(--border)}
-.stat-cell:last-child{border-right:none}
-.stat-cell-label{font-size:8px;color:rgba(232,244,255,0.70);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:3px}
-.stat-cell-cons{grid-column:1/-1;border-top:1px solid var(--border);padding:5px 10px;text-align:center;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px}
-.stat-cell-val{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--fg)}
-.stat-cell-val.danger{color:var(--red)}.stat-cell-val.warn{color:var(--yellow)}
-.stat-cell-assess{font-size:10px;font-weight:700;letter-spacing:0.5px;padding:2px 8px;border-radius:2px;display:inline-block}
 .assess-stable{background:rgba(0,230,118,0.10);border:1px solid rgba(0,230,118,0.25);color:var(--green)}
 .assess-critical{background:rgba(255,82,82,0.10);border:1px solid rgba(255,82,82,0.25);color:var(--red)}
 .assess-critical-stable{background:rgba(255,152,0,0.10);border:1px solid rgba(255,152,0,0.25);color:var(--orange)}
@@ -365,7 +358,8 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 /* ── FLOATING HUD ── */
 #floatingHud{position:fixed;top:12px;right:12px;z-index:500;background:rgba(4,8,18,0.95);border:1px solid rgba(0,212,255,0.32);border-radius:6px;min-width:162px;box-shadow:0 4px 24px rgba(0,0,0,0.6),0 0 0 1px rgba(0,212,255,0.05);display:none;backdrop-filter:blur(12px)}
 #floatingHud.visible{display:block}
-.fhud-head{display:flex;align-items:center;justify-content:space-between;padding:5px 9px;border-bottom:1px solid rgba(0,212,255,0.12);background:rgba(0,212,255,0.04);border-radius:6px 6px 0 0}
+.fhud-head{display:flex;align-items:center;justify-content:space-between;padding:5px 9px;border-bottom:1px solid rgba(0,212,255,0.12);background:rgba(0,212,255,0.04);border-radius:6px 6px 0 0;cursor:grab;user-select:none}
+.fhud-head:active{cursor:grabbing}
 .fhud-title{font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;color:var(--cyan);letter-spacing:2px}
 .fhud-live{display:flex;align-items:center;gap:4px;font-size:7px;color:var(--green);font-family:'Inter',sans-serif;letter-spacing:1px}
 .fhud-live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse .8s ease-in-out infinite}
@@ -569,13 +563,8 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
             <div id="markersLayer" style="position:absolute;inset:0;opacity:0;transition:opacity .4s"></div>
             <div class="scan-beam" id="scanBeam"></div>
           </div>
-          <div class="scan-stats">
-            <div class="stat-cell"><div class="stat-cell-label">Trauma Index</div><div class="stat-cell-val" id="statTrauma">—</div></div>
-            <div class="stat-cell"><div class="stat-cell-label">Régions</div><div class="stat-cell-val" id="statRegions">—</div></div>
-            <div class="stat-cell"><div class="stat-cell-label">Évaluation</div><div style="padding-top:2px"><span class="stat-cell-assess assess-stable" id="statAssess">—</span></div></div>
-            <div class="stat-cell-cons" id="consIndicator" style="display:none">—</div>
-          </div>
         </div>
+        <div id="consIndicator">—</div>
         <div class="scan-btn-wrap">
           <button class="scan-btn" id="scanBtn" onclick="launchScan()">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="3" x2="11" y2="3" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".5"/><line x1="1" y1="9" x2="11" y2="9" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".5"/></svg>
@@ -1026,15 +1015,11 @@ function loadScenario(key, btn) {
   resetMonitoring();
   ecgBpm = currentScenario.bpm;
   document.getElementById('ecgRhythm').textContent = 'En attente...';
-  // Stats
-  document.getElementById('statTrauma').textContent = '—';
-  document.getElementById('statRegions').textContent = '—';
-  const sa = document.getElementById('statAssess');
-  sa.textContent = '—'; sa.className = 'stat-cell-assess assess-stable';
+  // Stats reset
   const ab = document.getElementById('assessBadge');
   ab.textContent = '—'; ab.style.background = ''; ab.style.borderColor = ''; ab.style.color = '';
-  // Injuries + markers
-  renderInjuryList(currentScenario.injuries);
+  // Injuries hidden until scan
+  document.getElementById('injuryList').innerHTML = '<div style="color:var(--fg3);font-size:9px;padding:12px 0;text-align:center;letter-spacing:0.5px">Effectuer le scan pour détecter les blessures</div>';
   renderMarkers(currentScenario.injuries);
   pushSharedLog('DIAG', `Nouveau patient — Scénario : ${btn ? btn.textContent.trim() : key}`, 'info');
   if (!currentScenario.conscious) { pushSharedLog('DIAG','⚠ Patient inconscient','err'); }
@@ -1299,6 +1284,7 @@ function launchScan() {
     scanDone = true;
     btn.textContent = '✓ Scan effectué';
     renderZones(currentScenarioKey);
+    renderInjuryList(currentScenario.injuries);
     btn.style.color = 'var(--green)';
     btn.style.borderColor = 'rgba(0,230,118,0.25)';
     btn.style.background = 'rgba(0,230,118,0.06)';
@@ -1329,29 +1315,19 @@ function checkAllExams() {
   const count = Object.keys(examDone).length;
   if (count < 2) return;
   const s = currentScenario;
-  // Update stats
-  document.getElementById('statTrauma').textContent = s.trauma;
-  document.getElementById('statRegions').textContent = s.injuries.length;
-  const statTC = document.getElementById('statTrauma');
-  statTC.className = 'stat-cell-val ' + (s.trauma >= 7 ? 'danger' : s.trauma >= 4 ? 'warn' : '');
-  const sa = document.getElementById('statAssess');
   const ab = document.getElementById('assessBadge');
   updateConsIndicator();
   if (critStabilized) {
-    sa.textContent = 'Critique Stable'; sa.className = 'stat-cell-assess assess-critical-stable';
     ab.textContent = 'CRITIQUE STABLE'; ab.style.color = 'var(--orange)'; ab.style.borderColor = 'rgba(255,152,0,0.4)'; ab.style.background = 'rgba(255,152,0,0.08)';
     showActionSection(s);
   } else if (s.assessment === 'critical') {
-    sa.textContent = 'Critique'; sa.className = 'stat-cell-assess assess-critical';
     ab.textContent = 'CRITIQUE'; ab.style.color = 'var(--red)'; ab.style.borderColor = 'rgba(255,82,82,0.35)'; ab.style.background = 'rgba(255,82,82,0.08)';
     showActionSection(s);
     addLog("⚠ État critique — Prise en charge requise avant transport", 'err');
   } else if (s.assessment === 'serious') {
-    sa.textContent = 'Sérieux'; sa.className = 'stat-cell-assess assess-serious';
     ab.textContent = 'SÉRIEUX'; ab.style.color = 'var(--orange)'; ab.style.borderColor = 'rgba(255,152,0,0.35)'; ab.style.background = 'rgba(255,152,0,0.08)';
     showActionSection(s);
   } else {
-    sa.textContent = 'Stable'; sa.className = 'stat-cell-assess assess-stable';
     showActionSection(s);
     ab.textContent = 'STABLE'; ab.style.color = 'var(--green)'; ab.style.borderColor = 'rgba(0,230,118,0.35)'; ab.style.background = 'rgba(0,230,118,0.08)';
     addLog('✓ Patient stable — Transport autorisé', 'ok');
@@ -1786,6 +1762,54 @@ function renderMarkers(injuries) {
 
 // ── Log (no-op — log section removed from UI) ─────────────────
 function addLog(msg, type='info') {}
+
+// ── Draggable floatingHud ──────────────────────────────────────
+(function() {
+  const hud = document.getElementById('floatingHud');
+  if (!hud) return;
+  let dragging = false, ox = 0, oy = 0;
+  hud.querySelector('.fhud-head').addEventListener('mousedown', function(e) {
+    dragging = true;
+    const r = hud.getBoundingClientRect();
+    ox = e.clientX - r.left;
+    oy = e.clientY - r.top;
+    hud.style.right = 'auto';
+    hud.style.bottom = 'auto';
+    hud.style.left = r.left + 'px';
+    hud.style.top  = r.top  + 'px';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    const x = Math.max(0, Math.min(window.innerWidth  - hud.offsetWidth,  e.clientX - ox));
+    const y = Math.max(0, Math.min(window.innerHeight - hud.offsetHeight, e.clientY - oy));
+    hud.style.left = x + 'px';
+    hud.style.top  = y + 'px';
+  });
+  document.addEventListener('mouseup', function() { dragging = false; });
+  /* Touch support */
+  hud.querySelector('.fhud-head').addEventListener('touchstart', function(e) {
+    dragging = true;
+    const t = e.touches[0];
+    const r = hud.getBoundingClientRect();
+    ox = t.clientX - r.left;
+    oy = t.clientY - r.top;
+    hud.style.right = 'auto';
+    hud.style.bottom = 'auto';
+    hud.style.left = r.left + 'px';
+    hud.style.top  = r.top  + 'px';
+    e.preventDefault();
+  }, {passive:false});
+  document.addEventListener('touchmove', function(e) {
+    if (!dragging) return;
+    const t = e.touches[0];
+    const x = Math.max(0, Math.min(window.innerWidth  - hud.offsetWidth,  t.clientX - ox));
+    const y = Math.max(0, Math.min(window.innerHeight - hud.offsetHeight, t.clientY - oy));
+    hud.style.left = x + 'px';
+    hud.style.top  = y + 'px';
+  }, {passive:false});
+  document.addEventListener('touchend', function() { dragging = false; });
+})();
 </script>
 </body>
 </html>
