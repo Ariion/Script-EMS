@@ -1518,43 +1518,13 @@ function renderZones(key) {
     chip.style.left = pos.x + '%';
     chip.style.top  = pos.y + '%';
     chip.innerHTML = `<span class="zc-pct">${pct}%</span><span class="zc-name">${pos.name}</span>${c ? `<span class="zc-cause">${c}</span>` : ''}`;
-    chip.onclick = () => selectZoneChip(zoneId, pct, c);
+    chip.style.pointerEvents = 'none';
     layer.appendChild(chip);
   });
 }
 
-function selectZoneChip(zoneId, pct, cause) {
-  if (!currentScenarioKey) return;
-  const zd = (ZONE_DATA[currentScenarioKey] || {})[zoneId];
-  const pos = ZONE_POS[zoneId];
-  if (!pos) return;
-  const sevLabel = pct <= 24 ? 'CRITIQUE' : pct <= 49 ? 'SÉRIEUX' : pct <= 74 ? 'MODÉRÉ' : 'LÉGER';
-  const sevColor = pct <= 24 ? 'var(--red)' : pct <= 49 ? 'var(--orange)' : pct <= 74 ? 'var(--yellow)' : 'var(--green)';
-  const details = (zd && zd.details) ? zd.details : [{name: pos.name, type: cause || '—', pct}];
-  const rows = details.map(d => {
-    const dc = d.pct <= 24 ? 'var(--red)' : d.pct <= 49 ? 'var(--orange)' : d.pct <= 74 ? 'var(--yellow)' : 'var(--green)';
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-      <div style="min-width:0">
-        <div style="font-size:10px;font-weight:600;color:var(--fg)">${d.name}</div>
-        <div style="font-size:9px;color:var(--fg2);margin-top:1px">${d.type}</div>
-      </div>
-      <span style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:${dc};margin-left:10px;flex-shrink:0">${d.pct}%</span>
-    </div>`;
-  }).join('');
-  document.getElementById('injuryList').innerHTML =
-    `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border2)">
-      <div>
-        <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--cyan)">${pos.name}</div>
-        <div style="font-size:9px;font-weight:700;color:${sevColor};margin-top:2px;letter-spacing:0.8px">${sevLabel} — ${pct}% atteint</div>
-      </div>
-      <button onclick="closeZoneDetail()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:var(--fg2);cursor:pointer;font-size:10px;padding:3px 8px;border-radius:2px;font-family:inherit">← Retour</button>
-    </div>
-    ${rows}`;
-}
-
-function closeZoneDetail() {
-  if (currentScenario && scanDone) renderInjuryList(currentScenario.injuries);
-}
+function selectZoneChip() {}
+function closeZoneDetail() {}
 
 // ── ACTION SECTION ────────────────────────────────────────────
 function showActionSection(s) {
@@ -1785,14 +1755,36 @@ function openTablet() {
 // ── Injury list & markers ─────────────────────────────────────
 function renderInjuryList(injuries) {
   const list = document.getElementById('injuryList');
-  if (!injuries.length) { list.innerHTML = '<div style="color:var(--fg3);font-size:9px;padding:8px 0">Aucune blessure détectée</div>'; return; }
-  list.innerHTML = injuries.map((inj, i) => `
-    <div class="inj-item">
-      <div class="inj-item-head">
-        <span class="inj-item-zone">${inj.zone}</span>
-        <span class="inj-severity sev-${inj.severity}">${inj.severity === 'critical' ? 'CRITIQUE' : inj.severity === 'serious' ? 'SÉRIEUX' : 'MINEUR'}</span>
+  const zd = currentScenarioKey ? (ZONE_DATA[currentScenarioKey] || {}) : {};
+  const zones = Object.entries(zd);
+  if (!zones.length) {
+    list.innerHTML = '<div style="color:var(--fg3);font-size:9px;padding:8px 0">Aucune blessure détectée</div>';
+    return;
+  }
+  list.innerHTML = zones.map(([zoneId, zone]) => {
+    const pos = ZONE_POS[zoneId];
+    if (!pos) return '';
+    const {pct, details} = zone;
+    const sevLabel = pct <= 24 ? 'CRITIQUE' : pct <= 49 ? 'SÉRIEUX' : pct <= 74 ? 'MODÉRÉ' : 'LÉGER';
+    const sevColor = pct <= 24 ? 'var(--red)' : pct <= 49 ? 'var(--orange)' : pct <= 74 ? 'var(--yellow)' : 'var(--green)';
+    const subRows = (details || []).map(d => {
+      const dc = d.pct <= 24 ? 'var(--red)' : d.pct <= 49 ? 'var(--orange)' : d.pct <= 74 ? 'var(--yellow)' : 'var(--green)';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 4px 8px;border-bottom:1px solid rgba(255,255,255,0.04)">
+        <div style="min-width:0">
+          <div style="font-size:9px;font-weight:600;color:var(--fg)">${d.name}</div>
+          <div style="font-size:8px;color:var(--fg2);margin-top:1px">${d.type}</div>
+        </div>
+        <span style="font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:${dc};margin-left:8px;flex-shrink:0">${d.pct}%</span>
+      </div>`;
+    }).join('');
+    return `<div class="inj-item" style="cursor:default;margin-bottom:6px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${subRows ? 6 : 0}px">
+        <span style="font-size:10px;font-weight:700;color:var(--fg)">${pos.name}</span>
+        <span style="font-size:8px;font-weight:700;color:${sevColor};letter-spacing:0.5px">${sevLabel} ${pct}%</span>
       </div>
-    </div>`).join('');
+      ${subRows}
+    </div>`;
+  }).join('');
 }
 
 function selectInjury(idx) {}
