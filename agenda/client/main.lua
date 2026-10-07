@@ -2,7 +2,9 @@
 RegisterCommand('agenda', function() Phone.OpenApp() end, false)
 
 RegisterNUICallback('close', function(_, cb)
-  SetNuiFocus(false, false); cb({})
+  SetNuiFocus(false, false)
+  if Phone and Phone.OnClose then Phone.OnClose() end
+  cb({})
 end)
 
 RegisterNUICallback('getSlots', function(data, cb)

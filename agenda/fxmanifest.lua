@@ -23,3 +23,6 @@ server_scripts { '@oxmysql/lib/MySQL.lua', 'bridge/*.lua', 'server/*.lua' }
 escrow_ignore { 'html/**', 'config.lua' }
 
 dependencies { 'oxmysql' }
+
+-- npwd est optionnel : l'agenda fonctionne sans lui (fallback standalone)
+-- Pour activer : installer npwd et le lancer AVANT agenda dans server.cfg
