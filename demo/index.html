@@ -653,16 +653,8 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
     <div class="col col-right">
       <div class="sec-head"><div class="dot" style="background:#ff5252;box-shadow:0 0 6px #ff5252"></div> BLESSURES</div>
       <div class="right-body">
-        <div class="inj-section" style="position:relative">
+        <div class="inj-section">
           <div id="injuryList"><div style="color:var(--fg3);font-size:9px;padding:8px 0">Aucune blessure détectée</div></div>
-          <div id="zoneDetailPanel" style="display:none;position:absolute;inset:0;background:var(--panel);border-radius:4px;padding:0;overflow-y:auto;z-index:10">
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--panel);z-index:1">
-              <span id="zdpTitle" style="font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--cyan);letter-spacing:1px">—</span>
-              <button onclick="closeZoneDetail()" style="background:none;border:1px solid rgba(255,255,255,0.12);color:var(--fg2);cursor:pointer;font-size:10px;padding:2px 6px;border-radius:2px">✕</button>
-            </div>
-            <div id="zdpSeverity" style="padding:4px 10px 2px;font-size:8px;letter-spacing:1px;font-weight:700;text-transform:uppercase"></div>
-            <div id="zdpContent" style="padding:4px 10px 8px"></div>
-          </div>
         </div>
       </div>
       <div class="notes-wrap">
@@ -1538,27 +1530,30 @@ function selectZoneChip(zoneId, pct, cause) {
   if (!pos) return;
   const sevLabel = pct <= 24 ? 'CRITIQUE' : pct <= 49 ? 'SÉRIEUX' : pct <= 74 ? 'MODÉRÉ' : 'LÉGER';
   const sevColor = pct <= 24 ? 'var(--red)' : pct <= 49 ? 'var(--orange)' : pct <= 74 ? 'var(--yellow)' : 'var(--green)';
-  document.getElementById('zdpTitle').textContent = pos.name;
-  document.getElementById('zdpSeverity').innerHTML = `<span style="color:${sevColor}">${sevLabel} — ${pct}% atteint</span>`;
-  const content = document.getElementById('zdpContent');
   const details = (zd && zd.details) ? zd.details : [{name: pos.name, type: cause || '—', pct}];
-  content.innerHTML = details.map(d => {
+  const rows = details.map(d => {
     const dc = d.pct <= 24 ? 'var(--red)' : d.pct <= 49 ? 'var(--orange)' : d.pct <= 74 ? 'var(--yellow)' : 'var(--green)';
-    return `<div style="display:flex;align-items:baseline;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-      <div>
-        <div style="font-size:10px;font-weight:600;color:var(--fg);margin-bottom:2px">${d.name}</div>
-        <div style="font-size:9px;color:var(--fg2)">${d.type}</div>
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+      <div style="min-width:0">
+        <div style="font-size:10px;font-weight:600;color:var(--fg)">${d.name}</div>
+        <div style="font-size:9px;color:var(--fg2);margin-top:1px">${d.type}</div>
       </div>
-      <span style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:${dc};margin-left:8px;flex-shrink:0">${d.pct}%</span>
+      <span style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:${dc};margin-left:10px;flex-shrink:0">${d.pct}%</span>
     </div>`;
   }).join('');
-  document.getElementById('injuryList').style.display = 'none';
-  document.getElementById('zoneDetailPanel').style.display = 'block';
+  document.getElementById('injuryList').innerHTML =
+    `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border2)">
+      <div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--cyan)">${pos.name}</div>
+        <div style="font-size:9px;font-weight:700;color:${sevColor};margin-top:2px;letter-spacing:0.8px">${sevLabel} — ${pct}% atteint</div>
+      </div>
+      <button onclick="closeZoneDetail()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:var(--fg2);cursor:pointer;font-size:10px;padding:3px 8px;border-radius:2px;font-family:inherit">← Retour</button>
+    </div>
+    ${rows}`;
 }
 
 function closeZoneDetail() {
-  document.getElementById('zoneDetailPanel').style.display = 'none';
-  document.getElementById('injuryList').style.display = '';
+  if (currentScenario && scanDone) renderInjuryList(currentScenario.injuries);
 }
 
 // ── ACTION SECTION ────────────────────────────────────────────
