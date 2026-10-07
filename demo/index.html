@@ -175,7 +175,7 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .scan-stats{display:grid;grid-template-columns:1fr 1fr 1fr;width:100%;max-width:320px;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-top:10px;background:rgba(0,0,0,0.25);flex-shrink:0}
 .stat-cell{padding:7px 6px;text-align:center;border-right:1px solid var(--border)}
 .stat-cell:last-child{border-right:none}
-.stat-cell-label{font-size:8px;color:var(--fg3);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:3px}
+.stat-cell-label{font-size:8px;color:rgba(232,244,255,0.70);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:3px}
 .stat-cell-val{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--fg)}
 .stat-cell-val.danger{color:var(--red)}.stat-cell-val.warn{color:var(--yellow)}
 .stat-cell-assess{font-size:10px;font-weight:700;letter-spacing:0.5px;padding:2px 8px;border-radius:2px;display:inline-block}
@@ -348,8 +348,9 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .soins-fill{position:absolute;left:0;top:0;bottom:0;background:rgba(0,230,118,0.12);transition:width .04s linear;pointer-events:none}
 .soins-step.step-done .soins-fill{width:100%!important}
 .soins-sev{font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;flex-shrink:0;z-index:1}
-.soins-zone{flex:1;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;z-index:1}
-.soins-hint{font-size:9px;color:var(--fg3);z-index:1}
+.soins-zone{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;z-index:1;white-space:nowrap}
+.soins-action{flex:1;font-size:9px;color:var(--fg2);letter-spacing:0.3px;z-index:1;font-style:italic;padding-left:6px}
+.soins-hint{font-size:9px;color:var(--fg3);z-index:1;white-space:nowrap}
 .soins-step.active-step .soins-hint{color:var(--green)}
 .soins-step.step-done .soins-hint{color:var(--green)}
 .soins-check{font-size:14px;z-index:1;opacity:0}
@@ -572,6 +573,7 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
             <div class="stat-cell"><div class="stat-cell-label">Régions</div><div class="stat-cell-val" id="statRegions">—</div></div>
             <div class="stat-cell"><div class="stat-cell-label">Évaluation</div><div style="padding-top:2px"><span class="stat-cell-assess assess-stable" id="statAssess">—</span></div></div>
           </div>
+          <div id="consIndicator" style="display:none;margin-top:8px;padding:5px 14px;border-radius:3px;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-align:center;width:100%;max-width:320px"></div>
         </div>
         <div class="scan-btn-wrap">
           <button class="scan-btn" id="scanBtn" onclick="launchScan()">
@@ -1297,8 +1299,27 @@ function launchScan() {
     btn.style.color = 'var(--green)';
     btn.style.borderColor = 'rgba(0,230,118,0.25)';
     btn.style.background = 'rgba(0,230,118,0.06)';
+    updateConsIndicator();
     if (currentScenario) showActionSection(currentScenario);
   }, 2200);
+}
+
+function updateConsIndicator() {
+  if (!currentScenario) return;
+  const ci = document.getElementById('consIndicator');
+  const conscious = currentScenario.conscious || critStabilized;
+  ci.style.display = 'block';
+  if (conscious) {
+    ci.textContent = '● CONSCIENT';
+    ci.style.background = 'rgba(0,230,118,0.10)';
+    ci.style.border = '1px solid rgba(0,230,118,0.30)';
+    ci.style.color = 'var(--green)';
+  } else {
+    ci.textContent = '● INCONSCIENT';
+    ci.style.background = 'rgba(255,82,82,0.10)';
+    ci.style.border = '1px solid rgba(255,82,82,0.30)';
+    ci.style.color = 'var(--red)';
+  }
 }
 
 function checkAllExams() {
@@ -1312,6 +1333,7 @@ function checkAllExams() {
   statTC.className = 'stat-cell-val ' + (s.trauma >= 7 ? 'danger' : s.trauma >= 4 ? 'warn' : '');
   const sa = document.getElementById('statAssess');
   const ab = document.getElementById('assessBadge');
+  updateConsIndicator();
   if (critStabilized) {
     sa.textContent = 'Critique Stable'; sa.className = 'stat-cell-assess assess-critical-stable';
     ab.textContent = 'CRITIQUE STABLE'; ab.style.color = 'var(--orange)'; ab.style.borderColor = 'rgba(255,152,0,0.4)'; ab.style.background = 'rgba(255,152,0,0.08)';
@@ -1494,18 +1516,21 @@ function selectZoneChip(zoneId, pct, cause) {}
 // ── ACTION SECTION ────────────────────────────────────────────
 function showActionSection(s) {
   const nowConscious = s.conscious || critStabilized;
+  const enoughExams = Object.keys(examDone).length >= 2;
   if (!nowConscious) {
     // Inconscient → RCP d'abord
     document.getElementById('actionSection').style.display = 'block';
     document.getElementById('actionRcp').style.display = 'block';
     document.getElementById('actionSoins').style.display = 'none';
-  } else if (scanDone) {
-    // Conscient + scan effectué → premiers soins
+  } else if (scanDone && enoughExams) {
+    // Conscient + scan + au moins 2 constantes → premiers soins
     document.getElementById('actionSection').style.display = 'block';
     document.getElementById('actionRcp').style.display = 'none';
     document.getElementById('actionSoins').style.display = 'block';
+  } else if (scanDone) {
+    // Conscient + scan mais constantes insuffisantes → attendre
+    document.getElementById('actionSection').style.display = 'none';
   } else {
-    // Conscient mais scan pas encore fait
     document.getElementById('actionSection').style.display = 'none';
   }
 }
@@ -1532,7 +1557,7 @@ function startRCPBeat() {
   if (rcpBeatTimer) clearInterval(rcpBeatTimer);
   rcpCursorPhase = 0;
   rcpBeatTimer = setInterval(() => {
-    rcpCursorPhase = (rcpCursorPhase + 0.1) % 1;
+    rcpCursorPhase = (rcpCursorPhase + 0.06) % 1;
     const cursor = document.getElementById('rcpCursor');
     if (cursor) cursor.style.left = (rcpCursorPhase * 100) + '%';
     if (rcpCursorPhase >= 0.39 && rcpCursorPhase <= 0.41) SND.ecg();
@@ -1560,6 +1585,7 @@ function rcpPress() {
       document.getElementById('rcpInner').style.display = 'none';
       document.getElementById('rcpSuccess').style.display = 'block';
       critStabilized = true;
+      updateConsIndicator();
     }, 600);
   }
 }
@@ -1567,16 +1593,32 @@ function rcpPress() {
 function endRCP() {
   stopRCPBeat();
   document.getElementById('view-rcp').classList.remove('active');
-  // Transition vers premiers soins si scan déjà fait, sinon retour diagnostic
-  if (scanDone) {
-    startSoins();
-  } else {
-    document.getElementById('view-body').classList.add('active');
-    checkAllExams();
-  }
+  // Toujours retour au diagnostic — les constantes sont requises avant premiers soins
+  document.getElementById('view-body').classList.add('active');
+  checkAllExams();
 }
 
 // ── PREMIERS SOINS ────────────────────────────────────────────
+function getSoinsAction(inj) {
+  const zone = (inj.zone || '').toLowerCase();
+  const sev = inj.severity;
+  // Zone-specific first
+  if (zone.includes('tête') || zone.includes('tete')) {
+    return sev === 'critical' ? 'Bilan neuro — Immobilisation tête/cou' : sev === 'serious' ? 'Évaluation neurologique — Pansement crânien' : 'Nettoyage plaie — Surveillance état de conscience';
+  }
+  if (zone.includes('torse') || zone.includes('thorax') || zone.includes('abdomen')) {
+    return sev === 'critical' ? 'Vérifier respiration — Pansement 3 côtés' : sev === 'serious' ? 'Auscultation — Pansement compressif' : 'Nettoyage + pansement';
+  }
+  if (zone.includes('bras') || zone.includes('main')) {
+    return sev === 'critical' ? 'Garrot / Hémostase — Immobilisation membre' : sev === 'serious' ? 'Pansement compressif — Éclisse si fracture' : 'Nettoyage + pansement';
+  }
+  if (zone.includes('jambe') || zone.includes('pied') || zone.includes('cuisse')) {
+    return sev === 'critical' ? 'Garrot proximal — Hémostase d\'urgence' : sev === 'serious' ? 'Pansement compressif — Attelle membre' : 'Nettoyage + bandage';
+  }
+  // Generic fallback by severity
+  return sev === 'critical' ? 'Hémostase / Compression d\'urgence' : sev === 'serious' ? 'Pansement compressif — Surveiller' : 'Nettoyage + pansement simple';
+}
+
 let soinsCurrent = 0;
 const soinsHolds = {};
 
@@ -1603,6 +1645,7 @@ function startSoins() {
       <div class="soins-fill" id="sf-${i}" style="width:0%"></div>
       <span class="soins-sev ${sc}">${sl}</span>
       <span class="soins-zone">${inj.zone}</span>
+      <span class="soins-action">${getSoinsAction(inj)}</span>
       <span class="soins-hint">${i === 0 ? 'Maintenir' : ''}</span>
       <span class="soins-check">✓</span>
     </div>`;
