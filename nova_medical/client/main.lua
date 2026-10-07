@@ -214,6 +214,7 @@ end)
 -- ── Mort définitive ───────────────────────────────────────────────
 
 RegisterNetEvent('nova_medical:enterDead', function()
+    if not myMedical then return end
     myMedical.state = 'dead'
     deathScreen     = true
 
@@ -228,6 +229,7 @@ RegisterNetEvent('nova_medical:enterDead', function()
 end)
 
 RegisterNetEvent('nova_medical:revived', function()
+    if not myMedical then return end
     myMedical.state = 'injured'
     deathScreen     = false
     lastStandEnd    = 0

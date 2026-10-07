@@ -52,10 +52,6 @@ function Framework.Notify(src, msg)
         phoneNotification = true,
       })
     end)
-    -- On envoie aussi une notif texte légère en parallèle
-    if detected == 'esx' then
-      TriggerClientEvent('esx:showNotification', src, '📅 ' .. msg)
-    end
     return
   end
   -- Fallback sans NPWD

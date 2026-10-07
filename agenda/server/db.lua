@@ -48,7 +48,12 @@ function DB.IsSlotFree(slotId)
 end
 
 function DB.BookSlot(slotId, citizen)
-  MySQL.update.await('UPDATE agenda_slots SET status=? WHERE id=?', { 'booked', slotId })
+  -- Atomic: UPDATE only succeeds if status is still 'free'
+  local changed = MySQL.update.await(
+    'UPDATE agenda_slots SET status=? WHERE id=? AND status=?',
+    { 'booked', slotId, 'free' }
+  )
+  if not changed or changed == 0 then return nil end
   return MySQL.insert.await(
     'INSERT INTO agenda_appointments (slot_id, citizen, status) VALUES (?,?,?)',
     { slotId, citizen, 'pending' }

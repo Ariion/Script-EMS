@@ -2,8 +2,9 @@
 --  nova_medical — Examens diagnostiques (EMS)
 -- ═══════════════════════════════════════════════════════════════
 
-local examSession  = nil   -- { patientSrc, patientName, medical, results={}, notes='' }
+examSession        = nil   -- global: lu par monitoring.lua
 local pendingAnim  = nil   -- flag lu par le thread persistant
+local examInProgress = false
 
 -- Animations par type d'examen (confirmées dans esx_animations config.lua)
 -- type 'scenario' : TaskStartScenarioInPlace | type 'anim' : TaskPlayAnim
@@ -21,9 +22,10 @@ local examAnimMap = {
 -- Thread persistant : lit le flag et joue l'animation dans le bon contexte Lua
 CreateThread(function()
     while true do
-        Wait(0)
-        if pendingAnim then
-            local examId  = pendingAnim.examId
+        if not pendingAnim then
+            Wait(50)
+        else
+        local examId  = pendingAnim.examId
             local duration = pendingAnim.duration
             pendingAnim   = nil
 
@@ -186,8 +188,8 @@ local function generateExamResult(examId, med)
         return { type='glucose', value=val, unit='mmol/L', evaluation=eval, ts=ts }
 
     elseif examId == 'temp' then
-        local eval = temp < 36.0 and 'hypothermie' or temp > 38.5 and 'fièvre' or 'normale'
         if diseases.hypothermia then temp = temp - (diseases.hypothermia.severity * 0.8) end
+        local eval = temp < 36.0 and 'hypothermie' or temp > 38.5 and 'fièvre' or 'normale'
         return { type='temp', value=string.format('%.1f', temp), unit='°C', evaluation=eval, ts=ts }
     end
 
@@ -234,25 +236,26 @@ end
 
 RegisterNUICallback('startExam', function(data, cb)
     cb('ok')
-    if not examSession then return end
+    if not examSession or examInProgress then return end
+    examInProgress = true
     local examId = data.examId
 
     local examDef = nil
     for _, e in ipairs(MedConfig.Exams) do
         if e.id == examId then examDef = e break end
     end
-    if not examDef then return end
+    if not examDef then examInProgress = false; return end
 
     SendNUIMessage({ action = 'examLoading', examId = examId, duration = examDef.duration })
     pendingAnim = { examId = examId, duration = examDef.duration }
     Wait(examDef.duration)
 
     local result = generateExamResult(examId, examSession.medical)
+    examInProgress = false
     if not result then return end
 
     table.insert(examSession.results, result)
     SendNUIMessage({ action = 'addExamResult', result = result })
-    -- Mettre à jour le HUD
     if HudSetFromExamSession then HudSetFromExamSession(examSession) end
 end)
 

@@ -39,15 +39,22 @@ local function NotifyStaff(businessJob, svcName, timeStr)
   end
 end
 
-local reminded = {}
+local reminded    = {}
+local remindedTs  = {}  -- tracks when each id was added
 
 local function CheckReminders()
   local minutes = Config.ReminderMinutes or 10
-  local rows    = DB.GetUpcomingReminders(minutes)
+  local now     = os.time()
+  -- Purge entries older than 2 hours to prevent unbounded growth
+  for id, ts in pairs(remindedTs) do
+    if now - ts > 7200 then reminded[id] = nil; remindedTs[id] = nil end
+  end
+  local rows = DB.GetUpcomingReminders(minutes)
   if not rows then return end
   for _, row in ipairs(rows) do
     if not reminded[row.id] then
-      reminded[row.id] = true
+      reminded[row.id]   = true
+      remindedTs[row.id] = now
       local src = Framework.FindPlayerByCitizen(row.citizen)
       if src then
         local svcName = GetServiceName(row.business_id, row.service_id)
@@ -181,11 +188,11 @@ end
 handlers['agenda:book'] = function(src, data)
   local citizen = Framework.GetIdentifier(src)
   if not citizen then return { ok = false, error = 'joueur_introuvable' } end
-  if not DB.IsSlotFree(data.slotId) then
-    return { ok = false, error = 'creneau_pris' }
-  end
   local slot   = DB.GetSlot(data.slotId)
   local apptId = DB.BookSlot(data.slotId, citizen)
+  if not apptId then
+    return { ok = false, error = 'creneau_pris' }
+  end
   if slot then
     local b       = Config.Businesses[slot.business_id]
     local svcName = GetServiceName(slot.business_id, slot.service_id)

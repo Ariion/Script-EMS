@@ -14,6 +14,7 @@ local ESX = exports['es_extended']:getSharedObject()
 -- }
 
 local PlayerMedical = {}
+MonitoredPatients   = {}  -- global: lu par le thread monitoring ci-dessous
 
 -- ── Helpers ───────────────────────────────────────────────────────
 
@@ -492,13 +493,32 @@ exports('setPlayerState', function(src, state)
 end)
 
 exports('addInjury', function(src, zone, injuryType, severity)
-    TriggerEvent('nova_medical:addInjury', zone, injuryType, severity)
+    local med = getMedical(src)
+    if not med or med.state == 'dead' then return end
+    zone     = zone or 'torso'
+    severity = math.max(1, math.min(5, tonumber(severity) or 1))
+    local def = MedConfig.InjuryTypes[injuryType]
+    if not def then return end
+    local existing = nil
+    for _, inj in ipairs(med.injuries[zone] or {}) do
+        if inj.type == injuryType then existing = inj break end
+    end
+    if existing then
+        existing.severity = math.min(5, existing.severity + math.max(1, math.floor(severity * 0.5)))
+    else
+        table.insert(med.injuries[zone], { type=injuryType, severity=severity, ts=os.time() })
+    end
+    if def.bleed then med.bleeding = true end
+    syncToClient(src)
+    syncToNearbyEms(src)
 end)
 
 -- ── Demande de données patient (pour EMS) ────────────────────────
 
 RegisterNetEvent('nova_medical:requestPatientData', function(targetSrc)
     local src = source
+    local xp  = ESX.GetPlayerFromId(src)
+    if not xp or xp.getJob().name ~= MedConfig.EmsJob then return end
     local med = getMedical(targetSrc)
     TriggerClientEvent('nova_medical:patientDataResponse', src, targetSrc, med)
 end)
@@ -523,19 +543,29 @@ end)
 
 RegisterNetEvent('nova_medical:startCarry', function(targetSrc, carrierNetId, patNetId)
     local src = source
-    -- Notifier le patient qu'il est pris en charge
+    local xp  = ESX.GetPlayerFromId(src)
+    if not xp or xp.getJob().name ~= MedConfig.EmsJob then return end
     TriggerClientEvent('nova_medical:evt_beingPickedUp', targetSrc)
 end)
 
 RegisterNetEvent('nova_medical:stopCarry', function(targetSrc)
+    local src = source
+    local xp  = ESX.GetPlayerFromId(src)
+    if not xp or xp.getJob().name ~= MedConfig.EmsJob then return end
     TriggerClientEvent('nova_medical:evt_beingDropped', targetSrc)
 end)
 
 RegisterNetEvent('nova_medical:loadPatient', function(targetSrc, vehNetId, seat)
+    local src = source
+    local xp  = ESX.GetPlayerFromId(src)
+    if not xp or xp.getJob().name ~= MedConfig.EmsJob then return end
     TriggerClientEvent('nova_medical:evt_loadedInVehicle', targetSrc, vehNetId, seat)
 end)
 
 RegisterNetEvent('nova_medical:unloadPatient', function(targetSrc)
+    local src = source
+    local xp  = ESX.GetPlayerFromId(src)
+    if not xp or xp.getJob().name ~= MedConfig.EmsJob then return end
     TriggerClientEvent('nova_medical:evt_unloadedFromVehicle', targetSrc)
 end)
 
@@ -618,8 +648,6 @@ end)
 
 RegisterNetEvent('nova_medical:debugInjure', function(zone, injuryType, severity)
     local src = source
-    TriggerEvent('nova_medical:addInjury')
-    -- On passe par le même event mais côté serveur
     local med = getMedical(src)
     if med.state == 'dead' then return end
     zone     = zone or 'torso'
@@ -651,8 +679,6 @@ end)
 --  MONITORING CONTINU
 --  [targetSrc] = { attachedBySrc, vitals={bpm,spo2,bp_sys,bp_dia}, baseVitals={...} }
 -- ═══════════════════════════════════════════════════════════════
-
-MonitoredPatients = {}
 
 local function broadcastMonitoringToAllEms(targetSrc, vitals)
     for _, pid in ipairs(ESX.GetPlayers()) do
