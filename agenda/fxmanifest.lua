@@ -14,7 +14,18 @@ files {
   'html/app.js',
   'html/style.css',
   -- Module Federation pour NPWD (app chargée dans le téléphone)
-  'npwd_app/dist/assets/*'
+  'html/npwd/remoteEntry.js',
+  'html/npwd/__federation_expose_Config.js',
+  'html/npwd/__federation_fn_import.js',
+  'html/npwd/__federation_shared_react.js',
+  'html/npwd/__federation_shared_react-dom.js',
+  'html/npwd/__federation_shared_react-router-dom.js',
+  'html/npwd/_virtual___federation_fn_import.js',
+  'html/npwd/config.js',
+  'html/npwd/index.js',
+  'html/npwd/preload-helper.js',
+  'html/npwd/react.js',
+  'html/npwd/rolldown-runtime.js',
 }
 
 shared_script 'config.lua'

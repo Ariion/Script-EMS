@@ -20,12 +20,17 @@ export default defineConfig({
   ],
   build: {
     target: 'esnext',
-    outDir: 'dist',
+    outDir: '../html/npwd',
     emptyOutDir: true,
+    assetsDir: '',
     minify: true,
     rollupOptions: {
       input: 'src/config.ts',
+      output: {
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name].js',
+      },
     },
   },
-  base: 'https://agenda/npwd_app/dist/',
+  base: 'https://agenda/html/npwd/',
 });
