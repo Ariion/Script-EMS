@@ -26,9 +26,12 @@ client_scripts {
     'client/monitoring.lua',
 }
 
-ui_page 'ui/index.html'
+ui_page 'demo/index.html'
 
 files {
+    'demo/index.html',
+    'imagerie/index.html',
+    'chirurgie/index.html',
     'ui/index.html',
     'ui/style.css',
     'ui/script.js',

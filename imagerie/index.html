@@ -670,6 +670,7 @@ let currentMode='xray', scanning=false, scanDone=false, scenario=null;
 // ── Shared Patient Record ─────────────────────────────────────
 function getSharedRecord(){try{return JSON.parse(localStorage.getItem('ariion_patient_record')||'{}');}catch(e){return{};}}
 function setSharedRecord(rec){try{localStorage.setItem('ariion_patient_record',JSON.stringify(rec));}catch(e){}}
+function closeNUI(){fetch('https://nova_medical/closeUI',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).catch(()=>{});}
 function pushSharedLog(src,text,type){
   const rec=getSharedRecord();
   if(!rec.log)rec.log=[];
@@ -879,7 +880,10 @@ window.addEventListener('load',()=>{
   setInterval(updateFloatingHUD, 2000);
 });
 window.addEventListener('message',e=>{
-  if(e.data&&e.data.type==='scenario') applyScenario(e.data.key,null);
+  const d=e.data||{};
+  if(d.type==='scenario') applyScenario(d.key,null);
+  if(d.action==='openExam') window.location.href='../demo/';
+  if(d.action==='hideUI')   closeNUI();
 });
 
 // ── ECG ──────────────────────────────────────────────────────────
