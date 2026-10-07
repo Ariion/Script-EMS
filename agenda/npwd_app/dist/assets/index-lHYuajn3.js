@@ -1,0 +1,1 @@
+export{t as default}from"./config-Sp4E_PRg.js";

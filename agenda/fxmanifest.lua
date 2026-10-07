@@ -14,7 +14,7 @@ files {
   'html/app.js',
   'html/style.css',
   -- Module Federation pour NPWD (app chargée dans le téléphone)
-  'npwd_app/dist/*'
+  'npwd_app/dist/assets/*'
 }
 
 shared_script 'config.lua'

@@ -1,0 +1,1 @@
+import{t as e}from"./react-BqQeBlRh.js";export default e();

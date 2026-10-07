@@ -12,11 +12,14 @@
     "react-router-dom": "^5.3.4"
   },
   "devDependencies": {
+    "@originjs/vite-plugin-federation": "^1.4.1",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^6.1.2",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
+    "vite": "^8.3.3",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
   }
