@@ -10,35 +10,50 @@ if detected == 'auto' then
 end
 Phone.name = detected
 
--- ── Ouverture de l'overlay agenda ────────────────────────────────────
+-- ── Mode standalone / lb-phone / qb-phone ────────────────────────────
 local function OpenStandalone()
   SetNuiFocus(true, true)
   SendNUIMessage({ action = 'open', businesses = Config.Businesses })
 end
 
+-- ── Mode NPWD ─────────────────────────────────────────────────────────
+-- L'agenda est une app NPWD chargée via Module Federation.
+-- La commande /agenda affiche le téléphone ; le joueur navigue ensuite
+-- vers l'icône Agenda sur l'écran d'accueil (ou NPWD l'ouvre directement
+-- si l'API npwd:app:open est disponible dans la version installée).
+local function OpenNPWD()
+  pcall(function() exports['npwd']:setPhoneVisible(true) end)
+  -- Tentative de navigation directe vers l'app (API disponible sur certaines versions)
+  CreateThread(function()
+    Wait(150)
+    pcall(function()
+      -- NPWD >= 1.1 expose un event client pour naviguer vers une app
+      TriggerEvent('npwd:app:open', '/agenda')
+    end)
+  end)
+end
+
+-- ── API publique ──────────────────────────────────────────────────────
+
 function Phone.OpenApp()
   if detected == 'npwd' then
-    -- Masquer le téléphone NPWD pour laisser la place à l'overlay
-    pcall(function() exports['npwd']:setPhoneVisible(false) end)
-    Wait(80)
+    OpenNPWD()
+  else
+    OpenStandalone()
   end
-  OpenStandalone()
 end
 
--- ── Appelé à la fermeture de l'agenda ────────────────────────────────
 function Phone.OnClose()
-  if detected == 'npwd' then
-    -- Remettre le téléphone NPWD au premier plan
-    pcall(function() exports['npwd']:setPhoneVisible(true) end)
+  -- Standalone/lb-phone/qb-phone : masque la NUI
+  if detected ~= 'npwd' then
+    SetNuiFocus(false, false)
   end
+  -- NPWD : la navigation retour est gérée par le composant React (history.push('/'))
 end
 
--- ── NPWD : enregistrer le joueur dans le carnet de contacts ──────────
--- (CLIENT-side) Déclenché lorsque l'agenda est chargé et que NPWD est actif.
--- Le vrai enregistrement (newPlayer) se fait côté serveur dans bridge/framework.lua
+-- Écoute optionnelle d'un event NPWD pour ouvrir l'agenda depuis le téléphone
 if detected == 'npwd' then
-  -- Écoute d'un event optionnel émis depuis l'interface NPWD pour ouvrir l'agenda
   RegisterNetEvent('agenda:openFromNPWD', function()
-    Phone.OpenApp()
+    OpenNPWD()
   end)
 end

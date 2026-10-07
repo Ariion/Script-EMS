@@ -12,7 +12,9 @@ ui_page 'html/index.html'
 files {
   'html/index.html',
   'html/app.js',
-  'html/style.css'
+  'html/style.css',
+  -- Module Federation pour NPWD (app chargée dans le téléphone)
+  'npwd_app/dist/**'
 }
 
 shared_script 'config.lua'

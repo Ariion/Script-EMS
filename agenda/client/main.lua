@@ -1,6 +1,11 @@
 -- Cote client : ouvre l'UI et relaie les actions vers le serveur.
 RegisterCommand('agenda', function() Phone.OpenApp() end, false)
 
+-- Utilisé par le wrapper React NPWD pour initialiser l'iframe agenda
+RegisterNUICallback('getBusinesses', function(_, cb)
+  cb({ ok = true, businesses = Config.Businesses })
+end)
+
 RegisterNUICallback('close', function(_, cb)
   SetNuiFocus(false, false)
   if Phone and Phone.OnClose then Phone.OnClose() end

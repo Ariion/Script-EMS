@@ -1,5 +1,6 @@
 // Cœur UI : appelle TOUJOURS la meme fonction, quel que soit le telephone.
 const RES = (typeof GetParentResourceName === 'function') ? GetParentResourceName() : 'agenda';
+const isEmbedded = window.parent !== window; // true quand chargé en iframe dans NPWD
 
 function agendaSend(action, data) {
   return fetch(`https://${RES}/${action}`, {
@@ -33,7 +34,15 @@ window.addEventListener('message', (e) => {
   }
 });
 
-document.getElementById('close').onclick = () => { agendaSend('close'); show(false); };
+document.getElementById('close').onclick = () => {
+  if (isEmbedded) {
+    // Demande au wrapper React NPWD de retourner à l'accueil
+    window.parent.postMessage({ type: 'agenda:close' }, '*');
+  } else {
+    agendaSend('close');
+    show(false);
+  }
+};
 
 function show(v) {
   app.classList.toggle('hidden', !v);
