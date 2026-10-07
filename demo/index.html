@@ -335,30 +335,6 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .rcp-success-sub{font-size:10px;color:var(--fg2);margin-bottom:12px}
 .rcp-back-btn{padding:7px 18px;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);border-radius:3px;color:var(--green);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:0.5px}
 
-/* ── BOBOLOGIE FLOW ── */
-#view-bobo{background:var(--bg);padding:16px;overflow-y:auto}
-.bobo-title{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:2px;text-align:center;margin-bottom:2px}
-.bobo-sub{font-size:9px;color:var(--fg3);letter-spacing:1px;text-align:center;margin-bottom:12px}
-.bobo-steps{display:flex;flex-direction:column;gap:7px;max-width:300px;margin:0 auto}
-.bobo-step{display:flex;align-items:center;gap:9px;padding:10px 11px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:4px;cursor:pointer;user-select:none;transition:all .15s;position:relative;overflow:hidden}
-.bobo-step.active-step{border-color:rgba(0,212,255,0.35);background:rgba(0,212,255,0.06)}
-.bobo-step.step-done{border-color:rgba(0,230,118,0.30);background:rgba(0,230,118,0.05);cursor:default}
-.bobo-step.inactive-step{opacity:0.35;cursor:not-allowed}
-.bobo-fill{position:absolute;left:0;top:0;bottom:0;background:rgba(0,212,255,0.10);transition:width .05s linear}
-.bobo-step.step-done .bobo-fill{background:rgba(0,230,118,0.09);width:100%!important}
-.bobo-icon{font-size:16px;flex-shrink:0;z-index:1}
-.bobo-txt{flex:1;z-index:1}
-.bobo-step-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;line-height:1.2}
-.bobo-step-hint{font-size:9px;color:var(--fg3)}
-.bobo-step.active-step .bobo-step-hint{color:var(--cyan)}.bobo-step.step-done .bobo-step-hint{color:var(--green)}
-.bobo-step-num{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:8px;font-family:'Orbitron',sans-serif;flex-shrink:0;z-index:1}
-.bobo-step.active-step .bobo-step-num{border-color:var(--cyan);color:var(--cyan)}
-.bobo-step.step-done .bobo-step-num{border-color:var(--green);color:var(--green);background:rgba(0,230,118,0.1)}
-.bobo-success{text-align:center;padding:16px;display:none}
-.bobo-success-icon{font-size:36px;margin-bottom:8px}
-.bobo-success-title{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--green);margin-bottom:5px}
-.bobo-success-sub{font-size:10px;color:var(--fg2);margin-bottom:12px}
-.bobo-back-btn{padding:7px 18px;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);border-radius:3px;color:var(--green);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:0.5px}
 
 /* ── FLOATING HUD ── */
 #floatingHud{position:fixed;top:12px;right:12px;z-index:500;background:rgba(4,8,18,0.95);border:1px solid rgba(0,212,255,0.32);border-radius:6px;min-width:162px;box-shadow:0 4px 24px rgba(0,0,0,0.6),0 0 0 1px rgba(0,212,255,0.05);display:none;backdrop-filter:blur(12px)}
@@ -513,10 +489,6 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
             💓 RCP — STABILISER
           </button>
         </div>
-        <!-- Conscient → Bobologie -->
-        <div style="padding:8px 10px;border-top:1px solid rgba(0,212,255,0.12);display:none" id="actionBobo">
-          <button class="scan-btn" style="color:var(--cyan)" onclick="startBobo()">🩺 PRISE EN CHARGE</button>
-        </div>
       </div>
 
       <!-- Monitoring continu -->
@@ -604,44 +576,6 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
         </div>
       </div>
 
-      <!-- Bobologie flow view -->
-      <div id="view-bobo" class="center-view">
-        <div class="bobo-title">🩺 PRISE EN CHARGE</div>
-        <div class="bobo-sub">PATIENT CONSCIENT — SOINS ET TRANSPORT</div>
-        <div class="bobo-steps" id="boboSteps">
-          <div class="bobo-step inactive-step" id="bbs-0" onmousedown="holdBobo(0)" onmouseup="releaseBobo(0)" onmouseleave="releaseBobo(0)" ontouchstart="holdBobo(0)" ontouchend="releaseBobo(0)">
-            <div class="bobo-fill" id="bbf-0" style="width:0%"></div>
-            <div class="bobo-step-num">01</div>
-            <div class="bobo-icon">💬</div>
-            <div class="bobo-txt"><div class="bobo-step-name">Rassurer le patient</div><div class="bobo-step-hint">Maintenir appuyé</div></div>
-          </div>
-          <div class="bobo-step inactive-step" id="bbs-1" onmousedown="holdBobo(1)" onmouseup="releaseBobo(1)" onmouseleave="releaseBobo(1)" ontouchstart="holdBobo(1)" ontouchend="releaseBobo(1)">
-            <div class="bobo-fill" id="bbf-1" style="width:0%"></div>
-            <div class="bobo-step-num">02</div>
-            <div class="bobo-icon">🩺</div>
-            <div class="bobo-txt"><div class="bobo-step-name">Évaluer les blessures</div><div class="bobo-step-hint">Maintenir appuyé</div></div>
-          </div>
-          <div class="bobo-step inactive-step" id="bbs-2" onmousedown="holdBobo(2)" onmouseup="releaseBobo(2)" onmouseleave="releaseBobo(2)" ontouchstart="holdBobo(2)" ontouchend="releaseBobo(2)">
-            <div class="bobo-fill" id="bbf-2" style="width:0%"></div>
-            <div class="bobo-step-num">03</div>
-            <div class="bobo-icon">🩹</div>
-            <div class="bobo-txt"><div class="bobo-step-name">Soins de base</div><div class="bobo-step-hint">Maintenir appuyé</div></div>
-          </div>
-          <div class="bobo-step inactive-step" id="bbs-3" onmousedown="holdBobo(3)" onmouseup="releaseBobo(3)" onmouseleave="releaseBobo(3)" ontouchstart="holdBobo(3)" ontouchend="releaseBobo(3)">
-            <div class="bobo-fill" id="bbf-3" style="width:0%"></div>
-            <div class="bobo-step-num">04</div>
-            <div class="bobo-icon">🚑</div>
-            <div class="bobo-txt"><div class="bobo-step-name">Appeler l'ambulance</div><div class="bobo-step-hint">Maintenir appuyé</div></div>
-          </div>
-        </div>
-        <div class="bobo-success" id="boboSuccess">
-          <div class="bobo-success-icon">🚑</div>
-          <div class="bobo-success-title">TRANSPORT EN COURS</div>
-          <div class="bobo-success-sub">Patient stabilisé — en route vers l'hôpital</div>
-          <button class="bobo-back-btn" onclick="endBobo()">Retour au diagnostic</button>
-        </div>
-      </div>
-
       <!-- Game view -->
       <div id="view-game" class="center-view">
         <div class="game-title">⚡ STABILISATION D'URGENCE</div>
@@ -693,27 +627,11 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
       <div class="sec-head"><div class="dot" style="background:#ff5252;box-shadow:0 0 6px #ff5252"></div> BLESSURES</div>
       <div class="right-body">
         <div class="inj-section">
-          <div class="inj-section-title">Zones détectées</div>
           <div id="injuryList"><div style="color:var(--fg3);font-size:9px;padding:8px 0">Aucune blessure détectée</div></div>
         </div>
-        <div class="detail-panel hidden" id="detailPanel">
-          <div class="detail-zone"><span id="detailZone">—</span><span class="detail-zone-accent" id="detailSev">—</span></div>
-          <div class="detail-body" id="detailBody">—</div>
-        </div>
-        <div class="log-section">
-          <div class="inj-section-title">Journal opératoire</div>
-          <div class="log-list" id="logList">
-            <div class="log-entry info">Système démarré — En attente de patient</div>
-          </div>
-        </div>
-        <div class="shared-section">
-          <div class="shared-head">DOSSIER PARTAGÉ</div>
-          <div class="shared-list" id="sharedLog"><div class="shr-empty">Aucune activité partagée</div></div>
-        </div>
       </div>
-      <div class="sec-head" style="flex-shrink:0;border-top:1px solid var(--border)"><div class="dot" style="background:var(--fg3);box-shadow:none;animation:none"></div> NOTES MÉDICALES</div>
       <div class="notes-wrap">
-        <textarea id="medNotes" placeholder="Observations du soignant…&#10;(transmises en imagerie et chirurgie)"></textarea>
+        <textarea id="medNotes" placeholder="Notes du soignant…&#10;(transmises en imagerie et chirurgie)"></textarea>
       </div>
     </div>
 
@@ -1049,7 +967,6 @@ function loadScenario(key, btn) {
   document.getElementById('bpmDisp').textContent = '—';
   document.getElementById('actionSection').style.display = 'none';
   document.getElementById('actionRcp').style.display = 'none';
-  document.getElementById('actionBobo').style.display = 'none';
   critStabilized = false;
   if (typeof stopRCPBeat === 'function') stopRCPBeat();
   document.getElementById('floatingHud').classList.remove('visible');
@@ -1068,12 +985,8 @@ function loadScenario(key, btn) {
   // Injuries + markers
   renderInjuryList(currentScenario.injuries);
   renderMarkers(currentScenario.injuries);
-  document.getElementById('detailPanel').classList.add('hidden');
-  // Log
-  document.getElementById('logList').innerHTML = '';
-  addLog(`Nouveau patient chargé — Scénario : ${btn ? btn.textContent.trim() : key}`, 'info');
   pushSharedLog('DIAG', `Nouveau patient — Scénario : ${btn ? btn.textContent.trim() : key}`, 'info');
-  if (!currentScenario.conscious) { addLog('⚠ Patient inconscient — airway management requis', 'err'); pushSharedLog('DIAG','⚠ Patient inconscient','err'); }
+  if (!currentScenario.conscious) { pushSharedLog('DIAG','⚠ Patient inconscient','err'); }
   if (currentScenario.bpm < 45 || currentScenario.spo2 < 85) {
     const critMsg = currentScenario.bpm < 45 ? `BRADYCARDIE SÉVÈRE — ${currentScenario.bpm} bpm` : `SpO₂ CRITIQUE — ${currentScenario.spo2}%`;
     setTimeout(() => showCritAlert(critMsg), 900);
@@ -1375,11 +1288,11 @@ function checkAllExams() {
 
 // ── Views ─────────────────────────────────────────────────────
 function showBodyView() {
-  ['view-game','view-rcp','view-bobo'].forEach(id => document.getElementById(id).classList.remove('active'));
+  ['view-game','view-rcp'].forEach(id => document.getElementById(id).classList.remove('active'));
   document.getElementById('view-body').classList.add('active');
 }
 function showGameView() {
-  ['view-body','view-rcp','view-bobo'].forEach(id => document.getElementById(id).classList.remove('active'));
+  ['view-body','view-rcp'].forEach(id => document.getElementById(id).classList.remove('active'));
   document.getElementById('view-game').classList.add('active');
 }
 
@@ -1530,39 +1443,15 @@ function renderZones(key) {
   });
 }
 
-function selectZoneChip(zoneId, pct, cause) {
-  const pos = ZONE_POS[zoneId];
-  const panel = document.getElementById('detailPanel');
-  const sevLabel = pct <= 24 ? '— CRITIQUE' : pct <= 49 ? '— SÉVÈRE' : pct <= 74 ? '— TRAUMATISME' : '— LÉGER';
-  document.getElementById('detailZone').textContent = pos ? pos.name : zoneId;
-  document.getElementById('detailSev').textContent = sevLabel;
-  const matchInj = (currentScenario.injuries || []).find(inj => {
-    const z = inj.zone.toLowerCase();
-    if (zoneId === 'tete')   return z.includes('crân') || z.includes('tête') || z.includes('cérébr') || z.includes('skull');
-    if (zoneId === 'torse')  return z.includes('thorax') || z.includes('torse') || z.includes('abdom') || z.includes('cœur') || z.includes('coron') || z.includes('voie') || z.includes('rachis') || z.includes('lomba');
-    if (zoneId === 'brasg')  return (z.includes('bras') || z.includes('memb') || z.includes('avant-bras')) && z.includes('gauche');
-    if (zoneId === 'brasd')  return (z.includes('bras') || z.includes('épaule') || z.includes('poignet')) && (z.includes('droit') || !z.includes('gauche'));
-    if (zoneId === 'jambeg') return z.includes('jambe') && z.includes('gauche');
-    if (zoneId === 'jambed') return z.includes('jambe') && z.includes('droit');
-    if (zoneId === 'piedg')  return z.includes('pied') && z.includes('gauche');
-    if (zoneId === 'piedd')  return z.includes('pied') && z.includes('droit');
-    return false;
-  });
-  document.getElementById('detailBody').innerHTML = matchInj ? matchInj.desc
-    : `<strong>${pct <= 24 ? 'Zone très gravement atteinte' : pct <= 49 ? 'Blessure sévère' : pct <= 74 ? 'Traumatisme modéré' : 'Légèrement atteint'}</strong>${cause ? ` — cause : ${cause}` : ''}`;
-  document.querySelectorAll('.inj-item').forEach(el => el.classList.remove('selected'));
-  panel.classList.remove('hidden');
-}
+function selectZoneChip(zoneId, pct, cause) {}
 
 // ── ACTION SECTION ────────────────────────────────────────────
 function showActionSection(s) {
-  document.getElementById('actionSection').style.display = 'block';
   if (!s.conscious) {
+    document.getElementById('actionSection').style.display = 'block';
     document.getElementById('actionRcp').style.display = 'block';
-    document.getElementById('actionBobo').style.display = 'none';
   } else {
-    document.getElementById('actionRcp').style.display = 'none';
-    document.getElementById('actionBobo').style.display = 'block';
+    document.getElementById('actionSection').style.display = 'none';
   }
 }
 
@@ -1573,7 +1462,7 @@ const RCP_COMPRESSIONS = 15;
 function startRCP() {
   rcpState = {compressions:0, breaths:0, phase:'compress'};
   rcpCycleCount = 0;
-  ['view-body','view-game','view-bobo'].forEach(id => document.getElementById(id).classList.remove('active'));
+  ['view-body','view-game'].forEach(id => document.getElementById(id).classList.remove('active'));
   document.getElementById('view-rcp').classList.add('active');
   document.getElementById('rcpInner').style.display = '';
   document.getElementById('rcpSuccess').style.display = 'none';
@@ -1664,60 +1553,6 @@ function endRCP() {
   checkAllExams();
 }
 
-// ── BOBOLOGIE FLOW ────────────────────────────────────────────
-let boboCurrentStep = 0;
-const boboHolds = {};
-const BOBO_DUR = [1800, 2200, 2800, 900];
-
-function startBobo() {
-  boboCurrentStep = 0;
-  ['view-body','view-game','view-rcp'].forEach(id => document.getElementById(id).classList.remove('active'));
-  document.getElementById('view-bobo').classList.add('active');
-  document.getElementById('boboSteps').style.display = '';
-  document.getElementById('boboSuccess').style.display = 'none';
-  for (let i = 0; i < 4; i++) {
-    document.getElementById('bbs-' + i).className = 'bobo-step ' + (i === 0 ? 'active-step' : 'inactive-step');
-    document.getElementById('bbf-' + i).style.width = '0%';
-  }
-  addLog('🩺 Prise en charge initiée', 'info');
-}
-
-function holdBobo(idx) {
-  if (idx !== boboCurrentStep || boboHolds[idx]) return;
-  const fill = document.getElementById('bbf-' + idx);
-  const dur = BOBO_DUR[idx] || 1800;
-  let prog = 0;
-  boboHolds[idx] = setInterval(() => {
-    prog += 100 / (dur / 30);
-    fill.style.width = Math.min(prog, 100) + '%';
-    if (prog >= 100) { releaseBobo(idx); completeBobo(idx); }
-  }, 30);
-}
-
-function releaseBobo(idx) { if (boboHolds[idx]) { clearInterval(boboHolds[idx]); delete boboHolds[idx]; } }
-
-function completeBobo(idx) {
-  document.getElementById('bbs-' + idx).className = 'bobo-step step-done';
-  document.getElementById('bbf-' + idx).style.width = '100%';
-  boboCurrentStep = idx + 1;
-  const msgs = ['Patient rassuré et questionnaire réalisé','Blessures évaluées et localisées','Soins de base effectués','🚑 Ambulance appelée — transport en cours'];
-  addLog('✓ ' + msgs[idx], 'ok');
-  SND.ok();
-  if (boboCurrentStep < 4) {
-    document.getElementById('bbs-' + boboCurrentStep).className = 'bobo-step active-step';
-  } else {
-    document.getElementById('boboSteps').style.display = 'none';
-    document.getElementById('boboSuccess').style.display = 'block';
-    critStabilized = true;
-  }
-}
-
-function endBobo() {
-  document.getElementById('view-bobo').classList.remove('active');
-  document.getElementById('view-body').classList.add('active');
-  checkAllExams();
-}
-
 // ── FLOATING HUD ──────────────────────────────────────────────
 function updateFloatingHUD() {
   if (!monitoringActive || !currentScenario) return;
@@ -1760,26 +1595,16 @@ function renderInjuryList(injuries) {
   const list = document.getElementById('injuryList');
   if (!injuries.length) { list.innerHTML = '<div style="color:var(--fg3);font-size:9px;padding:8px 0">Aucune blessure détectée</div>'; return; }
   list.innerHTML = injuries.map((inj, i) => `
-    <div class="inj-item" onclick="selectInjury(${i})">
+    <div class="inj-item">
       <div class="inj-item-head">
         <span class="inj-item-zone">${inj.zone}</span>
         <span class="inj-severity sev-${inj.severity}">${inj.severity === 'critical' ? 'CRITIQUE' : inj.severity === 'serious' ? 'SÉRIEUX' : 'MINEUR'}</span>
       </div>
-      <div class="inj-item-desc">${inj.desc.replace(/<[^>]+>/g,'').slice(0,60)}...</div>
     </div>`).join('');
 }
 
-function selectInjury(idx) {
-  const inj = currentScenario.injuries[idx];
-  document.querySelectorAll('.inj-item').forEach((el,i) => el.classList.toggle('selected', i===idx));
-  const panel = document.getElementById('detailPanel');
-  document.getElementById('detailZone').textContent = inj.zone;
-  document.getElementById('detailSev').textContent = inj.severity === 'critical' ? '— CRITIQUE' : inj.severity === 'serious' ? '— SÉRIEUX' : '— MINEUR';
-  document.getElementById('detailBody').innerHTML = inj.desc;
-  panel.classList.remove('hidden');
-}
-
-function doAction(action) { addLog(`✓ ${action} — effectué`, 'ok'); }
+function selectInjury(idx) {}
+function doAction(action) {}
 
 function renderMarkers(injuries) {
   const layer = document.getElementById('markersLayer');
@@ -1795,15 +1620,8 @@ function renderMarkers(injuries) {
   });
 }
 
-// ── Log ───────────────────────────────────────────────────────
-function addLog(msg, type='info') {
-  const log = document.getElementById('logList');
-  const div = document.createElement('div');
-  div.className = 'log-entry ' + type;
-  div.textContent = msg;
-  log.appendChild(div);
-  log.scrollTop = log.scrollHeight;
-}
+// ── Log (no-op — log section removed from UI) ─────────────────
+function addLog(msg, type='info') {}
 </script>
 </body>
 </html>
