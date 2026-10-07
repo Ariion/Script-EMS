@@ -176,6 +176,7 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
 .stat-cell{padding:7px 6px;text-align:center;border-right:1px solid var(--border)}
 .stat-cell:last-child{border-right:none}
 .stat-cell-label{font-size:8px;color:rgba(232,244,255,0.70);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:3px}
+.stat-cell-cons{grid-column:1/-1;border-top:1px solid var(--border);padding:5px 10px;text-align:center;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px}
 .stat-cell-val{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--fg)}
 .stat-cell-val.danger{color:var(--red)}.stat-cell-val.warn{color:var(--yellow)}
 .stat-cell-assess{font-size:10px;font-weight:700;letter-spacing:0.5px;padding:2px 8px;border-radius:2px;display:inline-block}
@@ -572,8 +573,8 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
             <div class="stat-cell"><div class="stat-cell-label">Trauma Index</div><div class="stat-cell-val" id="statTrauma">—</div></div>
             <div class="stat-cell"><div class="stat-cell-label">Régions</div><div class="stat-cell-val" id="statRegions">—</div></div>
             <div class="stat-cell"><div class="stat-cell-label">Évaluation</div><div style="padding-top:2px"><span class="stat-cell-assess assess-stable" id="statAssess">—</span></div></div>
+            <div class="stat-cell-cons" id="consIndicator" style="display:none">—</div>
           </div>
-          <div id="consIndicator" style="display:none;margin-top:8px;padding:5px 14px;border-radius:3px;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-align:center;width:100%;max-width:320px"></div>
         </div>
         <div class="scan-btn-wrap">
           <button class="scan-btn" id="scanBtn" onclick="launchScan()">
@@ -1016,6 +1017,8 @@ function loadScenario(key, btn) {
   critStabilized = false;
   rcpCompressions = 0;
   soinsCurrent = 0;
+  const _ci = document.getElementById('consIndicator');
+  if (_ci) { _ci.style.display = 'none'; _ci.textContent = '—'; }
   if (typeof stopRCPBeat === 'function') stopRCPBeat();
   document.getElementById('floatingHud').classList.remove('visible');
   openTablet();
@@ -1337,6 +1340,7 @@ function checkAllExams() {
   if (critStabilized) {
     sa.textContent = 'Critique Stable'; sa.className = 'stat-cell-assess assess-critical-stable';
     ab.textContent = 'CRITIQUE STABLE'; ab.style.color = 'var(--orange)'; ab.style.borderColor = 'rgba(255,152,0,0.4)'; ab.style.background = 'rgba(255,152,0,0.08)';
+    showActionSection(s);
   } else if (s.assessment === 'critical') {
     sa.textContent = 'Critique'; sa.className = 'stat-cell-assess assess-critical';
     ab.textContent = 'CRITIQUE'; ab.style.color = 'var(--red)'; ab.style.borderColor = 'rgba(255,82,82,0.35)'; ab.style.background = 'rgba(255,82,82,0.08)';
@@ -1469,37 +1473,48 @@ function endGame() {
 }
 
 // ── ZONE CHIPS DATA ───────────────────────────────────────────
+// Seules les zones blessées sont listées (absente = 100% saine = masquée)
 const ZONE_DATA = {
-  gunshot: {tete:{pct:100,c:''},torse:{pct:24,c:'🔫🔫'},brasg:{pct:82,c:'🔫'},brasd:{pct:100,c:''},jambeg:{pct:100,c:''},jambed:{pct:100,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
-  accident:{tete:{pct:55,c:'🚗'},torse:{pct:100,c:''},brasg:{pct:100,c:''},brasd:{pct:84,c:'🚗'},jambeg:{pct:100,c:''},jambed:{pct:50,c:'🚗'},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
-  stab:    {tete:{pct:100,c:''},torse:{pct:20,c:'🔪🔪'},brasg:{pct:100,c:''},brasd:{pct:100,c:''},jambeg:{pct:100,c:''},jambed:{pct:100,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
-  fall:    {tete:{pct:100,c:''},torse:{pct:60,c:'⬇'},brasg:{pct:100,c:''},brasd:{pct:78,c:'⬇'},jambeg:{pct:100,c:''},jambed:{pct:100,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
-  fire:    {tete:{pct:75,c:'🔥'},torse:{pct:22,c:'🔥🔥'},brasg:{pct:45,c:'🔥'},brasd:{pct:45,c:'🔥'},jambeg:{pct:90,c:''},jambed:{pct:90,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
-  minor:   {tete:{pct:100,c:''},torse:{pct:100,c:''},brasg:{pct:88,c:'🔪'},brasd:{pct:100,c:''},jambeg:{pct:100,c:''},jambed:{pct:100,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
-  cardiac: {tete:{pct:100,c:''},torse:{pct:15,c:'❤️'},brasg:{pct:100,c:''},brasd:{pct:100,c:''},jambeg:{pct:100,c:''},jambed:{pct:100,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
-  overdose:{tete:{pct:72,c:'💊'},torse:{pct:22,c:'💊'},brasg:{pct:100,c:''},brasd:{pct:100,c:''},jambeg:{pct:100,c:''},jambed:{pct:100,c:''},piedg:{pct:100,c:''},piedd:{pct:100,c:''}},
+  gunshot: {thorax:{pct:24,c:'🔫'}, abdomen:{pct:65,c:'🔫'}, brasg:{pct:82,c:'🔫'}},
+  accident:{crane:{pct:55,c:'🚗'}, epauled:{pct:84,c:'🚗'}, tibiad:{pct:50,c:'🚗'}},
+  stab:    {abdomen:{pct:20,c:'🔪'}, thorax:{pct:55,c:'🔪'}},
+  fall:    {bassin:{pct:60,c:'⬇'}, avbrasd:{pct:78,c:'⬇'}},
+  fire:    {visage:{pct:75,c:'🔥'}, thorax:{pct:22,c:'🔥'}, brasg:{pct:45,c:'🔥'}, brasd:{pct:45,c:'🔥'}, avbrasg:{pct:55,c:'🔥'}, avbrasd:{pct:55,c:'🔥'}},
+  minor:   {avbrasg:{pct:88,c:'🔪'}},
+  cardiac: {thorax:{pct:15,c:'❤️'}},
+  overdose:{crane:{pct:72,c:'💊'}, thorax:{pct:22,c:'💊'}},
 };
 const ZONE_POS = {
-  tete:  {x:50,y:9,  name:'TÊTE'},
-  torse: {x:50,y:44, name:'TORSE'},
-  brasg: {x:14,y:42, name:'BRAS G'},
-  brasd: {x:86,y:42, name:'BRAS D'},
-  jambeg:{x:37,y:71, name:'JAMBE G'},
-  jambed:{x:63,y:71, name:'JAMBE D'},
-  piedg: {x:33,y:90, name:'PIED G'},
-  piedd: {x:67,y:90, name:'PIED D'},
+  crane:   {x:50, y:7,  name:'CRÂNE'},
+  visage:  {x:50, y:14, name:'VISAGE'},
+  rachisC: {x:50, y:22, name:'RACHIS C'},
+  epauleg: {x:15, y:27, name:'ÉPAULE G'},
+  epauled: {x:85, y:27, name:'ÉPAULE D'},
+  thorax:  {x:50, y:36, name:'THORAX'},
+  brasg:   {x:13, y:41, name:'BRAS G'},
+  brasd:   {x:87, y:41, name:'BRAS D'},
+  abdomen: {x:50, y:52, name:'ABDOMEN'},
+  avbrasg: {x:13, y:57, name:'AV-BRAS G'},
+  avbrasd: {x:87, y:57, name:'AV-BRAS D'},
+  bassin:  {x:50, y:63, name:'BASSIN'},
+  cuisseg: {x:36, y:70, name:'CUISSE G'},
+  cuissed: {x:64, y:70, name:'CUISSE D'},
+  tibiag:  {x:34, y:82, name:'TIBIA G'},
+  tibiad:  {x:66, y:82, name:'TIBIA D'},
+  piedg:   {x:33, y:93, name:'PIED G'},
+  piedd:   {x:67, y:93, name:'PIED D'},
 };
 
 function renderZones(key) {
   const layer = document.getElementById('markersLayer');
-  const zd = ZONE_DATA[key];
-  if (!zd) return;
+  const zd = ZONE_DATA[key] || {};
   layer.querySelectorAll('.zone-chip').forEach(e => e.remove());
   layer.querySelectorAll('.marker').forEach(m => m.style.display = 'none');
-  Object.entries(zd).forEach(([zoneId, {pct, c}]) => {
-    if (pct >= 100 && !c) return;
-    const pos = ZONE_POS[zoneId];
-    if (!pos) return;
+  // Loop over all known positions; show chip only if zone has damage
+  Object.entries(ZONE_POS).forEach(([zoneId, pos]) => {
+    const zone = zd[zoneId];
+    if (!zone) return; // healthy = hidden
+    const {pct, c} = zone;
     const colorClass = pct <= 24 ? 'z-red' : pct <= 49 ? 'z-orange' : pct <= 74 ? 'z-yellow' : 'z-green';
     const chip = document.createElement('div');
     chip.className = 'zone-chip ' + colorClass;
@@ -1600,23 +1615,33 @@ function endRCP() {
 
 // ── PREMIERS SOINS ────────────────────────────────────────────
 function getSoinsAction(inj) {
-  const zone = (inj.zone || '').toLowerCase();
+  const z = (inj.zone || '').toLowerCase();
   const sev = inj.severity;
-  // Zone-specific first
-  if (zone.includes('tête') || zone.includes('tete')) {
-    return sev === 'critical' ? 'Bilan neuro — Immobilisation tête/cou' : sev === 'serious' ? 'Évaluation neurologique — Pansement crânien' : 'Nettoyage plaie — Surveillance état de conscience';
-  }
-  if (zone.includes('torse') || zone.includes('thorax') || zone.includes('abdomen')) {
-    return sev === 'critical' ? 'Vérifier respiration — Pansement 3 côtés' : sev === 'serious' ? 'Auscultation — Pansement compressif' : 'Nettoyage + pansement';
-  }
-  if (zone.includes('bras') || zone.includes('main')) {
-    return sev === 'critical' ? 'Garrot / Hémostase — Immobilisation membre' : sev === 'serious' ? 'Pansement compressif — Éclisse si fracture' : 'Nettoyage + pansement';
-  }
-  if (zone.includes('jambe') || zone.includes('pied') || zone.includes('cuisse')) {
-    return sev === 'critical' ? 'Garrot proximal — Hémostase d\'urgence' : sev === 'serious' ? 'Pansement compressif — Attelle membre' : 'Nettoyage + bandage';
-  }
-  // Generic fallback by severity
-  return sev === 'critical' ? 'Hémostase / Compression d\'urgence' : sev === 'serious' ? 'Pansement compressif — Surveiller' : 'Nettoyage + pansement simple';
+  const c = sev === 'critical', s = sev === 'serious';
+  if (z.includes('crâne') || z.includes('crane') || z.includes('cerveau'))
+    return c ? 'Immobilisation tête/cou — Bilan neuro' : s ? 'Évaluation neuro — Pansement crânien' : 'Surveillance conscience — Pansement';
+  if (z.includes('visage') || z.includes('mâchoire') || z.includes('facial'))
+    return c ? 'Libération VAS — Hémostase visage' : s ? 'Compression plaie — Surveiller VAS' : 'Nettoyage + pansement adhésif';
+  if (z.includes('rachis') || z.includes('colonne') || z.includes('vertèbre'))
+    return c ? 'Immobilisation rachidienne stricte' : s ? 'Collier cervical — Pas de mobilisation' : 'Antalgie — Immobilisation';
+  if (z.includes('épaule') || z.includes('epaule') || z.includes('clavicule'))
+    return c ? 'Hémostase — Immobilisation épaule' : s ? 'Écharpe de contention — Bilan vasculaire' : 'Écharpe + glace';
+  if (z.includes('thorax') || z.includes('poumon') || z.includes('côte') || z.includes('cote') || z.includes('voies aériennes'))
+    return c ? 'Pansement 3 côtés — Vérif. respiration' : s ? 'Auscultation — Pansement compressif' : 'Oxygène — Surveillance SpO₂';
+  if (z.includes('abdomen') || z.includes('abdominal') || z.includes('hépatique') || z.includes('splénique'))
+    return c ? 'Compression abdominale — Perfusion IV' : s ? 'Pansement stérile — Antalgie IV' : 'Surveillance — Pansement';
+  if (z.includes('bassin') || z.includes('pelvi') || z.includes('sacré'))
+    return c ? 'Ceinture pelvienne — Monitorage TA' : s ? 'Immobilisation — Bilan hémodynamique' : 'Immobilisation + antalgie';
+  if (z.includes('bras') || z.includes('avant-bras') || z.includes('radius') || z.includes('cubitus') || z.includes('poignet') || z.includes('main'))
+    return c ? 'Garrot / Hémostase — Immobilisation membre' : s ? 'Pansement compressif — Éclisse si fracture' : 'Nettoyage + pansement';
+  if (z.includes('cuisse') || z.includes('fémur'))
+    return c ? 'Garrot proximal — Traction axiale' : s ? 'Attelle — Pansement compressif' : 'Immobilisation + antalgie';
+  if (z.includes('tibia') || z.includes('jambe') || z.includes('genou') || z.includes('péroné'))
+    return c ? 'Garrot — Attelle immobilisation' : s ? 'Pansement compressif — Attelle' : 'Bandage + glace';
+  if (z.includes('pied') || z.includes('cheville') || z.includes('calcanéum'))
+    return c ? 'Hémostase — Surélévation membre' : s ? 'Attelle + bandage — Glace' : 'Pansement + surélévation';
+  // Fallback générique
+  return c ? 'Hémostase d\'urgence — Perfusion IV' : s ? 'Pansement compressif — Surveiller' : 'Nettoyage + pansement';
 }
 
 let soinsCurrent = 0;
