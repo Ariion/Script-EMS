@@ -484,13 +484,6 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
             <span class="exam-hint">Maintenir</span>
             <span class="exam-val" id="ev-pain"></span>
           </div>
-          <div class="exam-row" id="er-cons" onmousedown="holdExam('cons')" onmouseup="releaseExam('cons')" onmouseleave="releaseExam('cons')" ontouchstart="holdExam('cons')" ontouchend="releaseExam('cons')">
-            <div class="exam-fill" id="ef-cons" style="width:0%"></div>
-            <span class="exam-icon">🧠</span>
-            <span class="exam-lbl">État de conscience</span>
-            <span class="exam-hint">Maintenir</span>
-            <span class="exam-val" id="ev-cons"></span>
-          </div>
           <div class="exam-row" id="er-blood" onmousedown="holdExam('blood')" onmouseup="releaseExam('blood')" onmouseleave="releaseExam('blood')" ontouchstart="holdExam('blood')" ontouchend="releaseExam('blood')">
             <div class="exam-fill" id="ef-blood" style="width:0%"></div>
             <span class="exam-icon">🩻</span>
@@ -660,8 +653,16 @@ html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Inter',s
     <div class="col col-right">
       <div class="sec-head"><div class="dot" style="background:#ff5252;box-shadow:0 0 6px #ff5252"></div> BLESSURES</div>
       <div class="right-body">
-        <div class="inj-section">
+        <div class="inj-section" style="position:relative">
           <div id="injuryList"><div style="color:var(--fg3);font-size:9px;padding:8px 0">Aucune blessure détectée</div></div>
+          <div id="zoneDetailPanel" style="display:none;position:absolute;inset:0;background:var(--panel);border-radius:4px;padding:0;overflow-y:auto;z-index:10">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--panel);z-index:1">
+              <span id="zdpTitle" style="font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--cyan);letter-spacing:1px">—</span>
+              <button onclick="closeZoneDetail()" style="background:none;border:1px solid rgba(255,255,255,0.12);color:var(--fg2);cursor:pointer;font-size:10px;padding:2px 6px;border-radius:2px">✕</button>
+            </div>
+            <div id="zdpSeverity" style="padding:4px 10px 2px;font-size:8px;letter-spacing:1px;font-weight:700;text-transform:uppercase"></div>
+            <div id="zdpContent" style="padding:4px 10px 8px"></div>
+          </div>
         </div>
       </div>
       <div class="notes-wrap">
@@ -1451,14 +1452,42 @@ function endGame() {
 // ── ZONE CHIPS DATA ───────────────────────────────────────────
 // Seules les zones blessées sont listées (absente = 100% saine = masquée)
 const ZONE_DATA = {
-  gunshot: {thorax:{pct:24,c:'🔫'}, abdomen:{pct:65,c:'🔫'}, brasg:{pct:82,c:'🔫'}},
-  accident:{crane:{pct:55,c:'🚗'}, epauled:{pct:84,c:'🚗'}, tibiad:{pct:50,c:'🚗'}},
-  stab:    {abdomen:{pct:20,c:'🔪'}, thorax:{pct:55,c:'🔪'}},
-  fall:    {bassin:{pct:60,c:'⬇'}, avbrasd:{pct:78,c:'⬇'}},
-  fire:    {visage:{pct:75,c:'🔥'}, thorax:{pct:22,c:'🔥'}, brasg:{pct:45,c:'🔥'}, brasd:{pct:45,c:'🔥'}, avbrasg:{pct:55,c:'🔥'}, avbrasd:{pct:55,c:'🔥'}},
-  minor:   {avbrasg:{pct:88,c:'🔪'}},
-  cardiac: {thorax:{pct:15,c:'❤️'}},
-  overdose:{crane:{pct:72,c:'💊'}, thorax:{pct:22,c:'💊'}},
+  gunshot:{
+    thorax: {pct:24,c:'🔫',details:[{name:'Poumon droit',    type:'Plaie balistique',          pct:24},{name:'Cage thoracique',type:'Fracture costale',          pct:18}]},
+    abdomen:{pct:65,c:'🔫',details:[{name:'Foie',            type:'Plaie balistique',          pct:65},{name:'Intestin grêle',  type:'Perforation',               pct:45}]},
+    brasg:  {pct:82,c:'🔫',details:[{name:'Humérus G',       type:'Fracture ouverte',          pct:82},{name:'Artère brachiale',type:'Lacération vasculaire',      pct:70}]},
+  },
+  accident:{
+    crane:  {pct:55,c:'🚗',details:[{name:'Scalp',           type:'Lacération profonde',       pct:30},{name:'Os pariétal',    type:'Traumatisme crânien',       pct:55}]},
+    epauled:{pct:84,c:'🚗',details:[{name:'Clavicule D',     type:'Fracture',                  pct:60},{name:'Épaule D',       type:'Luxation antérieure',       pct:84}]},
+    tibiad: {pct:50,c:'🚗',details:[{name:'Tibia D',         type:'Fracture fermée',           pct:50},{name:'Péroné D',       type:'Fissure osseuse',           pct:35}]},
+  },
+  stab:{
+    abdomen:{pct:20,c:'🔪',details:[{name:'Abdomen',         type:'Plaie par arme blanche',    pct:20}]},
+    thorax: {pct:55,c:'🔪',details:[{name:'Plèvre gauche',   type:'Hémopneumothorax',          pct:55},{name:'Poumon gauche',  type:'Plaie pénétrante',          pct:40}]},
+  },
+  fall:{
+    bassin: {pct:60,c:'⬇', details:[{name:'Ilion D',         type:'Fracture du bassin',        pct:60},{name:'Pubis',          type:'Fracture symphysaire',      pct:45}]},
+    avbrasd:{pct:78,c:'⬇', details:[{name:'Radius D',        type:'Fracture déplacée',         pct:78},{name:'Ulna D',         type:'Fracture associée',         pct:55}]},
+  },
+  fire:{
+    visage: {pct:75,c:'🔥',details:[{name:'Visage',          type:'Brûlure 2ème degrés',       pct:75}]},
+    thorax: {pct:22,c:'🔥',details:[{name:'Thorax ant.',     type:'Brûlure 1er degrés',        pct:22}]},
+    brasg:  {pct:45,c:'🔥',details:[{name:'Bras G',          type:'Brûlure 2ème degrés',       pct:45}]},
+    brasd:  {pct:45,c:'🔥',details:[{name:'Bras D',          type:'Brûlure 2ème degrés',       pct:45}]},
+    avbrasg:{pct:55,c:'🔥',details:[{name:'Av-bras G',       type:'Brûlure 2ème degrés',       pct:55}]},
+    avbrasd:{pct:55,c:'🔥',details:[{name:'Av-bras D',       type:'Brûlure 2ème degrés',       pct:55}]},
+  },
+  minor:{
+    avbrasg:{pct:88,c:'🔪',details:[{name:'Av-bras G',       type:'Plaie par arme blanche',    pct:88},{name:'Artère radiale G',type:'Lacération superficielle',  pct:60}]},
+  },
+  cardiac:{
+    thorax: {pct:15,c:'❤️',details:[{name:'Myocarde',        type:'Infarctus du myocarde',     pct:15},{name:'Artère coronaire',type:'Occlusion partielle',       pct:10}]},
+  },
+  overdose:{
+    crane:  {pct:72,c:'💊',details:[{name:'Cerveau',         type:'Hypoxie cérébrale',         pct:72}]},
+    thorax: {pct:22,c:'💊',details:[{name:'Poumons',         type:'Détresse respiratoire',     pct:22}]},
+  },
 };
 const ZONE_POS = {
   crane:   {x:50, y:7,  name:'CRÂNE'},
@@ -1502,7 +1531,35 @@ function renderZones(key) {
   });
 }
 
-function selectZoneChip(zoneId, pct, cause) {}
+function selectZoneChip(zoneId, pct, cause) {
+  if (!currentScenarioKey) return;
+  const zd = (ZONE_DATA[currentScenarioKey] || {})[zoneId];
+  const pos = ZONE_POS[zoneId];
+  if (!pos) return;
+  const sevLabel = pct <= 24 ? 'CRITIQUE' : pct <= 49 ? 'SÉRIEUX' : pct <= 74 ? 'MODÉRÉ' : 'LÉGER';
+  const sevColor = pct <= 24 ? 'var(--red)' : pct <= 49 ? 'var(--orange)' : pct <= 74 ? 'var(--yellow)' : 'var(--green)';
+  document.getElementById('zdpTitle').textContent = pos.name;
+  document.getElementById('zdpSeverity').innerHTML = `<span style="color:${sevColor}">${sevLabel} — ${pct}% atteint</span>`;
+  const content = document.getElementById('zdpContent');
+  const details = (zd && zd.details) ? zd.details : [{name: pos.name, type: cause || '—', pct}];
+  content.innerHTML = details.map(d => {
+    const dc = d.pct <= 24 ? 'var(--red)' : d.pct <= 49 ? 'var(--orange)' : d.pct <= 74 ? 'var(--yellow)' : 'var(--green)';
+    return `<div style="display:flex;align-items:baseline;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+      <div>
+        <div style="font-size:10px;font-weight:600;color:var(--fg);margin-bottom:2px">${d.name}</div>
+        <div style="font-size:9px;color:var(--fg2)">${d.type}</div>
+      </div>
+      <span style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:${dc};margin-left:8px;flex-shrink:0">${d.pct}%</span>
+    </div>`;
+  }).join('');
+  document.getElementById('injuryList').style.display = 'none';
+  document.getElementById('zoneDetailPanel').style.display = 'block';
+}
+
+function closeZoneDetail() {
+  document.getElementById('zoneDetailPanel').style.display = 'none';
+  document.getElementById('injuryList').style.display = '';
+}
 
 // ── ACTION SECTION ────────────────────────────────────────────
 function showActionSection(s) {
@@ -1513,13 +1570,13 @@ function showActionSection(s) {
     document.getElementById('actionSection').style.display = 'block';
     document.getElementById('actionRcp').style.display = 'block';
     document.getElementById('actionSoins').style.display = 'none';
-  } else if (scanDone && enoughExams) {
-    // Conscient + scan + au moins 2 constantes → premiers soins
+  } else if (scanDone && (critStabilized || enoughExams)) {
+    // Post-RCP OU conscient + scan + 2 constantes → premiers soins
     document.getElementById('actionSection').style.display = 'block';
     document.getElementById('actionRcp').style.display = 'none';
     document.getElementById('actionSoins').style.display = 'block';
   } else if (scanDone) {
-    // Conscient + scan mais constantes insuffisantes → attendre
+    // Conscient + scan mais constantes insuffisantes
     document.getElementById('actionSection').style.display = 'none';
   } else {
     document.getElementById('actionSection').style.display = 'none';
@@ -1584,9 +1641,9 @@ function rcpPress() {
 function endRCP() {
   stopRCPBeat();
   document.getElementById('view-rcp').classList.remove('active');
-  // Toujours retour au diagnostic — les constantes sont requises avant premiers soins
   document.getElementById('view-body').classList.add('active');
   checkAllExams();
+  if (currentScenario) showActionSection(currentScenario);
 }
 
 // ── PREMIERS SOINS ────────────────────────────────────────────
